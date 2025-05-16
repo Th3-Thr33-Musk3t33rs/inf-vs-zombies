@@ -31,6 +31,8 @@
 #include <time.h>
 #define BASE_WIDTH 1280.0f
 #define BASE_HEIGHT 720.0f
+#define ROWS 5
+#define COLUMNS 9
 
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {
 	float baseWidth = 1280.0f;
@@ -73,14 +75,14 @@ int main(void)
 	buttonTile = LoadTexture("buttontilemetallic.png");
 	frame = LoadTexture("frame2.png");
 	pointsIcon = LoadTexture("Points.png");
-	const char* nomes[8] = {
+	const char* nomes[5] = {
 		"chimpanzini", "tralalero", "sahur", "lirili",
 		"bombardini", "trippitroppa", "capuccino", "patapim"
 	};
 
 	char path[100];
 	for(int t = 0; t < 8; t++) {
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 5; i++) {
 			sprintf(path, "Characters/%s%d.png", nomes[i], t);
 			CharacterTextures[i][t] = LoadTexture(path);
 		}
@@ -90,24 +92,20 @@ int main(void)
 	CharacterFrames[2] = LoadTexture("Characters/sahurframe.png");
 	CharacterFrames[3] = LoadTexture("Characters/liriliframe.png");
 	CharacterFrames[4] = LoadTexture("Characters/bombardiniframe.png");
-	CharacterFrames[5] = LoadTexture("Characters/trippitroppaframe.png");
-	CharacterFrames[6] = LoadTexture("Characters/capuccinoframe.png");
-	CharacterFrames[7] = LoadTexture("Characters/patapimframe.png");
+
 
 	Projectile = LoadTexture("Characters/projectile.png");
 	Bomb = LoadTexture("Characters/bomb.png");
 
 
 
-	int Tiles[7][9], Frame[8], CharacterCost[8];
+	int Tiles[ROWS][COLUMNS], Frame[5], CharacterCost[5];
 	CharacterCost[0] = 50;
 	CharacterCost[1] = 100;
 	CharacterCost[2] = 150;
 	CharacterCost[3] = 50;
 	CharacterCost[4] = 25;
-	CharacterCost[5] = 50;
-	CharacterCost[6] = 50;
-	CharacterCost[7] = 50;
+
 	int MousePick = 1, Points = 150, Damage = 10, CharacterHP = 50,
 	    EnemieHP = 110;
 	char PointsT[10], CostChar[10], RandomT[10];
@@ -152,14 +150,14 @@ int main(void)
 		bool ready;
 		bool exists;
 	} Bombardini;
-	Chimpanzini chimpanzini[7][9] = { 0, 0, 0, false, false };
-	Tralalero tralalero[7][9] = { 0, 0, 0, 0, 0, false, false, false };
-	Sahur sahur[7][9] = { 0, 0, false, 0,false, false };
-	Lirili lirili[7][9] = { 0, 0, false,};
-	Bombardini bombardini[7][9] = { 0, 0, 0, 0, 0, false, false, false};
+	Chimpanzini chimpanzini[ROWS][COLUMNS] = { 0, 0, 0, false, false };
+	Tralalero tralalero[ROWS][COLUMNS] = { 0, 0, 0, 0, 0, false, false, false };
+	Sahur sahur[ROWS][COLUMNS] = { 0, 0, false, 0,false, false };
+	Lirili lirili[ROWS][COLUMNS] = { 0, 0, false,};
+	Bombardini bombardini[ROWS][COLUMNS] = { 0, 0, 0, 0, 0, false, false, false};
 
 	int FrameCounterPisc = 0, pisc = 0,FrameCounterIdle = 0;
-	bool PointsBag = false, Randomize = true, piscBool = true;
+	bool PointsBag = false, Randomize = true, piscBool = true, titleScreen = true, gameOver = false;
 	for(int r = 0; r < 7; r++)
 	{
 		for(int c = 0; c < 9; c++)
@@ -181,10 +179,14 @@ int main(void)
 		Frame[f-16] = f;
 
 	}
-
+int baseFontSize = 40;
+		int fontSize = (int)(baseFontSize * ((float)screenHeight / 720.0f));
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
+        Vector2 mouse = GetMousePosition(), Origin = { 0, 0 };
+   
+        
 		FrameCounterIdle++;
 		if (FrameCounterIdle == 3600) {
 			FrameCounterIdle = 0;
@@ -215,20 +217,38 @@ int main(void)
 		// Update
 		//----------------------------------------------------------------------------------
 		// TODO: Update your variables here
+		// TODO: Update your variables here
 		//----------------------------------------------------------------------------------
 
 		// Draw
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
-		Vector2 mouse = GetMousePosition(), Origin = { 0, 0 };
+        ClearBackground(RAYWHITE);
+        if(!gameOver){
+		 if(titleScreen){
+          Rectangle playDest = ScaleRectTo720p( screenWidth/2.5, screenHeight/2, fontSize*5, fontSize, screenWidth, screenHeight);
+		DrawText("Todos vs. Jacques", screenWidth/3, screenHeight/3, fontSize, BLACK);
+	DrawText("Play Game", screenWidth/2.5, screenHeight/2, fontSize, BLACK);
+
+		if (CheckCollisionPointRec(mouse, playDest))
+		{
+
+
+			DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
+			SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+			if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                titleScreen = false;
+                
+            }
+    }
+    }else{
 		int offsetX = 10;
 		int offsetY = 10;
 		Vector2 textPoints = ScaleTo720p(110, 50, screenWidth, screenHeight);
 		float spacing = 10;
 		float projectileSpeed = 400.0f;
 		float bombSpeed = 1200.0f;
-		int baseFontSize = 40;
-		int fontSize = (int)(baseFontSize * ((float)screenHeight / 720.0f));
+		
 
 		sprintf(PointsT, "%d", Points);
 
@@ -269,8 +289,8 @@ int main(void)
 		}
 
 		DrawTexturePro(pointsIcon, pointsCountSource, pointsCountDest, Origin, 0.0f, WHITE);
-		ClearBackground(RAYWHITE);
-		for (int f = 0; f < 8; f++) {
+		
+		for (int f = 0; f < 5; f++) {
 			Vector2 textValue = ScaleTo720p(310 + (f * 77), 117, screenWidth, screenHeight);
 
 			Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
@@ -302,11 +322,11 @@ int main(void)
 		}
 
 
-		for (int r = 0; r < 7; r++)
+		for (int r = 0; r < ROWS; r++)
 		{
-			for (int c = 0; c < 9; c++)
+			for (int c = 0; c < COLUMNS; c++)
 			{
-				Rectangle tileDest = ScaleRectTo720p(60 + (c * 96), 160 + (r * 78), 96, 78, screenWidth, screenHeight);
+				Rectangle tileDest = ScaleRectTo720p(60 + (c * 96), 220 + (r * 78), 96, 78, screenWidth, screenHeight);
 				Rectangle tileSource = { 0, 0, buttonTile.width, buttonTile.height };
 
 				if(chimpanzini[r][c].hp <= 0 && chimpanzini[r][c].exists == true) {
@@ -414,29 +434,29 @@ int main(void)
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					break;
 				case 16:
-					Rectangle chimpanziniDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 323/5, 543/5, screenWidth, screenHeight);
+					Rectangle chimpanziniDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 323/5, 543/5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[0][chimpanzini[r][c].idle], chimpanziniSource, chimpanziniDest, Origin, 0.0f, WHITE);
 					break;
 				case 17:
-					Rectangle tralaleroDest = ScaleRectTo720p(80 + (c * 96)-20, 160 + (r * 78), 186/2, 144/2, screenWidth, screenHeight);
+					Rectangle tralaleroDest = ScaleRectTo720p(80 + (c * 96)-20, 220 + (r * 78), 186/2, 144/2, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[1][tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
 					break;
 				case 18:
-					Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
+					Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[2][sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
 					break;
 
 				case 19:
-					Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
+					Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[3][lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
 					break;
 
 				case 20:
-					Rectangle bombardiniDest = ScaleRectTo720p(80 + (c * 96)-2, 160 + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
+					Rectangle bombardiniDest = ScaleRectTo720p(80 + (c * 96)-2, 220 + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[4][bombardini[r][c].idle], bombardiniSource, bombardiniDest, Origin, 0.0f, WHITE);
 					break;
@@ -479,7 +499,7 @@ int main(void)
 									tralalero[r][c].idle = 0;
 									tralalero[r][c].loop = 0;
 									tralalero[r][c].projecX = 80 + (c * 96)+35;
-									tralalero[r][c].projecY = 160 + (r * 78);
+									tralalero[r][c].projecY = 220 + (r * 78);
 									tralalero[r][c].projecB = false;
 									tralalero[r][c].attacking = false;
 									tralalero[r][c].exists = true;
@@ -554,9 +574,9 @@ int main(void)
 
 		}
 
-		for (int r = 0; r < 7; r++)
+		for (int r = 0; r < ROWS; r++)
 		{
-			for (int c = 0; c < 9; c++)
+			for (int c = 0; c < COLUMNS; c++)
 			{
 				if (tralalero[r][c].projecB == true)
 				{
@@ -639,7 +659,8 @@ int main(void)
 
 
 
-
+        }
+        }
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
