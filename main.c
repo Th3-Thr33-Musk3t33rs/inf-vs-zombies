@@ -35,8 +35,8 @@
 #define COLUMNS 9
 
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {
-	float baseWidth = 1280.0f;
-	float baseHeight = 720.0f;
+	float baseWidth = BASE_WIDTH;
+	float baseHeight = BASE_HEIGHT;
 	return (Vector2) {
 		x * ((float)screenWidth / baseWidth), y * ((float)screenHeight / baseHeight)
 	};
@@ -63,7 +63,7 @@ int main(void)
 	const int screenHeight = 720;
 	float scaleX = (float)screenWidth / BASE_WIDTH;
 	float scaleY = (float)screenHeight / BASE_HEIGHT;
-
+    
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
@@ -77,9 +77,13 @@ int main(void)
 	pointsIcon = LoadTexture("Points.png");
 	const char* nomes[5] = {
 		"chimpanzini", "tralalero", "sahur", "lirili",
-		"bombardini", "trippitroppa", "capuccino", "patapim"
+		"bombardini"
 	};
-
+    
+    
+    int sellPosX = (int)(750 * screenWidth / 1280.0f);
+    int sellPosY = (int)(40 * screenHeight / 720.0f);
+   
 	char path[100];
 	for(int t = 0; t < 8; t++) {
 		for (int i = 0; i < 5; i++) {
@@ -185,7 +189,10 @@ int baseFontSize = 40;
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
         Vector2 mouse = GetMousePosition(), Origin = { 0, 0 };
-   
+         
+    int virtualMouseX = (int)(mouse.x * 1280.0f / screenWidth);
+    int virtualMouseY = (int)(mouse.y * 720.0f / screenHeight);
+
         
 		FrameCounterIdle++;
 		if (FrameCounterIdle == 3600) {
@@ -226,7 +233,7 @@ int baseFontSize = 40;
         ClearBackground(RAYWHITE);
         if(!gameOver){
 		 if(titleScreen){
-          Rectangle playDest = ScaleRectTo720p( screenWidth/2.5, screenHeight/2, fontSize*5, fontSize, screenWidth, screenHeight);
+          Rectangle playDest = ScaleRectTo720p( (int)1280/2.5-5, (int)720/2, 210, fontSize, screenWidth, screenHeight);
 		DrawText("Todos vs. Jacques", screenWidth/3, screenHeight/3, fontSize, BLACK);
 	DrawText("Play Game", screenWidth/2.5, screenHeight/2, fontSize, BLACK);
 
@@ -265,8 +272,12 @@ int baseFontSize = 40;
 		};
 
 		DrawText(PointsT, (int)textPoints.x, (int)textPoints.y, fontSize, BLACK);
-		Rectangle sellDest = ScaleRectTo720p((int)textPoints.x*9-5, (int)textPoints.y-5, 110, 50, screenWidth, screenHeight);
-		DrawText("SELL", (int)textPoints.x*9, (int)textPoints.y, fontSize, BLACK);
+        
+     
+		Rectangle sellDest = ScaleRectTo720p(750-5, 40, 110, 50, screenWidth, screenHeight);
+		
+        
+        DrawText("SELL", sellPosX, sellPosY, fontSize, BLACK);
 
 		if (CheckCollisionPointRec(mouse, sellDest))
 		{
@@ -597,8 +608,8 @@ int baseFontSize = 40;
 			Color Transparency = { 255, 255, 255, 128 };
 
 			Rectangle texMSource = { 0, 0, CharacterFrames[2].width, CharacterFrames[2].height / 1.5f };
-			Rectangle texMDest = ScaleRectTo720p(mouse.x + offsetX, mouse.y + offsetY, 78, 96, screenWidth, screenHeight);
 
+            Rectangle texMDest = ScaleRectTo720p( virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, screenWidth, screenHeight);
 			DrawTexturePro(CharacterFrames[MousePick-16], texMSource, texMDest, Origin, 0.0f, Transparency);
 		}
 		if(FrameCounterPisc%18==0) {
