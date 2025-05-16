@@ -75,7 +75,7 @@ int main(void)
 	pointsIcon = LoadTexture("Points.png");
 	const char* nomes[8] = {
 		"chimpanzini", "tralalero", "sahur", "lirili",
-		"bombombini", "trippitroppa", "capuccino", "patapim"
+		"bombardini", "trippitroppa", "capuccino", "patapim"
 	};
 
 	char path[100];
@@ -89,7 +89,7 @@ int main(void)
 	CharacterFrames[1] = LoadTexture("Characters/tralaleroframe.png");
 	CharacterFrames[2] = LoadTexture("Characters/sahurframe.png");
 	CharacterFrames[3] = LoadTexture("Characters/liriliframe.png");
-	CharacterFrames[4] = LoadTexture("Characters/bombombiniframe.png");
+	CharacterFrames[4] = LoadTexture("Characters/bombardiniframe.png");
 	CharacterFrames[5] = LoadTexture("Characters/trippitroppaframe.png");
 	CharacterFrames[6] = LoadTexture("Characters/capuccinoframe.png");
 	CharacterFrames[7] = LoadTexture("Characters/patapimframe.png");
