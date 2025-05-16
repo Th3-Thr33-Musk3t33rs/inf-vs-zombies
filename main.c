@@ -68,7 +68,7 @@ int main(void)
 
 	//--------------------------------------------------------------------------------------
 
-	Texture2D metallicTile, buttonTile, frame, CharacterTextures[8][8], CharacterFrames[8], pointsIcon, Projectile;
+	Texture2D metallicTile, buttonTile, frame, CharacterTextures[8][8], CharacterFrames[8], pointsIcon, Projectile, Bomb;
 	metallicTile = LoadTexture("metallictile.png");
 	buttonTile = LoadTexture("buttontilemetallic.png");
 	frame = LoadTexture("frame2.png");
@@ -95,6 +95,7 @@ int main(void)
 	CharacterFrames[7] = LoadTexture("Characters/patapimframe.png");
 
     Projectile = LoadTexture("Characters/projectile.png");
+    Bomb = LoadTexture("Characters/bomb.png");
 
 
 
@@ -103,7 +104,7 @@ int main(void)
 	CharacterCost[1] = 100;
 	CharacterCost[2] = 150;
 	CharacterCost[3] = 50;
-	CharacterCost[4] = 50;
+	CharacterCost[4] = 25;
 	CharacterCost[5] = 50;
 	CharacterCost[6] = 50;
 	CharacterCost[7] = 50;
@@ -141,10 +142,21 @@ int main(void)
         int idle;
 		bool exists;
 	} Lirili;
+    typedef struct Bombardini {
+        int hp;
+        int idle;
+        int loop;
+        int bombX;
+        float bombY;
+        bool bombB;
+        bool ready;
+        bool exists;
+} Bombardini;
 	Chimpanzini chimpanzini[7][9] = { 0, 0, 0, false, false };
 	Tralalero tralalero[7][9] = { 0, 0, 0, 0, 0, false, false, false };
 	Sahur sahur[7][9] = { 0, 0, false, 0,false, false };
     Lirili lirili[7][9] = { 0, 0, false,};
+    Bombardini bombardini[7][9] = { 0, 0, 0, 0, 0, false, false, false};
 
 	int FrameCounterPisc = 0, pisc = 0,FrameCounterIdle = 0;
 	bool PointsBag = false, Randomize = true, piscBool = true;
@@ -197,6 +209,7 @@ int main(void)
 		Rectangle tralaleroSource = { 13, 57, 186, 144 };
         Rectangle projectileSource = { 5, 5, 71,29 };
         Rectangle liriliSource = { 35, 19, 190, 225 };
+        Rectangle bombardiniSource = { 200, 205, 620, 610 };
        
 		Rectangle pointsCountSource = { 275, 26, 179, 179 };
 		// Update
@@ -213,6 +226,7 @@ int main(void)
 		Vector2 textPoints = ScaleTo720p(110, 50, screenWidth, screenHeight);
 		float spacing = 10;
         float projectileSpeed = 400.0f;
+        float bombSpeed = 1200.0f;
 		int baseFontSize = 40;
 		int fontSize = (int)(baseFontSize * ((float)screenHeight / 720.0f));
 
@@ -315,11 +329,27 @@ int main(void)
                     Tiles[r][c] = 1;
                     
                 }
+                if(bombardini[r][c].hp <= 0 && bombardini[r][c].exists == true){
+                    bombardini[r][c].exists = false;
+                    Tiles[r][c] = 1;
+                    
+                }
 
 
 
-				if (FrameCounterIdle%8 == 0  && chimpanzini[r][c].exists == true) {
+				if (FrameCounterIdle%8 == 0){
+                     if(chimpanzini[r][c].exists == true){
 					chimpanzini[r][c].idle++;
+                     }
+                     if(tralalero[r][c].exists == true){
+					tralalero[r][c].idle++;
+                     }
+                     if(sahur[r][c].exists == true){
+					sahur[r][c].idle++;
+                     }
+                     if(bombardini[r][c].exists == true && bombardini[r][c].ready == false){
+					bombardini[r][c].idle++;
+                     }
 				}
 				if(chimpanzini[r][c].idle == 3  && chimpanzini[r][c].exists == true && chimpanzini[r][c].shining == false) {
 					chimpanzini[r][c].idle = 0;
@@ -332,9 +362,7 @@ int main(void)
 					chimpanzini[r][c].idle = 4;
                      chimpanzini[r][c].loop = 0;
 				}
-                if (FrameCounterIdle%8 == 0  && tralalero[r][c].exists == true) {
-					tralalero[r][c].idle++;
-				}
+              
 				if(tralalero[r][c].idle == 3  && tralalero[r][c].exists == true && tralalero[r][c].attacking == false) {
 					tralalero[r][c].idle = 0;
                     tralalero[r][c].loop++;
@@ -350,9 +378,7 @@ int main(void)
                   tralalero[r][c].idle = 4;
                   tralalero[r][c].loop = 0;
                 }
-                if (FrameCounterIdle%8 == 0  && sahur[r][c].exists == true) {
-					sahur[r][c].idle++;
-				}
+               
 				if(sahur[r][c].idle == 3  && sahur[r][c].exists == true) {
 					sahur[r][c].idle = 0;
 				}
@@ -365,6 +391,19 @@ int main(void)
                  if(lirili[r][c].hp < 50 && lirili[r][c].exists == true){
                     lirili[r][c].idle = 3;
                 }
+                
+                
+              
+				if(bombardini[r][c].idle == 3  && bombardini[r][c].exists == true && bombardini[r][c].ready == false) {
+					bombardini[r][c].idle = 0;
+                    bombardini[r][c].loop++;
+				}
+                
+                if(bombardini[r][c].loop == 300){
+                    bombardini[r][c].ready = true;
+                    bombardini[r][c].idle = 4;
+                }
+                
                  
 				switch (Tiles[r][c])
 				{
@@ -384,18 +423,24 @@ int main(void)
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[1][tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
 					break;
-				case 18: {
+				case 18: 
 					Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[2][sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
 					break;
-				}
-                	case 19: {
+				
+                case 19: 
 					Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[3][lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
 					break;
-				}
+                    
+                 case 20: 
+					Rectangle bombardiniDest = ScaleRectTo720p(80 + (c * 96)-2, 160 + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
+					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
+					DrawTexturePro(CharacterTextures[4][bombardini[r][c].idle], bombardiniSource, bombardiniDest, Origin, 0.0f, WHITE);
+					break;
+				
 				default:
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					break;
@@ -415,12 +460,12 @@ int main(void)
                             	chimpanzini[r][c].idle = 0;
                         }
 						if ( Tiles[r][c] == 1) {
-							if(Points >= CharacterCost[MousePick-16])
+							if(MousePick >= 16 && MousePick <= 23 && Points >= CharacterCost[MousePick - 16])
 							{
 
-								Tiles[r][c] = MousePick;
+								
 								switch(MousePick) {
-									{
+									
 
 									case 16:
 										chimpanzini[r][c].hp = 20;
@@ -447,16 +492,28 @@ int main(void)
                                         sahur[r][c].attacking = false;
 										sahur[r][c].exists = true;
 										break;
-									}
+									
                                     case 19:
 										lirili[r][c].hp = 150;
                                         lirili[r][c].idle = 0;
 										lirili[r][c].exists = true;
 										break;
+                                    case 20:
+										bombardini[r][c].hp = 10;
+                                        bombardini[r][c].idle = 0;
+                                        bombardini[r][c].loop = 0;
+                                        bombardini[r][c].bombX = 0;
+                                        bombardini[r][c].bombY = 0;
+                                        bombardini[r][c].bombB = false;
+                                        bombardini[r][c].ready = false;
+										bombardini[r][c].exists = true;
+								        break;
 									}
+                                    
 								
 
-								Points -= CharacterCost[MousePick-16];
+								Tiles[r][c] = MousePick;
+		Points -= CharacterCost[MousePick - 16];
 
 								MousePick = 1;
                         }
@@ -464,7 +521,7 @@ int main(void)
 							{
                                 
                                 	switch(Tiles[r][c]) {
-									{
+									
 
 									case 16:
 										chimpanzini[r][c].exists = false;
@@ -475,11 +532,14 @@ int main(void)
 									case 18:
 										sahur[r][c].exists = false;
 										break;
-									}
+									
                                     case 19:  
 										lirili[r][c].exists = false;
 										break;
-									}
+									case 20:  
+									    bombardini[r][c].exists = false;
+										break;
+                                    }
 								Points += CharacterCost[Tiles[r][c]-16]/2;
 								Tiles[r][c] = 1;
 
