@@ -94,8 +94,8 @@ int main(void)
 	CharacterFrames[6] = LoadTexture("Characters/capuccinoframe.png");
 	CharacterFrames[7] = LoadTexture("Characters/patapimframe.png");
 
-    Projectile = LoadTexture("Characters/projectile.png");
-    Bomb = LoadTexture("Characters/bomb.png");
+	Projectile = LoadTexture("Characters/projectile.png");
+	Bomb = LoadTexture("Characters/bomb.png");
 
 
 
@@ -114,49 +114,49 @@ int main(void)
 
 	typedef struct Chimpanzini {
 		int hp;
-        int idle;
+		int idle;
 		int loop;
 		bool shining;
 		bool exists;
 	} Chimpanzini;
 	typedef struct Tralalero {
 		int hp;
-        int idle;
+		int idle;
 		int loop;
-        float projecX;
-        int projecY;
-        bool projecB;
-        bool attacking;
+		float projecX;
+		int projecY;
+		bool projecB;
+		bool attacking;
 		bool exists;
 	} Tralalero;
 	typedef struct Sahur {
 		int hp;
-        int idle;
+		int idle;
 		int cooldown;
-        bool attacking;
+		bool attacking;
 		bool wait;
 		bool exists;
 	} Sahur;
-    typedef struct Lirili {
+	typedef struct Lirili {
 		int hp;
-        int idle;
+		int idle;
 		bool exists;
 	} Lirili;
-    typedef struct Bombardini {
-        int hp;
-        int idle;
-        int loop;
-        int bombX;
-        float bombY;
-        bool bombB;
-        bool ready;
-        bool exists;
-} Bombardini;
+	typedef struct Bombardini {
+		int hp;
+		int idle;
+		int loop;
+		int bombX;
+		float bombY;
+		bool bombB;
+		bool ready;
+		bool exists;
+	} Bombardini;
 	Chimpanzini chimpanzini[7][9] = { 0, 0, 0, false, false };
 	Tralalero tralalero[7][9] = { 0, 0, 0, 0, 0, false, false, false };
 	Sahur sahur[7][9] = { 0, 0, false, 0,false, false };
-    Lirili lirili[7][9] = { 0, 0, false,};
-    Bombardini bombardini[7][9] = { 0, 0, 0, 0, 0, false, false, false};
+	Lirili lirili[7][9] = { 0, 0, false,};
+	Bombardini bombardini[7][9] = { 0, 0, 0, 0, 0, false, false, false};
 
 	int FrameCounterPisc = 0, pisc = 0,FrameCounterIdle = 0;
 	bool PointsBag = false, Randomize = true, piscBool = true;
@@ -172,16 +172,16 @@ int main(void)
 
 				Tiles[r][c] = 1;
 			}
-		
-		
-          
+
+
+
 		}
 	}
 	for(int f = 16; f < 24; f++) {
 		Frame[f-16] = f;
 
 	}
-	
+
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
@@ -201,16 +201,16 @@ int main(void)
 			RandomNumY = rand() % (screenHeight-50);
 			RandomNumX = rand() % (screenWidth-50);
 		}
-        
-        
+
+
 
 		Rectangle sahurSource = { 8, 20, 122, 244 };
 		Rectangle chimpanziniSource = { 32, 72, 323, 543 };
 		Rectangle tralaleroSource = { 13, 57, 186, 144 };
-        Rectangle projectileSource = { 5, 5, 71,29 };
-        Rectangle liriliSource = { 35, 19, 190, 225 };
-        Rectangle bombardiniSource = { 200, 205, 620, 610 };
-       
+		Rectangle projectileSource = { 5, 5, 71,29 };
+		Rectangle liriliSource = { 35, 19, 190, 225 };
+		Rectangle bombardiniSource = { 200, 205, 620, 610 };
+
 		Rectangle pointsCountSource = { 275, 26, 179, 179 };
 		// Update
 		//----------------------------------------------------------------------------------
@@ -225,8 +225,8 @@ int main(void)
 		int offsetY = 10;
 		Vector2 textPoints = ScaleTo720p(110, 50, screenWidth, screenHeight);
 		float spacing = 10;
-        float projectileSpeed = 400.0f;
-        float bombSpeed = 1200.0f;
+		float projectileSpeed = 400.0f;
+		float bombSpeed = 1200.0f;
 		int baseFontSize = 40;
 		int fontSize = (int)(baseFontSize * ((float)screenHeight / 720.0f));
 
@@ -308,103 +308,103 @@ int main(void)
 			{
 				Rectangle tileDest = ScaleRectTo720p(60 + (c * 96), 160 + (r * 78), 96, 78, screenWidth, screenHeight);
 				Rectangle tileSource = { 0, 0, buttonTile.width, buttonTile.height };
-                
-                if(chimpanzini[r][c].hp <= 0 && chimpanzini[r][c].exists == true){
-                    chimpanzini[r][c].exists = false;
-                    Tiles[r][c] = 1;
-                    
-                }
-                  if(tralalero[r][c].hp <= 0 && tralalero[r][c].exists == true){
-                    tralalero[r][c].exists = false;
-                    Tiles[r][c] = 1;
-                    
-                }
-                  if(sahur[r][c].hp <= 0 && sahur[r][c].exists == true){
-                    sahur[r][c].exists = false;
-                    Tiles[r][c] = 1;
-                    
-                }
-                  if(lirili[r][c].hp <= 0 && lirili[r][c].exists == true){
-                    lirili[r][c].exists = false;
-                    Tiles[r][c] = 1;
-                    
-                }
-                if(bombardini[r][c].hp <= 0 && bombardini[r][c].exists == true){
-                    bombardini[r][c].exists = false;
-                    Tiles[r][c] = 1;
-                    
-                }
+
+				if(chimpanzini[r][c].hp <= 0 && chimpanzini[r][c].exists == true) {
+					chimpanzini[r][c].exists = false;
+					Tiles[r][c] = 1;
+
+				}
+				if(tralalero[r][c].hp <= 0 && tralalero[r][c].exists == true) {
+					tralalero[r][c].exists = false;
+					Tiles[r][c] = 1;
+
+				}
+				if(sahur[r][c].hp <= 0 && sahur[r][c].exists == true) {
+					sahur[r][c].exists = false;
+					Tiles[r][c] = 1;
+
+				}
+				if(lirili[r][c].hp <= 0 && lirili[r][c].exists == true) {
+					lirili[r][c].exists = false;
+					Tiles[r][c] = 1;
+
+				}
+				if(bombardini[r][c].hp <= 0 && bombardini[r][c].exists == true) {
+					bombardini[r][c].exists = false;
+					Tiles[r][c] = 1;
+
+				}
 
 
 
-				if (FrameCounterIdle%8 == 0){
-                     if(chimpanzini[r][c].exists == true){
-					chimpanzini[r][c].idle++;
-                     }
-                     if(tralalero[r][c].exists == true){
-					tralalero[r][c].idle++;
-                     }
-                     if(sahur[r][c].exists == true){
-					sahur[r][c].idle++;
-                     }
-                     if(bombardini[r][c].exists == true && bombardini[r][c].ready == false){
-					bombardini[r][c].idle++;
-                     }
+				if (FrameCounterIdle%8 == 0) {
+					if(chimpanzini[r][c].exists == true) {
+						chimpanzini[r][c].idle++;
+					}
+					if(tralalero[r][c].exists == true) {
+						tralalero[r][c].idle++;
+					}
+					if(sahur[r][c].exists == true) {
+						sahur[r][c].idle++;
+					}
+					if(bombardini[r][c].exists == true && bombardini[r][c].ready == false) {
+						bombardini[r][c].idle++;
+					}
 				}
 				if(chimpanzini[r][c].idle == 3  && chimpanzini[r][c].exists == true && chimpanzini[r][c].shining == false) {
 					chimpanzini[r][c].idle = 0;
-                    chimpanzini[r][c].loop++;
+					chimpanzini[r][c].loop++;
 				}
-                if(chimpanzini[r][c].loop == 100){
-                    chimpanzini[r][c].shining = true;
-                }
-                if(chimpanzini[r][c].idle == 7  && chimpanzini[r][c].exists == true && chimpanzini[r][c].shining == true) {
+				if(chimpanzini[r][c].loop == 100) {
+					chimpanzini[r][c].shining = true;
+				}
+				if(chimpanzini[r][c].idle == 7  && chimpanzini[r][c].exists == true && chimpanzini[r][c].shining == true) {
 					chimpanzini[r][c].idle = 4;
-                     chimpanzini[r][c].loop = 0;
+					chimpanzini[r][c].loop = 0;
 				}
-              
+
 				if(tralalero[r][c].idle == 3  && tralalero[r][c].exists == true && tralalero[r][c].attacking == false) {
 					tralalero[r][c].idle = 0;
-                    tralalero[r][c].loop++;
+					tralalero[r][c].loop++;
 				}
-                if (tralalero[r][c].idle == 7 && tralalero[r][c].exists == true && tralalero[r][c].attacking == true){
-                     tralalero[r][c].attacking = false;
-                    tralalero[r][c].projecB = true;
-                    tralalero[r][c].idle = 0;
-                }
-               
-                if(tralalero[r][c].loop == 20 && tralalero[r][c].exists == true) {
-                  tralalero[r][c].attacking = true;
-                  tralalero[r][c].idle = 4;
-                  tralalero[r][c].loop = 0;
-                }
-               
+				if (tralalero[r][c].idle == 7 && tralalero[r][c].exists == true && tralalero[r][c].attacking == true) {
+					tralalero[r][c].attacking = false;
+					tralalero[r][c].projecB = true;
+					tralalero[r][c].idle = 0;
+				}
+
+				if(tralalero[r][c].loop == 20 && tralalero[r][c].exists == true) {
+					tralalero[r][c].attacking = true;
+					tralalero[r][c].idle = 4;
+					tralalero[r][c].loop = 0;
+				}
+
 				if(sahur[r][c].idle == 3  && sahur[r][c].exists == true) {
 					sahur[r][c].idle = 0;
 				}
-                if(lirili[r][c].hp < 100 && lirili[r][c].hp >= 75 && lirili[r][c].exists == true){
-                    lirili[r][c].idle = 1;
-                }
-                 if(lirili[r][c].hp < 75 && lirili[r][c].hp >= 50 && lirili[r][c].exists == true){
-                    lirili[r][c].idle = 2;
-                }
-                 if(lirili[r][c].hp < 50 && lirili[r][c].exists == true){
-                    lirili[r][c].idle = 3;
-                }
-                
-                
-              
+				if(lirili[r][c].hp < 100 && lirili[r][c].hp >= 75 && lirili[r][c].exists == true) {
+					lirili[r][c].idle = 1;
+				}
+				if(lirili[r][c].hp < 75 && lirili[r][c].hp >= 50 && lirili[r][c].exists == true) {
+					lirili[r][c].idle = 2;
+				}
+				if(lirili[r][c].hp < 50 && lirili[r][c].exists == true) {
+					lirili[r][c].idle = 3;
+				}
+
+
+
 				if(bombardini[r][c].idle == 3  && bombardini[r][c].exists == true && bombardini[r][c].ready == false) {
 					bombardini[r][c].idle = 0;
-                    bombardini[r][c].loop++;
+					bombardini[r][c].loop++;
 				}
-                
-                if(bombardini[r][c].loop == 300){
-                    bombardini[r][c].ready = true;
-                    bombardini[r][c].idle = 4;
-                }
-                
-                 
+
+				if(bombardini[r][c].loop == 300) {
+					bombardini[r][c].ready = true;
+					bombardini[r][c].idle = 4;
+				}
+
+
 				switch (Tiles[r][c])
 				{
 				case 0:
@@ -423,24 +423,24 @@ int main(void)
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[1][tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
 					break;
-				case 18: 
+				case 18:
 					Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[2][sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
 					break;
-				
-                case 19: 
+
+				case 19:
 					Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 160 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[3][lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
 					break;
-                    
-                 case 20: 
+
+				case 20:
 					Rectangle bombardiniDest = ScaleRectTo720p(80 + (c * 96)-2, 160 + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					DrawTexturePro(CharacterTextures[4][bombardini[r][c].idle], bombardiniSource, bombardiniDest, Origin, 0.0f, WHITE);
 					break;
-				
+
 				default:
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					break;
@@ -454,124 +454,124 @@ int main(void)
 					if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 					{
 
-                        if (Tiles[r][c] == 16 && chimpanzini[r][c].shining == true){
-                            chimpanzini[r][c].shining = false;
-                            Points += 25;
-                            	chimpanzini[r][c].idle = 0;
-                        }
+						if (Tiles[r][c] == 16 && chimpanzini[r][c].shining == true) {
+							chimpanzini[r][c].shining = false;
+							Points += 25;
+							chimpanzini[r][c].idle = 0;
+						}
 						if ( Tiles[r][c] == 1) {
 							if(MousePick >= 16 && MousePick <= 23 && Points >= CharacterCost[MousePick - 16])
 							{
 
-								
-								switch(MousePick) {
-									
 
-									case 16:
-										chimpanzini[r][c].hp = 20;
-                                        chimpanzini[r][c].idle = 0;
-										chimpanzini[r][c].loop = 0;
-										chimpanzini[r][c].shining = false;
-										chimpanzini[r][c].exists = true;
-										break;
-									case 17:
-										tralalero[r][c].hp = 50;
-                                        tralalero[r][c].idle = 0;
-										tralalero[r][c].loop = 0;
-                                        tralalero[r][c].projecX = 80 + (c * 96)+35;
-                                        tralalero[r][c].projecY = 160 + (r * 78);
-                                        tralalero[r][c].projecB = false;
-                                        tralalero[r][c].attacking = false;
-										tralalero[r][c].exists = true;
-										break;
-									case 18:
-										sahur[r][c].hp = 50;
-                                        sahur[r][c].idle = 0;
-										sahur[r][c].wait = false;
-										sahur[r][c].cooldown = 0;
-                                        sahur[r][c].attacking = false;
-										sahur[r][c].exists = true;
-										break;
-									
-                                    case 19:
-										lirili[r][c].hp = 150;
-                                        lirili[r][c].idle = 0;
-										lirili[r][c].exists = true;
-										break;
-                                    case 20:
-										bombardini[r][c].hp = 10;
-                                        bombardini[r][c].idle = 0;
-                                        bombardini[r][c].loop = 0;
-                                        bombardini[r][c].bombX = 0;
-                                        bombardini[r][c].bombY = 0;
-                                        bombardini[r][c].bombB = false;
-                                        bombardini[r][c].ready = false;
-										bombardini[r][c].exists = true;
-								        break;
-									}
-                                    
-								
+								switch(MousePick) {
+
+
+								case 16:
+									chimpanzini[r][c].hp = 20;
+									chimpanzini[r][c].idle = 0;
+									chimpanzini[r][c].loop = 0;
+									chimpanzini[r][c].shining = false;
+									chimpanzini[r][c].exists = true;
+									break;
+								case 17:
+									tralalero[r][c].hp = 50;
+									tralalero[r][c].idle = 0;
+									tralalero[r][c].loop = 0;
+									tralalero[r][c].projecX = 80 + (c * 96)+35;
+									tralalero[r][c].projecY = 160 + (r * 78);
+									tralalero[r][c].projecB = false;
+									tralalero[r][c].attacking = false;
+									tralalero[r][c].exists = true;
+									break;
+								case 18:
+									sahur[r][c].hp = 50;
+									sahur[r][c].idle = 0;
+									sahur[r][c].wait = false;
+									sahur[r][c].cooldown = 0;
+									sahur[r][c].attacking = false;
+									sahur[r][c].exists = true;
+									break;
+
+								case 19:
+									lirili[r][c].hp = 150;
+									lirili[r][c].idle = 0;
+									lirili[r][c].exists = true;
+									break;
+								case 20:
+									bombardini[r][c].hp = 10;
+									bombardini[r][c].idle = 0;
+									bombardini[r][c].loop = 0;
+									bombardini[r][c].bombX = 0;
+									bombardini[r][c].bombY = 0;
+									bombardini[r][c].bombB = false;
+									bombardini[r][c].ready = false;
+									bombardini[r][c].exists = true;
+									break;
+								}
+
+
 
 								Tiles[r][c] = MousePick;
-		Points -= CharacterCost[MousePick - 16];
+								Points -= CharacterCost[MousePick - 16];
 
 								MousePick = 1;
-                        }
-                        }else if(MousePick == 404)
-							{
-                                
-                                	switch(Tiles[r][c]) {
-									
-
-									case 16:
-										chimpanzini[r][c].exists = false;
-										break;
-									case 17:
-										tralalero[r][c].exists = false;
-										break;
-									case 18:
-										sahur[r][c].exists = false;
-										break;
-									
-                                    case 19:  
-										lirili[r][c].exists = false;
-										break;
-									case 20:  
-									    bombardini[r][c].exists = false;
-										break;
-                                    }
-								Points += CharacterCost[Tiles[r][c]-16]/2;
-								Tiles[r][c] = 1;
-
-
 							}
-						} 
+						} else if(MousePick == 404)
+						{
 
+							switch(Tiles[r][c]) {
+
+
+							case 16:
+								chimpanzini[r][c].exists = false;
+								break;
+							case 17:
+								tralalero[r][c].exists = false;
+								break;
+							case 18:
+								sahur[r][c].exists = false;
+								break;
+
+							case 19:
+								lirili[r][c].exists = false;
+								break;
+							case 20:
+								bombardini[r][c].exists = false;
+								break;
+							}
+							Points += CharacterCost[Tiles[r][c]-16]/2;
+							Tiles[r][c] = 1;
+
+
+						}
 					}
-                   
-                
-				}
-                
-			}
-		
-		for (int r = 0; r < 7; r++)
-{
-    for (int c = 0; c < 9; c++)
-    {
-        if (tralalero[r][c].projecB == true)
-        {
-            tralalero[r][c].projecX += projectileSpeed * GetFrameTime();
-            Rectangle projectileDest = ScaleRectTo720p((int)tralalero[r][c].projecX, tralalero[r][c].projecY + 20, 71, 29, screenWidth, screenHeight);
-            DrawTexturePro(Projectile, projectileSource, projectileDest, Origin, 0.0f, WHITE);
 
-            if (tralalero[r][c].projecX > screenWidth)
-            {
-                tralalero[r][c].projecX = 80 + (c * 96) + 35;
-                tralalero[r][c].projecB = false;
-            }
-        }
-    }
-}
+				}
+
+
+			}
+
+		}
+
+		for (int r = 0; r < 7; r++)
+		{
+			for (int c = 0; c < 9; c++)
+			{
+				if (tralalero[r][c].projecB == true)
+				{
+					tralalero[r][c].projecX += projectileSpeed * GetFrameTime();
+					Rectangle projectileDest = ScaleRectTo720p((int)tralalero[r][c].projecX, tralalero[r][c].projecY + 20, 71, 29, screenWidth, screenHeight);
+					DrawTexturePro(Projectile, projectileSource, projectileDest, Origin, 0.0f, WHITE);
+
+					if (tralalero[r][c].projecX > screenWidth)
+					{
+						tralalero[r][c].projecX = 80 + (c * 96) + 35;
+						tralalero[r][c].projecB = false;
+					}
+				}
+			}
+		}
 
 		if(MousePick > 15 && MousePick < 24) {
 			Color Transparency = { 255, 255, 255, 128 };
@@ -589,7 +589,7 @@ int main(void)
 		} else {
 			pisc = 0;
 		}
-		if(RandomNum == 0) {
+		if(RandomNum == 0 && !PointsBag) {
 
 			PointsBag = true;
 
@@ -603,7 +603,7 @@ int main(void)
 			Rectangle pointsBagDest = ScaleRectTo720p(RandomNumX,RandomNumY, 78 + pisc, 96 + pisc, screenWidth, screenHeight);
 			if(Randomize == true) {
 
-				FrameCounterPisc = (60*60)/2;
+				FrameCounterPisc = 3600/2;
 
 			}
 			Randomize = false;
@@ -620,11 +620,10 @@ int main(void)
 
 				if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 				{
-                     Points += 25;
-        PointsBag = false;  
-        FrameCounterPisc = 0;
-        RandomNum = 6;
-        Randomize = true;
+					Points += 25;
+					PointsBag = false;
+					FrameCounterPisc = -2;
+					Randomize = true;
 
 
 				}
