@@ -13,6 +13,3 @@ endif
 # Usage example: `make compile FILE=main.c OUTPUT=play`
 compile: $(FILE)
 	$(CC) -o $(OUTPUT) $^ $(CFLAGS) $(LDFLAGS)
-
-clean:
-	rm -f praticaray
