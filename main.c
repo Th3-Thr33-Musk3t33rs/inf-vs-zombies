@@ -34,15 +34,17 @@
 #define ROWS 5
 #define COLUMNS 9
 
-Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {
+// Função para manter o HUD igual independente da resolução
+Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {   
 	float baseWidth = BASE_WIDTH;
 	float baseHeight = BASE_HEIGHT;
 	return (Vector2) {
 		x * ((float)screenWidth / baseWidth), y * ((float)screenHeight / baseHeight)
 	};
 }
+// Função para manter o HUD igual independente da resolução (para Retângulos)
+Rectangle ScaleRectTo720p(float x, float y, float width, float height, int screenWidth, int screenHeight) {  
 
-Rectangle ScaleRectTo720p(float x, float y, float width, float height, int screenWidth, int screenHeight) {
 	Vector2 pos = ScaleTo720p(x, y, screenWidth, screenHeight);
 	Vector2 size = ScaleTo720p(width, height, screenWidth, screenHeight);
 	return (Rectangle) {
@@ -52,29 +54,25 @@ Rectangle ScaleRectTo720p(float x, float y, float width, float height, int scree
 
 
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
 int main(void)
 {
-	// Initialization
-	//--------------------------------------------------------------------------------------
+
 	const int screenWidth = 1280;
 	const int screenHeight = 720;
 	float scaleX = (float)screenWidth / BASE_WIDTH;
 	float scaleY = (float)screenHeight / BASE_HEIGHT;
     
-	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+	SetTargetFPS(60);              //Seta os Quadros por Segundo em 60
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
 	//--------------------------------------------------------------------------------------
 
 	Texture2D metallicTile, buttonTile, frame, CharacterTextures[8][8], CharacterFrames[8], pointsIcon, Projectile, Bomb;
-	metallicTile = LoadTexture("metallictile.png");
-	buttonTile = LoadTexture("buttontilemetallic.png");
-	frame = LoadTexture("frame2.png");
-	pointsIcon = LoadTexture("Points.png");
+	metallicTile = LoadTexture("metallictile.png"); //Textura das Tiles Padrão
+	buttonTile = LoadTexture("buttontilemetallic.png"); //Textura das Tiles de Botão
+	frame = LoadTexture("frame2.png"); //Textura do quadro seletor de personagem
+	pointsIcon = LoadTexture("Points.png");  //Ícone de moeda
 	const char* nomes[5] = {
 		"chimpanzini", "tralalero", "sahur", "lirili",
 		"bombardini"
@@ -84,6 +82,7 @@ int main(void)
     int sellPosX = (int)(750 * screenWidth / 1280.0f);
     int sellPosY = (int)(40 * screenHeight / 720.0f);
    
+    //Carrega todas as texturas dos personagens automaticamente
 	char path[100];
 	for(int t = 0; t < 8; t++) {
 		for (int i = 0; i < 5; i++) {
@@ -91,29 +90,33 @@ int main(void)
 			CharacterTextures[i][t] = LoadTexture(path);
 		}
 	}
+     //Texturas que ficam dentro do quadro seletor de personagem
 	CharacterFrames[0] = LoadTexture("Characters/chimpanziniframe.png");
 	CharacterFrames[1] = LoadTexture("Characters/tralaleroframe.png");
 	CharacterFrames[2] = LoadTexture("Characters/sahurframe.png");
 	CharacterFrames[3] = LoadTexture("Characters/liriliframe.png");
 	CharacterFrames[4] = LoadTexture("Characters/bombardiniframe.png");
 
-
+    //Textura do projétil do Tralalero
 	Projectile = LoadTexture("Characters/projectile.png");
+    //Textura da bomba do Bombardini
 	Bomb = LoadTexture("Characters/bomb.png");
 
 
-
+     //Array dos custos dos personagens
 	int Tiles[ROWS][COLUMNS], Frame[5], CharacterCost[5];
 	CharacterCost[0] = 50;
 	CharacterCost[1] = 100;
 	CharacterCost[2] = 150;
 	CharacterCost[3] = 50;
 	CharacterCost[4] = 25;
-
+     
+      //Inicialização de Variáveis
 	int MousePick = 1, Points = 150, Damage = 10, CharacterHP = 50,
 	    EnemieHP = 110;
 	char PointsT[10], CostChar[10], RandomT[10];
-
+    
+     //Struct dos personagens
 	typedef struct Chimpanzini {
 		int hp;
 		int idle;
@@ -154,14 +157,26 @@ int main(void)
 		bool ready;
 		bool exists;
 	} Bombardini;
-	Chimpanzini chimpanzini[ROWS][COLUMNS] = { 0, 0, 0, false, false };
-	Tralalero tralalero[ROWS][COLUMNS] = { 0, 0, 0, 0, 0, false, false, false };
-	Sahur sahur[ROWS][COLUMNS] = { 0, 0, false, 0,false, false };
-	Lirili lirili[ROWS][COLUMNS] = { 0, 0, false,};
-	Bombardini bombardini[ROWS][COLUMNS] = { 0, 0, 0, 0, 0, false, false, false};
-
+    
+    //Inicialização das Structs dos personagens
+    Chimpanzini chimpanzini[ROWS][COLUMNS] = {{{ 0, 0, 0, false, false }}};
+	Tralalero tralalero[ROWS][COLUMNS] = {{{ 0, 0, 0, 0, 0, false, false, false }}};
+	Sahur sahur[ROWS][COLUMNS] = {{{ 0, 0, false, 0,false, false }}};
+	Lirili lirili[ROWS][COLUMNS] = {{{ 0, 0, false,}}};
+	Bombardini bombardini[ROWS][COLUMNS] = {{{ 0, 0, 0, 0, 0, false, false, false}}};
+    
+    //FrameCounterPisc e pisc servem para a bolsa de dinheiro aparecer e sumir caso não clicada a tempo, e também para ela piscar
+    //FrameCounterIdle serve para rodar as animações dos personagens
 	int FrameCounterPisc = 0, pisc = 0,FrameCounterIdle = 0;
+    
+    //piscBool serve para a bolsa de dinheiro piscar
+    //Randomize faz a bolsa ficar parada no lugar quando ela aparecer
 	bool PointsBag = false, Randomize = true, piscBool = true, titleScreen = true, gameOver = false;
+    
+    //Velocidade do projétil do Tralalero e da bomba do Bombardini
+    float projectileSpeed = 400.0f, bombSpeed = 1200.0f;
+    
+    //Seta todas as Tiles como 1, exceto as da coluna 0, que possuem valor 0.
 	for(int r = 0; r < ROWS; r++)
 	{
 		for(int c = 0; c < COLUMNS; c++)
@@ -170,32 +185,34 @@ int main(void)
 			Tiles[r][0] = 0;
 		}
 	}
-	for(int f = 16; f < 24; f++) {
+    //Insere os códigos dos personagens no seletor
+	for(int f = 16; f < 21; f++) {
 		Frame[f-16] = f;
 
 	}
-int baseFontSize = 40;
+        int baseFontSize = 40;
 		int fontSize = (int)(baseFontSize * ((float)screenHeight / 720.0f));
-	// Main game loop
-	while (!WindowShouldClose())    // Detect window close button or ESC key
-	{
+
+	while (!WindowShouldClose())    
+	{   //Detecta a posição do mouse
         Vector2 mouse = GetMousePosition(), Origin = { 0, 0 };
-         
     int virtualMouseX = (int)(mouse.x * 1280.0f / screenWidth);
     int virtualMouseY = (int)(mouse.y * 720.0f / screenHeight);
 
-        
+        //Incremente FrameCounterIdle no loop principal
 		FrameCounterIdle++;
+        //Reseta FrameCounterIdle após 1 minuto
 		if (FrameCounterIdle == 3600) {
 			FrameCounterIdle = 0;
 		}
 
-
 		SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 		srand(time(NULL));
+        //Variaveis para fazer a bolsa aparecer em locais e momentos aleatórios
 		int RandomNumY;
 		int RandomNumX;
 		int RandomNum;
+        //Randomiza as varíaveis
 		if(Randomize == true) {
 			RandomNum = rand() % 20;
 			RandomNumY = rand() % (screenHeight-50);
@@ -203,27 +220,23 @@ int baseFontSize = 40;
 		}
 
 
-
+        //Pega as regiões certas das spritesheets
 		Rectangle sahurSource = { 8, 20, 122, 244 };
 		Rectangle chimpanziniSource = { 32, 72, 323, 543 };
 		Rectangle tralaleroSource = { 13, 57, 186, 144 };
 		Rectangle projectileSource = { 5, 5, 71,29 };
 		Rectangle liriliSource = { 35, 19, 190, 225 };
 		Rectangle bombardiniSource = { 200, 205, 620, 610 };
-
+       
 		Rectangle pointsCountSource = { 275, 26, 179, 179 };
-		// Update
-		//----------------------------------------------------------------------------------
-		// TODO: Update your variables here
-		// TODO: Update your variables here
-		//----------------------------------------------------------------------------------
-
-		// Draw
-		//----------------------------------------------------------------------------------
+	
 		BeginDrawing();
         ClearBackground(RAYWHITE);
+        //Encerra o Jogo e vai pra tela de fim de jogo
         if(!gameOver){
+         //Tela de Título antes do jogo começar
 		 if(titleScreen){
+             //Título do Jogo e Botão de Iniciar Jogo
           Rectangle playDest = ScaleRectTo720p( (int)1280/2.5-5, (int)720/2, 210, fontSize, screenWidth, screenHeight);
 		DrawText("Todos vs. Jacques", screenWidth/3, screenHeight/3, fontSize, BLACK);
 	DrawText("Play Game", screenWidth/2.5, screenHeight/2, fontSize, BLACK);
@@ -231,7 +244,7 @@ int baseFontSize = 40;
 		if (CheckCollisionPointRec(mouse, playDest))
 		{
 
-
+            
 			DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
 			SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
 			if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
@@ -240,13 +253,15 @@ int baseFontSize = 40;
             }
     }
     }else{
+        
+        //Variáveis para posicionar o personagem selecionado ao lado do mouse
 		int offsetX = 10;
 		int offsetY = 10;
+ 
+        
+        //Mostrador de Número de pontos, o "Dinheiro"
 		Vector2 textPoints = ScaleTo720p(110, 50, screenWidth, screenHeight);
 		float spacing = 10;
-		float projectileSpeed = 400.0f;
-		float bombSpeed = 1200.0f;
-		
 
 		sprintf(PointsT, "%d", Points);
 
@@ -261,13 +276,15 @@ int baseFontSize = 40;
 			35 * screenWidth / 1280.0f,
 			35 * screenHeight / 720.0f
 		};
-
+        //Texto do Número de pontos, o "Dinheiro"
 		DrawText(PointsT, (int)textPoints.x, (int)textPoints.y, fontSize, BLACK);
         
-     
-		Rectangle sellDest = ScaleRectTo720p(750-5, 40, 110, 50, screenWidth, screenHeight);
-		
+        //Ícone de Moeda
+        DrawTexturePro(pointsIcon, pointsCountSource, pointsCountDest, Origin, 0.0f, WHITE);
+
         
+        //Botão/Texto de vender
+		Rectangle sellDest = ScaleRectTo720p(750-5, 40, 110, 50, screenWidth, screenHeight);
         DrawText("SELL", sellPosX, sellPosY, fontSize, BLACK);
 
 		if (CheckCollisionPointRec(mouse, sellDest))
@@ -285,30 +302,30 @@ int baseFontSize = 40;
 				}
 			}
 		}
+        //Se Clicado, define como selecionado o valor 404 (o código de venda) 
 		if(MousePick == 404) {
 			DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
 
 		}
-
-		DrawTexturePro(pointsIcon, pointsCountSource, pointsCountDest, Origin, 0.0f, WHITE);
-		
+       
+		//For para inserir personagens no quadro de seleção
 		for (int f = 0; f < 5; f++) {
 			Vector2 textValue = ScaleTo720p(310 + (f * 77), 117, screenWidth, screenHeight);
 
 			Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
 			Rectangle frameSource = { 0, 0, frame.width, frame.height };
 
-			Rectangle charFrameDest = ScaleRectTo720p(300 + (f * 77), 28, 78, 82.75f, screenWidth, screenHeight);
+			Rectangle charFrameDest = ScaleRectTo720p(300 + (f * 77), 29, 78, 82.75f, screenWidth, screenHeight);
 			Rectangle charFrameSource = { 0, 0, CharacterFrames[2].width, CharacterFrames[2].height / 1.5f };
 			DrawTexturePro(frame, frameSource, frameDest, Origin, 0.0f, WHITE);
 
-
+            //Renderiza o custo dos personagens embaixo do quadro deles 
 			sprintf(CostChar, "%d", CharacterCost[f]);
 			DrawTexturePro(CharacterFrames[f], charFrameSource, charFrameDest, Origin, 0.0f, WHITE);
 			DrawText(CostChar, 12+(int)textValue.x, (int)textValue.y, fontSize/1.5, BLACK);
 
 
-
+            //Define o código do personagem escolhido como selecionado
 			if (CheckCollisionPointRec(mouse, frameDest))
 			{
 
@@ -323,14 +340,16 @@ int baseFontSize = 40;
 			}
 		}
 
-
+        //For Principal
 		for (int r = 0; r < ROWS; r++)
 		{
 			for (int c = 0; c < COLUMNS; c++)
 			{
+                //Define Tamanho e região do spritesheet das Tiles
 				Rectangle tileDest = ScaleRectTo720p(60 + (c * 96), 220 + (r * 78), 96, 78, screenWidth, screenHeight);
 				Rectangle tileSource = { 0, 0, buttonTile.width, buttonTile.height };
-
+               
+                //Caso um personagem fique com a vida zerada ou negativa, ele some e sua Tile fica vazia (padrão)
 				if(chimpanzini[r][c].hp <= 0 && chimpanzini[r][c].exists == true) {
 					chimpanzini[r][c].exists = false;
 					Tiles[r][c] = 1;
@@ -358,7 +377,7 @@ int baseFontSize = 40;
 				}
 
 
-
+                  //Caso FrameCounterIdle seja divisível por determinado valor, incrementa o frame de cada personagem
 				if (FrameCounterIdle%8 == 0) {
 					if(chimpanzini[r][c].exists == true) {
 						chimpanzini[r][c].idle++;
@@ -373,6 +392,8 @@ int baseFontSize = 40;
 						bombardini[r][c].idle++;
 					}
 				}
+                
+                //Lógica de comportamento dos personagens
 				if(chimpanzini[r][c].idle == 3  && chimpanzini[r][c].exists == true && chimpanzini[r][c].shining == false) {
 					chimpanzini[r][c].idle = 0;
 					chimpanzini[r][c].loop++;
@@ -426,7 +447,7 @@ int baseFontSize = 40;
 					bombardini[r][c].idle = 4;
 				}
 
-
+                //Renderiza os personagens e Tiles, verificando seu código
 				switch (Tiles[r][c])
 				{
 				case 0:
@@ -467,7 +488,8 @@ int baseFontSize = 40;
 					DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 					break;
 				}
-
+                 
+                
 				if (Tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest))
 				{
 					SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
@@ -475,13 +497,17 @@ int baseFontSize = 40;
 					DrawRectangleRec(tileDest, ColorAlpha(YELLOW, 0.3f));
 					if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 					{
-
+                        //Lógica de Chimpanzini, quando ele estiver brilhando, recebe 25 pontos ("Dinheiro") e reseta o seu comportamento ao clicar nele
 						if (Tiles[r][c] == 16 && chimpanzini[r][c].shining == true) {
 							chimpanzini[r][c].shining = false;
 							Points += 25;
 							chimpanzini[r][c].idle = 0;
 						}
+                        
+                        //Lógica de posicionamento de personagem
 						if ( Tiles[r][c] == 1) {
+                            //Ao posicionar um personagem, ele é colocado e os valores de sua struct definidos
+                            //Também verifica se o número de pontos ("Dinheiro") é maior que o custo do personagem, se não, não é possível posicioná-lo
 							if(MousePick >= 16 && MousePick <= 23 && Points >= CharacterCost[MousePick - 16])
 							{
 
@@ -539,7 +565,10 @@ int baseFontSize = 40;
 
 								MousePick = 1;
 							}
-						} else if(MousePick == 404)
+						} else 
+                        //Lógica de venda de personagem, caso o usuário venda, o personagem some e metade do valor de custo é retornado ao usuário,
+                        //Com exceção de Bombardini, que retorna 10 Pontos para o usuário                    
+                        if(MousePick == 404)
 						{
 
 							switch(Tiles[r][c]) {
@@ -576,7 +605,7 @@ int baseFontSize = 40;
 			}
 
 		}
-
+        //Lógica de comportamento do projétil do Tralalero
 		for (int r = 0; r < ROWS; r++)
 		{
 			for (int c = 0; c < COLUMNS; c++)
@@ -595,7 +624,7 @@ int baseFontSize = 40;
 				}
 			}
 		}
-
+        //Renderiza o personagem selecionado ao lado do mouse, de forma transparente
 		if(MousePick > 15 && MousePick < 24) {
 			Color Transparency = { 255, 255, 255, 128 };
 
@@ -604,14 +633,20 @@ int baseFontSize = 40;
             Rectangle texMDest = ScaleRectTo720p( virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, screenWidth, screenHeight);
 			DrawTexturePro(CharacterFrames[MousePick-16], texMSource, texMDest, Origin, 0.0f, Transparency);
 		}
+        
+        //Lógica da bolsa de dinheiro aleatória
+        
+        //Sempre que FrameCounterPisc for divisivel por um certo valor, altera o valor de piscBool
 		if(FrameCounterPisc%18==0) {
 			piscBool = !piscBool;
 		}
+        //que altera o tamanho da bolsa, assim a fazendo piscar
 		if(piscBool == true) {
 			pisc = 3;
 		} else {
 			pisc = 0;
 		}
+        //Caso o número aleatória seja 0, a bolsa aleatória aparece
 		if(RandomNum == 0 && !PointsBag) {
 
 			PointsBag = true;
@@ -625,22 +660,28 @@ int baseFontSize = 40;
 			Rectangle pointsBagSource = { 18, 11, 165, 210 };
 			Rectangle pointsBagDest = ScaleRectTo720p(RandomNumX,RandomNumY, 78 + pisc, 96 + pisc, screenWidth, screenHeight);
 			if(Randomize == true) {
-
+                //Define FrameCounterPisc para 30 segundos
 				FrameCounterPisc = 3600/2;
 
 			}
+            //Para o Randomize, assim mantendo a bolsa no lugar e impedindo de gerar outra ao mesmo tempo
 			Randomize = false;
+            //Decrementa FrameCounterPisc
 			FrameCounterPisc--;
+            //A bolsa some caso não clicada em 30 segundos
 			if(FrameCounterPisc <= 0)
 			{
 				Randomize = true;
 				PointsBag = false;
 			}
+            
+            //Renderiza a bolsa
 			DrawTexturePro(pointsIcon, pointsBagSource, pointsBagDest, Origin, 0.0f, WHITE);
 
 			if(CheckCollisionPointRec(mouse, pointsBagDest)) {
 				SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-
+                
+                //Se clicada, a bolsa dá ao usuário 25 pontos ("Dinheiro") e desaparece
 				if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 				{
 					Points += 25;
@@ -665,14 +706,10 @@ int baseFontSize = 40;
         }
         }
 		EndDrawing();
-		//----------------------------------------------------------------------------------
 	}
 
-	// De-Initialization
-	//--------------------------------------------------------------------------------------
 
-	CloseWindow();        // Close window and OpenGL context
-	//--------------------------------------------------------------------------------------
+	CloseWindow();     
 
 	return 0;
 }
