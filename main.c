@@ -162,21 +162,12 @@ int main(void)
 
 	int FrameCounterPisc = 0, pisc = 0,FrameCounterIdle = 0;
 	bool PointsBag = false, Randomize = true, piscBool = true, titleScreen = true, gameOver = false;
-	for(int r = 0; r < 7; r++)
+	for(int r = 0; r < ROWS; r++)
 	{
-		for(int c = 0; c < 9; c++)
+		for(int c = 0; c < COLUMNS; c++)
 		{
-			if(c == 0)
-			{
-
-				Tiles[r][c] = 0;
-			} else {
-
-				Tiles[r][c] = 1;
-			}
-
-
-
+		    Tiles[r][c] = 1;
+			Tiles[r][0] = 0;
 		}
 	}
 	for(int f = 16; f < 24; f++) {
@@ -569,6 +560,7 @@ int baseFontSize = 40;
 								break;
 							case 20:
 								bombardini[r][c].exists = false;
+                                Points -= 2;
 								break;
 							}
 							Points += CharacterCost[Tiles[r][c]-16]/2;
