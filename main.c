@@ -35,6 +35,12 @@
 #define ROWS 5
 #define COLUMNS 9
 
+#define CHIMPANZINI 16
+#define TRALALERO 17
+#define SAHUR 18
+#define LIRILI 19
+#define BOMBARDINI 20
+
 // Função para manter o HUD igual independente da resolução.
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {   
 	float baseWidth = BASE_WIDTH;
@@ -112,7 +118,7 @@ int main(void) {
 	CharacterCost[4] = 25;
      
     // Inicialização de Variáveis.
-	int MousePick = 1, Points = 150, Damage = 10, CharacterHP = 50, EnemieHP = 110;
+	int MousePick = 1, Points = 150, Damage = 10, EnemieHP = 110;
 	
 	char PointsT[10], CostChar[10], RandomT[10];
     
@@ -189,8 +195,8 @@ int main(void) {
 	}
 
     // Insere os códigos dos personagens no seletor.
-	for(int f = 16; f < 21; f++) {
-		Frame[f-16] = f;
+	for(int f = CHIMPANZINI; f < 21; f++) {
+		Frame[f-CHIMPANZINI] = f;
 	}
     
 	int baseFontSize = 40;
@@ -450,22 +456,22 @@ int main(void) {
 							case 1:
 								DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 								break;
-							case 16:
+							case CHIMPANZINI:
 								Rectangle chimpanziniDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 323/5, 543/5, screenWidth, screenHeight);
 								DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 								DrawTexturePro(CharacterTextures[0][chimpanzini[r][c].idle], chimpanziniSource, chimpanziniDest, Origin, 0.0f, WHITE);
 								break;
-							case 17:
+							case TRALALERO:
 								Rectangle tralaleroDest = ScaleRectTo720p(80 + (c * 96)-20, 220 + (r * 78), 186/2, 144/2, screenWidth, screenHeight);
 								DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 								DrawTexturePro(CharacterTextures[1][tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
 								break;
-							case 18:
+							case SAHUR:
 								Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
 								DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 								DrawTexturePro(CharacterTextures[2][sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
 								break;
-							case 19:
+							case LIRILI:
 								Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
 								DrawTexturePro(metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
 								DrawTexturePro(CharacterTextures[3][lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
@@ -487,7 +493,7 @@ int main(void) {
 
 							if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 								// Lógica de Chimpanzini, quando ele estiver brilhando, recebe 25 pontos ("Dinheiro") e reseta o seu comportamento ao clicar nele.
-								if (Tiles[r][c] == 16 && chimpanzini[r][c].shining == true) {
+								if (Tiles[r][c] == CHIMPANZINI && chimpanzini[r][c].shining == true) {
 									chimpanzini[r][c].shining = false;
 									Points += 25;
 									chimpanzini[r][c].idle = 0;
@@ -497,16 +503,16 @@ int main(void) {
 								if ( Tiles[r][c] == 1) {
 									// Ao posicionar um personagem, ele é colocado e os valores de sua struct definidos.
 									// Também verifica se o número de pontos ("Dinheiro") é maior que o custo do personagem, se não, não é possível posicioná-lo.
-									if(MousePick >= 16 && MousePick <= 23 && Points >= CharacterCost[MousePick - 16]) {
+									if(MousePick >= CHIMPANZINI && MousePick <= 23 && Points >= CharacterCost[MousePick - CHIMPANZINI]) {
 										switch(MousePick) {
-											case 16:
+											case CHIMPANZINI:
 												chimpanzini[r][c].hp = 20;
 												chimpanzini[r][c].idle = 0;
 												chimpanzini[r][c].loop = 0;
 												chimpanzini[r][c].shining = false;
 												chimpanzini[r][c].exists = true;
 												break;
-											case 17:
+											case TRALALERO:
 												tralalero[r][c].hp = 50;
 												tralalero[r][c].idle = 0;
 												tralalero[r][c].loop = 0;
@@ -516,7 +522,7 @@ int main(void) {
 												tralalero[r][c].attacking = false;
 												tralalero[r][c].exists = true;
 												break;
-											case 18:
+											case SAHUR:
 												sahur[r][c].hp = 50;
 												sahur[r][c].idle = 0;
 												sahur[r][c].wait = false;
@@ -524,12 +530,12 @@ int main(void) {
 												sahur[r][c].attacking = false;
 												sahur[r][c].exists = true;
 												break;
-											case 19:
+											case LIRILI:
 												lirili[r][c].hp = 150;
 												lirili[r][c].idle = 0;
 												lirili[r][c].exists = true;
 												break;
-											case 20:
+											case BOMBARDINI:
 												bombardini[r][c].hp = 10;
 												bombardini[r][c].idle = 0;
 												bombardini[r][c].loop = 0;
@@ -542,32 +548,32 @@ int main(void) {
 										}
 
 										Tiles[r][c] = MousePick;
-										Points -= CharacterCost[MousePick - 16];
+										Points -= CharacterCost[MousePick - CHIMPANZINI];
 										MousePick = 1;
 									}
 								} else if(MousePick == 404) {
 									// Lógica de venda de personagem, caso o usuário venda, o personagem some e metade do valor de custo é retornado ao usuário,
 									// com exceção de Bombardini, que retorna 10 Pontos para o usuário.
 									switch(Tiles[r][c]) {
-										case 16:
+										case CHIMPANZINI:
 											chimpanzini[r][c].exists = false;
 											break;
-										case 17:
+										case TRALALERO:
 											tralalero[r][c].exists = false;
 											break;
-										case 18:
+										case SAHUR:
 											sahur[r][c].exists = false;
 											break;
-										case 19:
+										case LIRILI:
 											lirili[r][c].exists = false;
 											break;
-										case 20:
+										case BOMBARDINI:
 											bombardini[r][c].exists = false;
 											Points -= 2;
 											break;
 									}
 
-									Points += CharacterCost[Tiles[r][c]-16]/2;
+									Points += CharacterCost[Tiles[r][c]-CHIMPANZINI]/2;
 									Tiles[r][c] = 1;
 								}
 							}
@@ -580,7 +586,7 @@ int main(void) {
 					for (int c = 0; c < COLUMNS; c++) {
 						if (tralalero[r][c].projecB == true) {
 							tralalero[r][c].projecX += projectileSpeed * GetFrameTime();
-							Rectangle projectileDest = ScaleRectTo720p((int)tralalero[r][c].projecX, tralalero[r][c].projecY + 20, 71, 29, screenWidth, screenHeight);
+							Rectangle projectileDest = ScaleRectTo720p((int)tralalero[r][c].projecX, tralalero[r][c].projecY + BOMBARDINI, 71, 29, screenWidth, screenHeight);
 							DrawTexturePro(Projectile, projectileSource, projectileDest, Origin, 0.0f, WHITE);
 
 							if (tralalero[r][c].projecX > screenWidth) {
@@ -592,13 +598,13 @@ int main(void) {
 				}
 
 				// Renderiza o personagem selecionado ao lado do mouse, de forma transparente.
-				if(MousePick > 15 && MousePick < 24) {
+				if(MousePick > 15 && MousePick < 24) { 
 					Color Transparency = { 255, 255, 255, 128 };
 
 					Rectangle texMSource = { 0, 0, CharacterFrames[2].width, CharacterFrames[2].height / 1.5f };
 
 					Rectangle texMDest = ScaleRectTo720p( virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, screenWidth, screenHeight);
-					DrawTexturePro(CharacterFrames[MousePick-16], texMSource, texMDest, Origin, 0.0f, Transparency);
+					DrawTexturePro(CharacterFrames[MousePick-CHIMPANZINI], texMSource, texMDest, Origin, 0.0f, Transparency);
 				}
         
         		// Lógica da bolsa de dinheiro aleatória.
