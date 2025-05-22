@@ -19,13 +19,7 @@ INF vs Zombies é uma versão simplificada do clássico jogo Plants vs Zombies, 
 Compile, execute e limpe o binário com um único comando:
 
 ```bash
-make run FILE=main.c OUTPUT=inf_zombies
-```
-
-Ou apenas compile:
-
-```bash
-make compile FILE=main.c OUTPUT=inf_zombies
+make run
 ```
 
 ## 📃 Regras do Jogo
