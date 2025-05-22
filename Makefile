@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = $(shell pkg-config --cflags raylib)
 LDFLAGS = $(shell pkg-config --libs raylib)
 
-FILE ?= main.c
+FILE ?= src/game.c
 OUTPUT ?= a.out
 
 # Specifically for macOS.

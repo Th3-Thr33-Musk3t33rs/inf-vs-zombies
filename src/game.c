@@ -57,32 +57,32 @@ int main(void) {
 	//--------------------------------------------------------------------------------------
 
 	Texture2D metallicTile, buttonTile, frame, CharacterTextures[8][8], CharacterFrames[8], pointsIcon, Projectile, Bomb;
-	metallicTile = LoadTexture("metallictile.png"); // Textura das Tiles Padrão.
-	buttonTile = LoadTexture("buttontilemetallic.png"); // Textura das Tiles de Botão.
-	frame = LoadTexture("frame2.png"); // Textura do quadro seletor de personagem.
-	pointsIcon = LoadTexture("Points.png");  // Ícone de moeda.
+	metallicTile = LoadTexture("assets/elements/metallictile.png"); // Textura das Tiles Padrão.
+	buttonTile = LoadTexture("assets/elements/buttontilemetallic.png"); // Textura das Tiles de Botão.
+	frame = LoadTexture("assets/elements/frame2.png"); // Textura do quadro seletor de personagem.
+	pointsIcon = LoadTexture("assets/elements/points.png");  // Ícone de moeda.
 
     // Carrega todas as texturas dos personagens automaticamente.
 	char path[100];
 	for(int t = 0; t < 8; t++) {
 		for (int i = 0; i < 5; i++) {
-			sprintf(path, "Characters/%s%d.png", nomes[i], t);
+			sprintf(path, "assets/characters/%s%d.png", nomes[i], t);
 			CharacterTextures[i][t] = LoadTexture(path);
 		}
 	}
 
     // Texturas que ficam dentro do quadro seletor de personagem.
-	CharacterFrames[0] = LoadTexture("Characters/chimpanziniframe.png");
-	CharacterFrames[1] = LoadTexture("Characters/tralaleroframe.png");
-	CharacterFrames[2] = LoadTexture("Characters/sahurframe.png");
-	CharacterFrames[3] = LoadTexture("Characters/liriliframe.png");
-	CharacterFrames[4] = LoadTexture("Characters/bombardiniframe.png");
+	CharacterFrames[0] = LoadTexture("assets/characters/chimpanziniframe.png");
+	CharacterFrames[1] = LoadTexture("assets/characters/tralaleroframe.png");
+	CharacterFrames[2] = LoadTexture("assets/characters/sahurframe.png");
+	CharacterFrames[3] = LoadTexture("assets/characters/liriliframe.png");
+	CharacterFrames[4] = LoadTexture("assets/characters/bombardiniframe.png");
 
     // Textura do projétil do Tralalero.
-	Projectile = LoadTexture("Characters/projectile.png");
+	Projectile = LoadTexture("assets/characters/projectile.png");
 
 	// Textura da bomba do Bombardini.
-	Bomb = LoadTexture("Characters/bomb.png");
+	Bomb = LoadTexture("assets/characters/bomb.png");
 
 
     // Array dos custos dos personagens.
