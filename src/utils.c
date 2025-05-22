@@ -2,8 +2,8 @@
 #include "config.h"
 
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight) {
-    float baseWidth = BASE_WIDTH;
-    float baseHeight = BASE_HEIGHT;
+    float baseWidth = BASE_WIDTH_FLOAT;
+    float baseHeight = BASE_HEIGHT_FLOAT;
     return (Vector2) {
         x * ((float)screenWidth / baseWidth), 
         y * ((float)screenHeight / baseHeight)

@@ -1,7 +1,14 @@
 #include "graphics.h"
 #include "utils.h"
 #include "config.h"
+#include "raylib.h"
 #include <stdio.h>
+
+void InitGame(void) {
+    SetTargetFPS(TARGET_FPS);
+    InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
+    InitializeTextures(&game_textures);
+}
 
 void InitializeTextures(GameTextures* textures) {
     const char* nomes[5] = {
@@ -9,12 +16,24 @@ void InitializeTextures(GameTextures* textures) {
     };
 
     // Carrega texturas básicas.
-    textures->metallicTile = LoadTexture("assets/elements/metallictile.png");
+    
+    // Textura das Tiles Padrão.
+    textures->metallicTile = LoadTexture("assets/elements/metallictile.png"); 
+    
+    // Textura das Tiles de Botão.
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
+
+    // Textura do quadro seletor de personagem.
     textures->frame = LoadTexture("assets/elements/frame2.png");
+
+    // Ícone de moeda.
     textures->pointsIcon = LoadTexture("assets/elements/points.png");
-    textures->projectile = LoadTexture("assets/characters/projectile.png");
-    textures->bomb = LoadTexture("assets/characters/bomb.png");
+
+    // Textura do projétil do Tralalero.
+    textures->projectile = LoadTexture("assets/elements/projectile.png");
+    
+    // Textura da bomba do Bombardini.
+    textures->bomb = LoadTexture("assets/elements/bomb.png");
 
     // Carrega todas as texturas dos personagens automaticamente.
     char path[100];
@@ -26,11 +45,11 @@ void InitializeTextures(GameTextures* textures) {
     }
 
     // Texturas que ficam dentro do quadro seletor de personagem.
-    textures->characterFrames[0] = LoadTexture("assets/characters/chimpanziniframe.png");
-    textures->characterFrames[1] = LoadTexture("assets/characters/tralaleroframe.png");
-    textures->characterFrames[2] = LoadTexture("assets/characters/sahurframe.png");
-    textures->characterFrames[3] = LoadTexture("assets/characters/liriliframe.png");
-    textures->characterFrames[4] = LoadTexture("assets/characters/bombardiniframe.png");
+    textures->characterFrames[CHIMPANZINI_FRAME_ID] = LoadTexture("assets/characters/chimpanziniframe.png");
+    textures->characterFrames[TRALALERO_FRAME_ID] = LoadTexture("assets/characters/tralaleroframe.png");
+    textures->characterFrames[SAHUR_FRAME_ID] = LoadTexture("assets/characters/sahurframe.png");
+    textures->characterFrames[LIRILI_FRAME_ID] = LoadTexture("assets/characters/liriliframe.png");
+    textures->characterFrames[BOMBARDINI_FRAME_ID] = LoadTexture("assets/characters/bombardiniframe.png");
 }
 
 void UnloadTextures(GameTextures* textures) {

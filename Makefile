@@ -1,20 +1,36 @@
 CC = gcc
-CFLAGS = $(shell pkg-config --cflags raylib)
+CFLAGS = $(shell pkg-config --cflags raylib) -Iinclude
 LDFLAGS = $(shell pkg-config --libs raylib)
 
-FILE ?= src/game.c
+SRC_DIR := src
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+OBJS := $(SRCS:.c=.o)
+
 OUTPUT ?= a.out
 
-# Specifically for macOS.
+# macOS frameworks
 ifeq ($(shell uname), Darwin)
     LDFLAGS += -framework IOKit -framework Cocoa -framework OpenGL
 endif
 
-# Compile the code.
-compile: $(FILE)
-	$(CC) -o $(OUTPUT) $^ $(CFLAGS) $(LDFLAGS)
+# Default target: compile all and link
+all: $(OUTPUT)
 
-# Compile, run and clean.
-run: compile
+# Link objects into executable
+$(OUTPUT): $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+
+# Compile source filesc
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+# Run the game and clean executable
+run: all
 	./$(OUTPUT)
 	rm -f $(OUTPUT)
+
+# Clean all object files and executable
+clean:
+	rm -f $(OUTPUT) $(OBJS)
+
+.PHONY: all run clean

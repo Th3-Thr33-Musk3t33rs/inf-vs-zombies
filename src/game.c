@@ -11,24 +11,30 @@ void InitializeGameState(GameState* state) {
     state->gameOver = false;
     state->points = INITIAL_POINTS;
     state->mousePick = 1;
-    
+
     // Inicializa custos dos personagens.
-    state->characterCost[0] = 50;  // Chimpanzini.
-    state->characterCost[1] = 100; // Tralalero.
-    state->characterCost[2] = 150; // Sahur.
-    state->characterCost[3] = 50;  // Lirili.
-    state->characterCost[4] = 25;  // Bombardini.
+    state->characterCost[CHIMPANZINI_FRAME_ID] = CHIMPAZINI_COST;  
+    state->characterCost[TRALALERO_FRAME_ID] = TRALALERO_COST; 
+    state->characterCost[LIRILI_FRAME_ID] = LIRILI_COST; 
+    state->characterCost[SAHUR_FRAME_ID] = SAHUR_COST;  
+    state->characterCost[BOMBARDINI_FRAME_ID] = BOMBARDINI_COST;  
     
     // Inicializa contadores.
+    // frameCounterPisc e pisc servem para a bolsa de dinheiro aparecer e sumir caso não clicada a tempo, e também para ela piscar.
+    // frameCounterIdle serve para rodar as animações dos personagens.
     state->frameCounterPisc = 0;
     state->frameCounterIdle = 0;
     state->pisc = 0;
-    
+
     // Inicializa bolsa de pontos.
     state->pointsBag = false;
+
+    // Randomize faz a bolsa ficar parada no lugar quando ela aparecer.
     state->randomize = true;
+
+    // piscBool serve para a bolsa de dinheiro piscar.
     state->piscBool = true;
-    
+
     // Seta todas as Tiles como 1, exceto as da coluna 0, que possuem valor 0.
     for(int r = 0; r < ROWS; r++) {
         for(int c = 0; c < COLUMNS; c++) {
@@ -59,7 +65,7 @@ void UpdateGame(GameState* state) {
         state->frameCounterIdle = 0;
     }
     
-    UpdateCharacters(state);
+    //UpdateCharacters(state);
     
     // Lógica da bolsa de dinheiro aleatória.
     if(state->frameCounterPisc % 18 == 0) {

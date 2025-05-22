@@ -3,6 +3,12 @@
 
 #include "types.h"
 
+// Texturas do jogo.
+GameTextures game_textures;
+
+// Inicialização dos gráficos do jogo.
+void InitGame(void);
+
 // Inicialização de texturas.
 void InitializeTextures(GameTextures* textures);
 
