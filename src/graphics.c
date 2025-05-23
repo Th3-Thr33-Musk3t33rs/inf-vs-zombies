@@ -164,8 +164,7 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         }
         // Highlight que desaparece de acordo com cooldown do personagem
         if (state->inCooldown[f]) {
-            
-            DrawRectangleRec(frameCDDest, ColorAlpha(GRAY, 0.7f)); // Um highlight diferente para o selecionado
+            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f)); // Um highlight diferente para o selecionado
         }
     }
 }
