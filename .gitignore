@@ -1,2 +1,5 @@
 bin/
 *.exe
+.vs/
+TODOSVSJACQUES/
+x64/

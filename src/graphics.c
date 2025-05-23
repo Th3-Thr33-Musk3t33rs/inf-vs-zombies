@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "graphics.h"
 #include "utils.h"
 #include "config.h"
