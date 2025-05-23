@@ -15,10 +15,10 @@ extern const int SELL_POS_Y;
 extern const int FONT_SIZE;
 
 // Configurações do grid.
-#define ROWS 5
+#define ROWS 7
 #define COLUMNS 9
-#define GRID_MARGIN_X 400
-#define GRID_MARGIN_Y 180
+#define GRID_MARGIN_X 418
+#define GRID_MARGIN_Y 174
 
 
 // Características do Chimpanzini.
