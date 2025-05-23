@@ -27,7 +27,7 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 # Run the game and clean executable
 run: all
 	./$(OUTPUT)
-	rm -f $(OUTPUT)
+	rm -f $(OUTPUT) $(OBJS)
 
 # Clean all object files and executable
 clean:
