@@ -4,13 +4,6 @@
 #include "types.h"
 #include "raylib.h" // Necessário para Texture2D e outras estruturas Raylib
 
-// Declaração da variável de texturas do jogo.
-// Ela será definida em main.c.
-extern GameTextures game_textures;
-
-// Inicialização dos gráficos do jogo (configurações da janela, FPS).
-void InitGame(void);
-
 // Carregamento de todas as texturas do jogo.
 void InitializeTextures(GameTextures* textures);
 

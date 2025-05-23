@@ -11,8 +11,9 @@
 
 // TODO: trocar esses 750 e 40 por algo que faça sentido.
 // Link externo.
-extern const int sell_pos_x;
-extern const int sell_pos_y;
+extern const int SELL_POS_X;
+extern const int SELL_POS_Y;
+extern const int FONT_SIZE;
 
 // Configurações do grid.
 #define ROWS 5

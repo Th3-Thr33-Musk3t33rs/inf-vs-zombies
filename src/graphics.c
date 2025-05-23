@@ -4,13 +4,6 @@
 #include "raylib.h"
 #include <stdio.h> // Para sprintf
 
-// Inicializa a janela do jogo e define o FPS.
-void InitGame(void) {
-    SetTargetFPS(TARGET_FPS);
-    InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
-    // As texturas serão inicializadas em main.c após a inicialização da janela.
-}
-
 // Carrega todas as texturas necessárias para o jogo.
 void InitializeTextures(GameTextures* textures) {
     // Nomes base para carregar as texturas dos personagens.
@@ -111,9 +104,9 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
 
     // Posição e tamanho do botão "SELL".
     // Usamos as constantes de config.h para a posição.
-    Rectangle sellDest = ScaleRectTo720p(sell_pos_x - 5, sell_pos_y, 110, 50, screenWidth, screenHeight);
+    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
     
-    DrawText("SELL", sell_pos_x, sell_pos_y, fontSize, BLACK);
+    DrawText("SELL", SELL_POS_X, SELL_POS_Y, fontSize, BLACK);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
     if (CheckCollisionPointRec(mouse, sellDest)) {

@@ -1,31 +1,25 @@
 #include "raylib.h"
 #include <math.h>
 #include <stdio.h>
-#include <stdlib.h> // Para rand(), srand()
-#include <time.h>   // Para time()
+#include <stdlib.h> 
+#include <time.h>
 #include "utils.h"
 #include "game.h"
 #include "graphics.h"
 #include "config.h"
 
-// Definição das variáveis globais de estado e texturas.
-// Elas são declaradas como 'extern' nos seus respectivos headers.
-GameState game_state;
-GameTextures game_textures;
 
 int main(void) {
+	// Declaração das variáveis globais de estado e texturas.
+	GameState game_state;
+	GameTextures game_textures;
+
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
     // Inicializa a janela do jogo e define as configurações básicas.
-    InitGame();
-    // Carrega as texturas após a inicialização da janela.
-    InitializeTextures(&game_textures);
-    // Inicializa o estado do jogo.
-    InitializeGameState(&game_state);
-
-    // Define o tamanho da fonte base e a escala para a resolução atual.
-    int fontSize = (int)(BASE_FONT_SIZE * ((float)BASE_HEIGHT_INT / 720.0f));
+	// também carrega as texturas e estado inicial do jogo.
+    InitGame(&game_state, &game_textures);
 
     // Loop principal do jogo.
     while (!WindowShouldClose()) {
@@ -38,7 +32,6 @@ int main(void) {
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do jogo.
         ProcessGameInput(&game_state, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-        // Início do desenho (renderização).
         BeginDrawing();
         ClearBackground(RAYWHITE); // Limpa a tela a cada frame.
 
@@ -46,11 +39,11 @@ int main(void) {
         if (!game_state.gameOver) {
             // Se estiver na tela de título, renderiza apenas ela.
             if (game_state.titleScreen) {
-                RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, fontSize);
+                RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             } else {
                 // Se o jogo estiver ativo, renderiza todos os elementos do jogo.
-                RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, fontSize, &game_textures, mouse);
-                RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, fontSize, &game_textures, mouse);
+                RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
+                RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
                 RenderGameGrid(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);
                 RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures);
                 RenderPointsBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);

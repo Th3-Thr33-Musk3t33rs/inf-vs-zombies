@@ -1,9 +1,18 @@
 #include "game.h"
 #include "utils.h"
 #include "config.h"
+#include "graphics.h"
 #include <stdlib.h>
 #include <time.h>
 #include <string.h> // Para memset
+
+// Inicializa a janela do jogo e define o FPS.
+void InitGame(GameState* state, GameTextures* textures) {
+    SetTargetFPS(TARGET_FPS);
+    InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
+    InitializeTextures(textures);
+    InitializeGameState(state);
+}
 
 // Inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState* state) {
@@ -11,7 +20,7 @@ void InitializeGameState(GameState* state) {
     state->titleScreen = true;
     state->gameOver = false;
     state->points = INITIAL_POINTS;
-    state->mousePick = 1; // Valor padrão para nada selecionado
+    state->mousePick = 1; // Valor padrão quando nada está selecionado.
 
     // Inicializa custos dos personagens.
     state->characterCost[CHIMPANZINI_FRAME_ID] = CHIMPAZINI_COST;  
@@ -23,12 +32,12 @@ void InitializeGameState(GameState* state) {
     // Inicializa contadores de animação e estado da bolsa de pontos.
     state->frameCounterPisc = 0;
     state->frameCounterIdle = 0;
-    state->pisc = 0; // Usado para o efeito de piscar da bolsa
-    state->pointsBag = false; // Indica se a bolsa de pontos está ativa
-    state->randomizePointBagPos = true; // Controla se a posição da bolsa deve ser randomizada
-    state->piscBool = true; // Alterna para o efeito de piscar
-    state->randomNumX = 0; // Posição X da bolsa de pontos
-    state->randomNumY = 0; // Posição Y da bolsa de pontos
+    state->pisc = 0; // Usado para o efeito de piscar da bolsa.
+    state->pointsBag = false; // Indica se a bolsa de pontos está ativa.
+    state->randomizePointBagPos = true; // Controla se a posição da bolsa deve ser randomizada.
+    state->piscBool = true; // Alterna para o efeito de piscar.
+    state->randomNumX = 0; // Posição X da bolsa de pontos.
+    state->randomNumY = 0; // Posição Y da bolsa de pontos.
 
     // Seta todas as Tiles como 1 (gramado padrão), exceto as da coluna 0, que possuem valor 0 (botões).
     for(int r = 0; r < ROWS; r++) {
@@ -39,12 +48,12 @@ void InitializeGameState(GameState* state) {
     }
     
     // Insere os códigos dos personagens no seletor.
-    // Os IDs dos personagens são definidos em config.h (ex: CHIMPANZINI_ID = 16)
+    // Os IDs dos personagens são definidos em config.h (ex: CHIMPANZINI_ID = 16).
     for(int f = CHIMPANZINI_ID; f <= BOMBARDINI_ID; f++) {
         state->frame[f - CHIMPANZINI_ID] = f;
     }
     
-    // Inicializa arrays de personagens com valores zero (garante que 'exists' é false).
+    // Inicializa arrays de personagens com valores default.
     memset(state->chimpanzini, 0, sizeof(state->chimpanzini));
     memset(state->tralalero, 0, sizeof(state->tralalero));
     memset(state->sahur, 0, sizeof(state->sahur));
@@ -58,7 +67,7 @@ void UpdateGame(GameState* state) {
     state->frameCounterIdle++;
     
     // Reseta FrameCounterIdle após 1 minuto (60 segundos * 60 FPS = 3600 frames).
-    if (state->frameCounterIdle >= TimeToFrames(60.0)) {
+    if (state->frameCounterIdle >= TimeToFrames(60)) {
         state->frameCounterIdle = 0;
     }
     
@@ -256,7 +265,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     }
 
     // Lógica do botão "SELL"
-    Rectangle sellDest = ScaleRectTo720p(sell_pos_x - 5, sell_pos_y, 110, 50, screenWidth, screenHeight);
+    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
     if (CheckCollisionPointRec(mousePos, sellDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             // Alterna o modo de venda
