@@ -284,21 +284,25 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
 
     // Lógica do botão "SELL"
     Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
-    if (CheckCollisionPointRec(mousePos, sellDest)) {
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if ((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) {
+      
             // Alterna o modo de venda
             state->mousePick = (state->mousePick != SELL_ID) ? SELL_ID : 1;
-        }
+        
     }
 
     // Lógica do seletor de personagens
     for (int f = 0; f < 5; f++) {
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        if (CheckCollisionPointRec(mousePos, frameDest)) {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if ((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) {
+            if (state->mousePick != state->frame[f]) {
                 state->mousePick = state->frame[f]; // Seleciona o personagem
             }
+            else {
+                state->mousePick = 1;
+            }
         }
+
     }
 
     // Lógica de manipulação de personagens no grid (colocar ou vender)
@@ -325,9 +329,16 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
         for (int c = 0; c < COLUMNS; c++) {
             Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
 
+            // Lógica para Chimpanzini brilhando (coletar dinheiro) com a tecla de atalho "C"
+            if (state->chimpanzini[r][c].shining == true && IsKeyPressed(KEY_C)) {
+                state->chimpanzini[r][c].shining = false;
+                state->money += 25;
+                state->chimpanzini[r][c].idle = 0; // Reseta animação
+            }
+
             // Verifica colisão do mouse com a tile e se o botão esquerdo foi pressionado
             if (CheckCollisionPointRec(mouse, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                // Lógica para Chimpanzini brilhando (coletar dinheiro)
+                // Lógica para Chimpanzini brilhando (coletar dinheiro) clicando nele
                 if (state->tiles[r][c] == CHIMPANZINI_ID && state->chimpanzini[r][c].shining) {
                     state->chimpanzini[r][c].shining = false;
                     state->money += 25;
@@ -363,6 +374,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                         state->mousePick = 1; // Reseta a seleção do mouse
                     }
                 } 
+              
                 // Lógica de venda de personagem
                 else if (state->mousePick == SELL_ID && state->tiles[r][c] != 0 && state->tiles[r][c] != 1) { 
                     // Se o modo de venda está ativo e a tile não é vazia nem um botão
