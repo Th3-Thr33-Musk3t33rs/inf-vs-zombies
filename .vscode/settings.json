@@ -5,6 +5,11 @@
         "stdio.h": "c",
         "string.h": "c",
         "time.h": "c",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "utils.h": "c",
+        "stdlib.h": "c",
+        "graphics.h": "c",
+        "config.h": "c",
+        "game.h": "c"
     }
 }
