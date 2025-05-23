@@ -26,9 +26,6 @@ int main(void) {
         // Pega a posição atual do mouse.
         Vector2 mouse = GetMousePosition();
 
-        // Atualiza a lógica do jogo.
-        UpdateGame(&game_state);
-
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do jogo.
         ProcessGameInput(&game_state, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
@@ -41,6 +38,9 @@ int main(void) {
             if (game_state.titleScreen) {
                 RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             } else {
+				// Atualiza a lógica do jogo.
+        		UpdateGame(&game_state);
+
                 // Se o jogo estiver ativo, renderiza todos os elementos do jogo.
                 RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
                 RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);

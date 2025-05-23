@@ -2,9 +2,10 @@
 #include "utils.h"
 #include "config.h"
 #include "graphics.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <string.h> // Para memset
+#include <string.h>
 
 // Inicializa a janela do jogo e define o FPS.
 void InitGame(GameState* state, GameTextures* textures) {
@@ -204,7 +205,6 @@ void UpdateProjectiles(GameState* state, float deltaTime) {
                 }
             }
             // Lógica para bombas do Bombardini (se houver)
-            // if (state->bombardini[r][c].bombB) { ... }
         }
     }
 }
@@ -229,11 +229,15 @@ void UpdatePointsBag(GameState* state) {
     // Aqui, vamos usar um número aleatório simples para decidir se a bolsa aparece.
     if (state->randomizePointBagPos) {
         // Gera um número aleatório para decidir se a bolsa aparece
-        int randomChance = rand() % 2000; // Ajuste este valor para mudar a frequência
+        int randomChance = rand() % POINTS_BAG_RANDOMNESS; // Ajuste este valor para mudar a frequência
+        // Debugging.
+        char RandomText[10];
+        sprintf(RandomText, "%d", randomChance);
+        DrawText(RandomText, 100, 80, FONT_SIZE, BLACK);
         if (randomChance == 0 && !state->pointsBag) {
             state->pointsBag = true;
             // Define a posição aleatória da bolsa
-            state->randomNumX = rand() % (BASE_WIDTH_INT - 150) + 50; // Evita bordas
+            state->randomNumX = rand() % (BASE_WIDTH_INT - 150) + 50; // Evita bordas.
             state->randomNumY = rand() % (BASE_HEIGHT_INT - 200) + 150; // Evita HUD superior
             state->frameCounterPisc = TimeToFrames(30); // Duração da bolsa (30 segundos)
             state->randomizePointBagPos = false; // Impede que a posição seja randomizada novamente enquanto ativa

@@ -8,28 +8,28 @@ OBJS := $(SRCS:.c=.o)
 
 OUTPUT ?= a.out
 
-# macOS frameworks
+# Requisitos de frameworks para compilar na arquitetura Darwin do mac.
 ifeq ($(shell uname), Darwin)
     LDFLAGS += -framework IOKit -framework Cocoa -framework OpenGL
 endif
 
-# Default target: compile all and link
+# Compila tudo e linka.
 all: $(OUTPUT)
 
-# Link objects into executable
+# Linka os objetos com os seus respectivos executáveis.
 $(OUTPUT): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
-# Compile source filesc
+# Compila os source files.
 $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-# Run the game and clean executable
+# Compila e roda o jogo e depois limpa os executáveis.
 run: all
 	./$(OUTPUT)
 	rm -f $(OUTPUT) $(OBJS)
 
-# Clean all object files and executable
+# Limpa os executáveis deixados pra trás caso existam.
 clean:
 	rm -f $(OUTPUT) $(OBJS)
 

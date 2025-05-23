@@ -46,6 +46,7 @@ extern const int FONT_SIZE;
 // Configurações de jogo.
 #define TARGET_FPS 60
 #define BASE_FONT_SIZE 40
+#define POINTS_BAG_RANDOMNESS 1200
 
 // Velocidades.
 #define PROJECTILE_SPEED 400.0f
