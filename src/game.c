@@ -26,12 +26,24 @@ void InitializeGameState(GameState* state) {
     state->mousePick = 1; // Valor padrão quando nada está selecionado.
 
     // Inicializa custos dos personagens.
-    state->characterCost[CHIMPANZINI_FRAME_ID] = CHIMPAZINI_COST;  
-    state->characterCost[TRALALERO_FRAME_ID] = TRALALERO_COST; 
-    state->characterCost[SAHUR_FRAME_ID] = SAHUR_COST; 
-    state->characterCost[LIRILI_FRAME_ID] = LIRILI_COST; 
-    state->characterCost[BOMBARDINI_FRAME_ID] = BOMBARDINI_COST;  
+    state->characterCost[CHIMPANZINI_FRAME_ID] = CHIMPANZINI_COST;
+    state->characterCost[TRALALERO_FRAME_ID] = TRALALERO_COST;
+    state->characterCost[SAHUR_FRAME_ID] = SAHUR_COST;
+    state->characterCost[LIRILI_FRAME_ID] = LIRILI_COST;
+    state->characterCost[BOMBARDINI_FRAME_ID] = BOMBARDINI_COST;
 
+    // Inicializa o valor de cooldown dos personagens.
+    state->characterCD[CHIMPANZINI_FRAME_ID] = CHIMPANZINI_CD;
+    state->characterCD[TRALALERO_FRAME_ID] = TRALALERO_CD;
+    state->characterCD[SAHUR_FRAME_ID] = SAHUR_CD;
+    state->characterCD[LIRILI_FRAME_ID] = LIRILI_CD;
+    state->characterCD[BOMBARDINI_FRAME_ID] = BOMBARDINI_CD;
+
+    // Inicializa o bool e o contador de frames de verificação de personagem em cooldown
+    for (int i = 0; i < 5; i++) {
+    state->inCooldown[i] = false;
+    state->frameCounterCD[i] = 0;
+}
     // Inicializa valores das estatisticas
     state->currentWave = 1;
     state->charactersBought = 0;
@@ -83,6 +95,8 @@ void UpdateGame(GameState* state) {
     if (state->frameCounterIdle >= TimeToFrames(60)) {
         state->frameCounterIdle = 0;
     }
+
+  
     
     UpdateCharacters(state); // Atualiza o estado e animações dos personagens
     UpdateProjectiles(state, GetFrameTime()); // Atualiza a posição dos projéteis
@@ -294,13 +308,22 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     // Lógica do seletor de personagens
     for (int f = 0; f < 5; f++) {
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        if ((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) {
+        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false) {
             if (state->mousePick != state->frame[f]) {
                 state->mousePick = state->frame[f]; // Seleciona o personagem
             }
             else {
                 state->mousePick = 1;
             }
+        }
+        // Lógica de Cooldown do personagem
+        if (state->inCooldown[f] == true) {
+            state->frameCounterCD[f] += 96.0f / TimeToFrames(state->characterCD[f]);
+            if (state->frameCounterCD[f] >= 96){
+                state->frameCounterCD[f] = 0; 
+                state->inCooldown[f] = false;
+            }
+           
         }
 
     }
@@ -354,6 +377,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                         switch (state->mousePick) {
                             case CHIMPANZINI_ID:
                                 state->chimpanzini[r][c] = (Chimpanzini){ .hp = 20, .idle = 0, .loop = 0, .shining = false, .exists = true };
+                                
                                 break;
                             case TRALALERO_ID:
                                 state->tralalero[r][c] = (Tralalero){ .hp = 50, .idle = 0, .loop = 0, .projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35, .projecY = GRID_MARGIN_Y + (r * 78), .projecB = false, .attacking = false, .exists = true };
@@ -370,6 +394,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                         }
                         state->charactersBought += 1; // Incrementa o número de personagens comprados
                         state->tiles[r][c] = state->mousePick; // Atualiza o tipo da tile
+                        state->inCooldown[state->mousePick - CHIMPANZINI_ID] = true; // Deixa o personagem em cooldown
                         state->money -= state->characterCost[state->mousePick - CHIMPANZINI_ID]; // Deduz o custo
                         state->mousePick = 1; // Reseta a seleção do mouse
                     }

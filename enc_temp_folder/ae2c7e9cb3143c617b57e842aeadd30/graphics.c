@@ -162,7 +162,6 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         if (state->mousePick == state->frame[f]) {
             DrawRectangleRec(frameDest, ColorAlpha(BLUE, 0.2f)); // Um highlight diferente para o selecionado
         }
-        // Highlight que desaparece de acordo com cooldown do personagem
         if (state->inCooldown[f]) {
             
             DrawRectangleRec(frameCDDest, ColorAlpha(GRAY, 0.7f)); // Um highlight diferente para o selecionado
