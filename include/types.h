@@ -54,6 +54,7 @@ typedef struct {
 typedef struct {
     // Estado do jogo.
     bool titleScreen;
+    bool pause;
     bool gameOver;
     int money;
     int mousePick;
@@ -61,6 +62,16 @@ typedef struct {
     // Grid de tiles.
     int tiles[ROWS][COLUMNS];
     int frame[5];
+
+    // Estatisticas
+    int currentWave;
+    int enemiesKilled;
+    int charactersBought;
+    int charactersSold;
+    int charactersLost;
+    int moneyBagsCollected;
+    int moneyBagsMissed;
+    int currentPoints;
     
     // Arrays de personagens.
     Chimpanzini chimpanzini[ROWS][COLUMNS];
@@ -74,7 +85,7 @@ typedef struct {
     int frameCounterIdle;
     int pisc;
     
-    // Bolsa de pontos aleatória.
+    // Bolsa de dinheiro aleatória.
     bool moneyBag;
     bool randomizePointBagPos;
     bool piscBool;

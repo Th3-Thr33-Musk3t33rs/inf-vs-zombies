@@ -78,14 +78,14 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     }
 }
 
-// Renderiza o HUD (Heads-Up Display) com pontos e botão de venda.
+// Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
 void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
                const GameTextures* textures, Vector2 mouse) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
     char moneyText[10];
     sprintf(moneyText, "%d", state->money); // Converte a pontuação para string
 
-    // Posição do texto de pontos.
+    // Posição do texto de dinheiro.
     Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
     float spacing = 10;
     int textWidth = MeasureText(moneyText, fontSize);
@@ -100,7 +100,7 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
     };
     Rectangle moneyCountSource = { 275, 26, 179, 179 }; // Região da spritesheet do ícone
 
-    // Renderiza o texto do número de pontos.
+    // Renderiza o texto do número de dinheiro.
     DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, fontSize, BLACK);
 
     // Renderiza o ícone de moeda.
@@ -163,10 +163,47 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
     }
 }
 
+
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState* state, int screenWidth, int screenHeight, 
-                   const GameTextures* textures, Vector2 mouse) {
+                   const GameTextures* textures, Vector2 mouse, int fontSize) {
     Vector2 Origin = { 0, 0 };
+    Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight); // Posicionamento das estatísticas gerais, ondas e pontos.
+    Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
+    Vector2 textpoints = ScaleTo720p(70, 645, screenWidth, screenHeight);
+
+
+    Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, screenWidth - ((COLUMNS + 1) * 96) - (screenWidth - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, screenWidth, screenHeight);
+    Rectangle statsSource = { 0, 0, textures->statsFrame.width, textures->statsFrame.height };
+
+
+    // Renderiza o quadro de estatísticas, e os textos dentro dele.
+    DrawTexturePro(textures->statsFrame, statsSource, statsDest, Origin, 0.0f, WHITE);
+    char currentWaveText[50], currentPointsText[55], enemiesKilledText[50], charactersBoughtText[50], charactersSoldText[50], charactersLostText[50], moneyBagsCollectedText[50], moneyBagsMissedText[50];
+
+    sprintf(currentWaveText, "WAVE: %d", state->currentWave); // Converte os valores em strings
+    sprintf(charactersBoughtText, "Characters Bought: %d", state->charactersBought); 
+    sprintf(charactersSoldText, "Characters Sold: %d", state->charactersSold); 
+    sprintf(charactersLostText, "Characters Lost: %d", state->charactersLost);
+    sprintf(moneyBagsCollectedText, "Bags Collected: %d", state->moneyBagsCollected);
+    sprintf(moneyBagsMissedText, "Bags Missed: %d", state->moneyBagsMissed);
+
+    sprintf(enemiesKilledText, "Enemies Killed: %d", state->enemiesKilled); 
+    sprintf(currentPointsText, "Points: %d", state->currentPoints); 
+
+    DrawText(currentWaveText, (int)textwave.x, (int)textwave.y, fontSize, RED);
+    DrawText(charactersBoughtText, (int)textstats.x, (int)textstats.y, fontSize / 1.5, RED);
+    DrawText(charactersSoldText, (int)textstats.x, (int)textstats.y + 30, fontSize / 1.5, RED);
+    DrawText(charactersLostText, (int)textstats.x, (int)textstats.y + 60, fontSize / 1.5, RED);
+    DrawText(enemiesKilledText, (int)textstats.x, (int)textstats.y + 90, fontSize / 1.5, RED);
+    DrawText(moneyBagsCollectedText, (int)textstats.x, (int)textstats.y + 120, fontSize / 1.5, RED);
+    DrawText(moneyBagsMissedText, (int)textstats.x, (int)textstats.y + 150, fontSize / 1.5, RED);
+    DrawText(currentPointsText, (int)textpoints.x, (int)textpoints.y, fontSize / 2, RED);
+
+
+  
+
+
 
     // Regiões das spritesheets para os personagens no grid.
     Rectangle sahurSource = { 8, 20, 122, 244 };
@@ -179,10 +216,13 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
         for (int c = 0; c < COLUMNS; c++) {
             Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
             Rectangle tileSource = { 0, 0, textures->buttonTile.width, textures->buttonTile.height };
-            Rectangle statsDest = ScaleRectTo720p(0 , GRID_MARGIN_Y, screenWidth - ((COLUMNS+1) * 96) - (screenWidth - (GRID_MARGIN_X + (COLUMNS+1) * 96)), ROWS * 78, screenWidth, screenHeight);
-            Rectangle statsSource = { 0, 0, textures->statsFrame.width, textures->statsFrame.height };
+      
 
-            DrawTexturePro(textures->statsFrame, statsSource, statsDest, Origin, 0.0f, WHITE);
+       
+            
+
+
+
             // Renderiza as Tiles e os personagens baseados no código da tile.
             switch (state->tiles[r][c]) {
                 case 0: // Tile de botão (coluna 0)
@@ -270,7 +310,7 @@ void RenderProjectiles(GameState* state, int screenWidth, int screenHeight,
     }
 }
 
-// Renderização da bolsa de pontos aleatória.
+// Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight, 
                     const GameTextures* textures, Vector2 mouse) {
     if(!state->moneyBag) return; // Só renderiza se a bolsa estiver ativa

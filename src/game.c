@@ -31,16 +31,26 @@ void InitializeGameState(GameState* state) {
     state->characterCost[SAHUR_FRAME_ID] = SAHUR_COST; 
     state->characterCost[LIRILI_FRAME_ID] = LIRILI_COST; 
     state->characterCost[BOMBARDINI_FRAME_ID] = BOMBARDINI_COST;  
+
+    // Inicializa valores das estatisticas
+    state->currentWave = 1;
+    state->charactersBought = 0;
+    state->charactersSold = 0;
+    state->charactersLost = 0;
+    state->moneyBagsCollected = 0;
+    state->moneyBagsMissed = 0;
+    state->enemiesKilled = 0;
+    state->currentPoints = 0;
     
-    // Inicializa contadores de animação e estado da bolsa de pontos.
+    // Inicializa contadores de animação e estado da bolsa de dinheiro.
     state->frameCounterPisc = 0;
     state->frameCounterIdle = 0;
     state->pisc = 0; // Usado para o efeito de piscar da bolsa.
-    state->moneyBag = false; // Indica se a bolsa de pontos está ativa.
+    state->moneyBag = false; // Indica se a bolsa de dinheiro está ativa.
     state->randomizePointBagPos = true; // Controla se a posição da bolsa deve ser randomizada.
     state->piscBool = true; // Alterna para o efeito de piscar.
-    state->randomNumX = 0; // Posição X da bolsa de pontos.
-    state->randomNumY = 0; // Posição Y da bolsa de pontos.
+    state->randomNumX = 0; // Posição X da bolsa de dinheiro.
+    state->randomNumY = 0; // Posição Y da bolsa de dinheiro.
 
     // Seta todas as Tiles como 1 (gramado padrão), exceto as da coluna 0, que possuem valor 0 (botões).
     for(int r = 0; r < ROWS; r++) {
@@ -76,7 +86,7 @@ void UpdateGame(GameState* state) {
     
     UpdateCharacters(state); // Atualiza o estado e animações dos personagens
     UpdateProjectiles(state, GetFrameTime()); // Atualiza a posição dos projéteis
-    UpdateMoneyBag(state); // Atualiza a lógica da bolsa de pontos
+    UpdateMoneyBag(state); // Atualiza a lógica da bolsa de dinheiro
 }
 
 // Atualiza os estados e animações dos personagens.
@@ -87,6 +97,7 @@ void UpdateCharacters(GameState* state) {
             if (state->chimpanzini[r][c].exists && state->chimpanzini[r][c].hp <= 0) {
                 state->chimpanzini[r][c].exists = false;
                 state->tiles[r][c] = 1; // Retorna a tile para o estado padrão
+                state->charactersLost += 1; // Incremente o contador de personagens perdidos
             }
             if (state->tralalero[r][c].exists && state->tralalero[r][c].hp <= 0) {
                 state->tralalero[r][c].exists = false;
@@ -114,7 +125,7 @@ void UpdateCharacters(GameState* state) {
                 if (state->bombardini[r][c].exists && !state->bombardini[r][c].ready) state->bombardini[r][c].idle++;
             }
 
-            // Lógica de comportamento do Chimpanzini (geração de pontos)
+            // Lógica de comportamento do Chimpanzini (geração de dinheiro)
             if (state->chimpanzini[r][c].exists) {
                 if (!state->chimpanzini[r][c].shining) { // Animação de idle
                     if (state->chimpanzini[r][c].idle == 3) {
@@ -211,7 +222,7 @@ void UpdateProjectiles(GameState* state, float deltaTime) {
     }
 }
 
-// Atualiza a lógica da bolsa de pontos aleatória.
+// Atualiza a lógica da bolsa de dinheiro aleatória.
 void UpdateMoneyBag(GameState* state) {
     // Lógica da bolsa de dinheiro aleatória.
     // Alterna piscBool para fazer a bolsa piscar.
@@ -253,6 +264,7 @@ void UpdateMoneyBag(GameState* state) {
         if (state->frameCounterPisc <= 0) {
             state->randomizePointBagPos = true; // Permite nova randomização
             state->moneyBag = false;
+            state->moneyBagsMissed += 1; // Incrementa o contador de bolsas perdidas
         }
     }
 }
@@ -292,12 +304,13 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     // Lógica de manipulação de personagens no grid (colocar ou vender)
     HandleCharacterPlacementAndSelling(state, mousePos, screenWidth, screenHeight);
 
-    // Lógica de coleta da bolsa de pontos
+    // Lógica de coleta da bolsa de dinheiro
     if (state->moneyBag) {
         Rectangle moneyBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
         if (CheckCollisionPointRec(mousePos, moneyBagDest)) {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                state->money += 25; // Adiciona pontos
+                state->money += 25; // Adiciona dinheiro
+                state->moneyBagsCollected += 1; // Incrementa o contador de bolsas coletadas
                 state->moneyBag = false; // Remove a bolsa
                 state->frameCounterPisc = -2; // Garante que o timer resete
                 state->randomizePointBagPos = true; // Permite nova randomização
@@ -314,7 +327,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
 
             // Verifica colisão do mouse com a tile e se o botão esquerdo foi pressionado
             if (CheckCollisionPointRec(mouse, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                // Lógica para Chimpanzini brilhando (coletar pontos)
+                // Lógica para Chimpanzini brilhando (coletar dinheiro)
                 if (state->tiles[r][c] == CHIMPANZINI_ID && state->chimpanzini[r][c].shining) {
                     state->chimpanzini[r][c].shining = false;
                     state->money += 25;
@@ -322,7 +335,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                 }
                 // Lógica de posicionamento de personagem
                 else if (state->tiles[r][c] == 1) { // Se a tile estiver vazia (valor 1)
-                    // Verifica se um personagem está selecionado e se o jogador tem pontos suficientes
+                    // Verifica se um personagem está selecionado e se o jogador tem dinheiro suficientes
                     if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID && 
                         state->money >= state->characterCost[state->mousePick - CHIMPANZINI_ID]) {
                         
@@ -344,6 +357,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                                 state->bombardini[r][c] = (Bombardini){ .hp = 10, .idle = 0, .loop = 0, .bombX = 0, .bombY = 0, .bombB = false, .ready = false, .exists = true };
                                 break;
                         }
+                        state->charactersBought += 1; // Incrementa o número de personagens comprados
                         state->tiles[r][c] = state->mousePick; // Atualiza o tipo da tile
                         state->money -= state->characterCost[state->mousePick - CHIMPANZINI_ID]; // Deduz o custo
                         state->mousePick = 1; // Reseta a seleção do mouse
@@ -363,6 +377,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                     if (characterId != BOMBARDINI_ID) { // Adiciona metade do custo de volta, exceto para Bombardini
                         state->money += state->characterCost[characterId - CHIMPANZINI_ID] / 2;
                     }
+                    state->charactersSold += 1; // Incrementa o número de personagens vendidos
                     state->tiles[r][c] = 1; // Retorna a tile para o estado padrão
                 }
             }

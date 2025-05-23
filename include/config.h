@@ -26,8 +26,8 @@ extern const int FONT_SIZE;
 #define CHIMPANZINI_FRAME_ID 0
 #define CHIMPAZINI_COST 50
 
-#define TRALALERO_FRAME_ID 1
 #define TRALALERO_ID 17
+#define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
 
 #define SAHUR_ID 18

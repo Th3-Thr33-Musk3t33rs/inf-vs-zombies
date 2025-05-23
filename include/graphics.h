@@ -13,7 +13,7 @@ void UnloadTextures(GameTextures* textures);
 // Renderização da tela de título.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize);
 
-// Renderização do HUD (Heads-Up Display: pontos, botão de venda).
+// Renderização do HUD (Heads-Up Display: dinheiro, botão de venda).
 void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
                const GameTextures* textures, Vector2 mouse);
 
@@ -23,13 +23,13 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
 
 // Renderização do grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState* state, int screenWidth, int screenHeight, 
-                   const GameTextures* textures, Vector2 mouse);
+                   const GameTextures* textures, Vector2 mouse, int fontSize);
 
 // Renderização dos projéteis ativos no jogo.
 void RenderProjectiles(GameState* state, int screenWidth, int screenHeight, 
                       const GameTextures* textures);
 
-// Renderização da bolsa de pontos aleatória.
+// Renderização da bolsa de dinheiro aleatória.
 void RenderPointsBag(GameState* state, int screenWidth, int screenHeight, 
                     const GameTextures* textures, Vector2 mouse);
 
