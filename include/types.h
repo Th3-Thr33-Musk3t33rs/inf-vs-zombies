@@ -97,7 +97,7 @@ typedef struct {
     // Custos dos Personagens.
     int characterCost[5];
     // Cooldown dos Personagens.
-    int characterCD[5];
+    float characterCD[5];
     bool inCooldown[5];
 } GameState;
 

@@ -25,27 +25,27 @@ extern const int FONT_SIZE;
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
 #define CHIMPANZINI_COST 50
-#define CHIMPANZINI_CD 10
+#define CHIMPANZINI_CD 7.5f
 
 #define TRALALERO_ID 17
 #define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
-#define TRALALERO_CD 30
+#define TRALALERO_CD 7.5f
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
 #define SAHUR_COST 150
-#define SAHUR_CD 10
+#define SAHUR_CD 7.5f
 
 #define LIRILI_ID 19
 #define LIRILI_FRAME_ID 3
 #define LIRILI_COST 50
-#define LIRILI_CD 70
+#define LIRILI_CD 30
 
 #define BOMBARDINI_ID 20
 #define BOMBARDINI_FRAME_ID 4
 #define BOMBARDINI_COST 25
-#define BOMBARDINI_CD 40
+#define BOMBARDINI_CD 30
 
 // ID especial para venda.
 #define SELL_ID 404
