@@ -46,7 +46,7 @@ int main(void) {
                 RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
                 RenderGameGrid(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);
                 RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures);
-                RenderPointsBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);
+                RenderMoneyBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);
                 RenderSelectedCharacterPreview(&game_state, &game_textures, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             }
         }

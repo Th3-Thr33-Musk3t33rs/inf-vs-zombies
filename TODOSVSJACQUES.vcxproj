@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{650d8049-2292-418e-9df8-8fb7d056f0d3}</ProjectGuid>
+    <ProjectGuid>{5BDF9848-2A4A-4A02-98AC-A3B3CA0CC3AA}</ProjectGuid>
     <RootNamespace>TODOSVSJACQUES</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

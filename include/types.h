@@ -55,7 +55,7 @@ typedef struct {
     // Estado do jogo.
     bool titleScreen;
     bool gameOver;
-    int points;
+    int money;
     int mousePick;
     
     // Grid de tiles.
@@ -75,7 +75,7 @@ typedef struct {
     int pisc;
     
     // Bolsa de pontos aleatória.
-    bool pointsBag;
+    bool moneyBag;
     bool randomizePointBagPos;
     bool piscBool;
 
@@ -90,10 +90,11 @@ typedef struct {
 typedef struct {
     Texture2D metallicTile;
     Texture2D buttonTile;
+    Texture2D statsFrame;
     Texture2D frame;
     Texture2D characterTextures[8][8];
     Texture2D characterFrames[8];
-    Texture2D pointsIcon;
+    Texture2D moneyIcon;
     Texture2D projectile;
     Texture2D bomb;
 } GameTextures;

@@ -17,6 +17,9 @@ extern const int FONT_SIZE;
 // Configurações do grid.
 #define ROWS 5
 #define COLUMNS 9
+#define GRID_MARGIN_X 400
+#define GRID_MARGIN_Y 180
+
 
 // Características do Chimpanzini.
 #define CHIMPANZINI_ID 16
@@ -45,14 +48,14 @@ extern const int FONT_SIZE;
 // Configurações de jogo.
 #define TARGET_FPS 60
 #define BASE_FONT_SIZE 40
-#define POINTS_BAG_RANDOMNESS 1200
+#define MONEY_BAG_RANDOMNESS 1200
 
 // Velocidades.
 #define PROJECTILE_SPEED 400.0f
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
-#define INITIAL_POINTS 150
+#define INITIAL_MONEY 150
 #define DAMAGE 10
 #define ENEMY_HP 110
 

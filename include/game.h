@@ -22,7 +22,7 @@ void UpdateCharacters(GameState* state);
 void UpdateProjectiles(GameState* state, float deltaTime);
 
 // Atualização da lógica da bolsa de pontos aleatória.
-void UpdatePointsBag(GameState* state);
+void UpdateMoneyBag(GameState* state);
 
 // Lógica de posicionamento e venda de personagens no grid.
 void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight);

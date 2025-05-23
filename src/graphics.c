@@ -16,8 +16,9 @@ void InitializeTextures(GameTextures* textures) {
     // Carrega texturas básicas do ambiente e elementos do jogo.
     textures->metallicTile = LoadTexture("assets/elements/metallictile.png"); 
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
+    textures->statsFrame = LoadTexture("assets/elements/statsframe.png");
     textures->frame = LoadTexture("assets/elements/frame2.png");
-    textures->pointsIcon = LoadTexture("assets/elements/points.png");
+    textures->moneyIcon = LoadTexture("assets/elements/money.png");
     textures->projectile = LoadTexture("assets/elements/projectile.png");
     textures->bomb = LoadTexture("assets/elements/bomb.png");
 
@@ -42,8 +43,9 @@ void InitializeTextures(GameTextures* textures) {
 void UnloadTextures(GameTextures* textures) {
     UnloadTexture(textures->metallicTile);
     UnloadTexture(textures->buttonTile);
+    UnloadTexture(textures->statsFrame);
     UnloadTexture(textures->frame);
-    UnloadTexture(textures->pointsIcon);
+    UnloadTexture(textures->moneyIcon);
     UnloadTexture(textures->projectile);
     UnloadTexture(textures->bomb);
 
@@ -80,29 +82,29 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
 void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
                const GameTextures* textures, Vector2 mouse) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
-    char pointsText[10];
-    sprintf(pointsText, "%d", state->points); // Converte a pontuação para string
+    char moneyText[10];
+    sprintf(moneyText, "%d", state->money); // Converte a pontuação para string
 
     // Posição do texto de pontos.
-    Vector2 textPoints = ScaleTo720p(110, 50, screenWidth, screenHeight);
+    Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
     float spacing = 10;
-    int textWidth = MeasureText(pointsText, fontSize);
+    int textWidth = MeasureText(moneyText, fontSize);
     float textHeight = fontSize;
 
     // Retângulo de destino para o ícone de moeda.
-    Rectangle pointsCountDest = {
-        textPoints.x + textWidth + spacing,
-        textPoints.y + (textHeight / 2.1f) - (35 * screenHeight / 720.0f) / 2.0f,
+    Rectangle moneyCountDest = {
+        textmoney.x + textWidth + spacing,
+        textmoney.y + (textHeight / 2.1f) - (35 * screenHeight / 720.0f) / 2.0f,
         35 * screenWidth / 1280.0f,
         35 * screenHeight / 720.0f
     };
-    Rectangle pointsCountSource = { 275, 26, 179, 179 }; // Região da spritesheet do ícone
+    Rectangle moneyCountSource = { 275, 26, 179, 179 }; // Região da spritesheet do ícone
 
     // Renderiza o texto do número de pontos.
-    DrawText(pointsText, (int)textPoints.x, (int)textPoints.y, fontSize, BLACK);
+    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, fontSize, BLACK);
 
     // Renderiza o ícone de moeda.
-    DrawTexturePro(textures->pointsIcon, pointsCountSource, pointsCountDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, Origin, 0.0f, WHITE);
 
     // Posição e tamanho do botão "SELL".
     // Usamos as constantes de config.h para a posição.
@@ -175,9 +177,12 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
 
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
-            Rectangle tileDest = ScaleRectTo720p(60 + (c * 96), 220 + (r * 78), 96, 78, screenWidth, screenHeight);
+            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
             Rectangle tileSource = { 0, 0, textures->buttonTile.width, textures->buttonTile.height };
+            Rectangle statsDest = ScaleRectTo720p(0 , GRID_MARGIN_Y, screenWidth - ((COLUMNS+1) * 96) - (screenWidth - (GRID_MARGIN_X + (COLUMNS+1) * 96)), ROWS * 78, screenWidth, screenHeight);
+            Rectangle statsSource = { 0, 0, textures->statsFrame.width, textures->statsFrame.height };
 
+            DrawTexturePro(textures->statsFrame, statsSource, statsDest, Origin, 0.0f, WHITE);
             // Renderiza as Tiles e os personagens baseados no código da tile.
             switch (state->tiles[r][c]) {
                 case 0: // Tile de botão (coluna 0)
@@ -188,7 +193,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
                     break;
                 case CHIMPANZINI_ID: {
                     // Renderiza a tile e o Chimpanzini se ele existir
-                    Rectangle chimpanziniDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 323/5, 543/5, screenWidth, screenHeight);
+                    Rectangle chimpanziniDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 323/5, 543/5, screenWidth, screenHeight);
                     DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
                     if (state->chimpanzini[r][c].exists) {
                         DrawTexturePro(textures->characterTextures[CHIMPANZINI_FRAME_ID][state->chimpanzini[r][c].idle], chimpanziniSource, chimpanziniDest, Origin, 0.0f, WHITE);
@@ -197,7 +202,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
                 }
                 case TRALALERO_ID: {
                     // Renderiza a tile e o Tralalero se ele existir
-                    Rectangle tralaleroDest = ScaleRectTo720p(80 + (c * 96)-20, 220 + (r * 78), 186/2, 144/2, screenWidth, screenHeight);
+                    Rectangle tralaleroDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96)-20, GRID_MARGIN_Y + (r * 78), 186/2, 144/2, screenWidth, screenHeight);
                     DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
                     if (state->tralalero[r][c].exists) {
                         DrawTexturePro(textures->characterTextures[TRALALERO_FRAME_ID][state->tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
@@ -206,7 +211,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
                 }
                 case SAHUR_ID: {
                     // Renderiza a tile e o Sahur se ele existir
-                    Rectangle sahurDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
+                    Rectangle sahurDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 122/2.5, 244/2.5, screenWidth, screenHeight);
                     DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
                     if (state->sahur[r][c].exists) {
                         DrawTexturePro(textures->characterTextures[SAHUR_FRAME_ID][state->sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
@@ -215,7 +220,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
                 }
                 case LIRILI_ID: {
                     // Renderiza a tile e o Lirili se ele existir
-                    Rectangle liriliDest = ScaleRectTo720p(80 + (c * 96), 220 + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
+                    Rectangle liriliDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 190/2.5, 225/2.5, screenWidth, screenHeight);
                     DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
                     if (state->lirili[r][c].exists) {
                         DrawTexturePro(textures->characterTextures[LIRILI_FRAME_ID][state->lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
@@ -224,7 +229,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
                 }
                 case BOMBARDINI_ID: {
                     // Renderiza a tile e o Bombardini se ele existir
-                    Rectangle bombardiniDest = ScaleRectTo720p(80 + (c * 96)-2, 220 + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
+                    Rectangle bombardiniDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96)-2, GRID_MARGIN_Y + (r * 78) + 9, 620/10, 610/10, screenWidth, screenHeight);
                     DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
                     if (state->bombardini[r][c].exists) {
                         DrawTexturePro(textures->characterTextures[BOMBARDINI_FRAME_ID][state->bombardini[r][c].idle], bombardiniSource, bombardiniDest, Origin, 0.0f, WHITE);
@@ -266,20 +271,20 @@ void RenderProjectiles(GameState* state, int screenWidth, int screenHeight,
 }
 
 // Renderização da bolsa de pontos aleatória.
-void RenderPointsBag(GameState* state, int screenWidth, int screenHeight, 
+void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight, 
                     const GameTextures* textures, Vector2 mouse) {
-    if(!state->pointsBag) return; // Só renderiza se a bolsa estiver ativa
+    if(!state->moneyBag) return; // Só renderiza se a bolsa estiver ativa
 
     Vector2 Origin = { 0, 0 };
-    Rectangle pointsBagSource = { 18, 11, 165, 210 }; // Região da spritesheet da bolsa
+    Rectangle moneyBagSource = { 18, 11, 165, 210 }; // Região da spritesheet da bolsa
 
     // Usa a posição randomizada do GameState
-    Rectangle pointsBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
+    Rectangle moneyBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
 
-    DrawTexturePro(textures->pointsIcon, pointsBagSource, pointsBagDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, Origin, 0.0f, WHITE);
 
     // Highlight visual da bolsa ao passar o mouse.
-    if(CheckCollisionPointRec(mouse, pointsBagDest)) {
+    if(CheckCollisionPointRec(mouse, moneyBagDest)) {
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 }
