@@ -3,28 +3,25 @@
 
 #include "types.h"
 
-// Estado do jogo.
-GameState game_state;
-
 // Inicialização do estado do jogo.
 void InitializeGameState(GameState* state);
 
-// Atualização da lógica do jogo.
+// Atualização da lógica principal do jogo (chamada por frame).
 void UpdateGame(GameState* state);
 
-// Atualização dos personagens.
-// void UpdateCharacters(GameState* state);
+// Processamento de entrada do usuário que afeta o estado do jogo.
+void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
 
-// // Processamento de entrada do usuário.
-// void ProcessInput(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
+// Atualização dos estados e animações dos personagens.
+void UpdateCharacters(GameState* state);
 
-// // Lógica de posicionamento de personagens.
-// void PlaceCharacter(GameState* state, int row, int col);
+// Atualização da lógica dos projéteis.
+void UpdateProjectiles(GameState* state, float deltaTime);
 
-// // Lógica de venda de personagens
-// void SellCharacter(GameState* state, int row, int col);
+// Atualização da lógica da bolsa de pontos aleatória.
+void UpdatePointsBag(GameState* state);
 
-// // Verificação de colisão com tiles
-// bool CheckTileCollision(Vector2 mousePos, int row, int col, int screenWidth, int screenHeight);
+// Lógica de posicionamento e venda de personagens no grid.
+void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight);
 
 #endif

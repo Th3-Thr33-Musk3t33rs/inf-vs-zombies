@@ -76,8 +76,11 @@ typedef struct {
     
     // Bolsa de pontos aleatória.
     bool pointsBag;
-    bool randomize;
+    bool randomizePointBagPos;
     bool piscBool;
+
+    int randomNumX;
+    int randomNumY;
     
     // Custos dos personagens.
     int characterCost[5];

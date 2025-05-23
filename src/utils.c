@@ -17,3 +17,8 @@ Rectangle ScaleRectTo720p(float x, float y, float width, float height, int scree
         pos.x, pos.y, size.x, size.y
     };
 }
+
+int TimeToFrames(float timeInSeconds) {
+    // Multiplica o tempo em segundos pela taxa de quadros por segundo.
+    return (int)(timeInSeconds * TARGET_FPS);
+}
