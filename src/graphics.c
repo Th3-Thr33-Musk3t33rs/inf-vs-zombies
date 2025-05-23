@@ -64,7 +64,7 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     Rectangle playDest = ScaleRectTo720p((int)1280/2.5-5, (int)720/2, 210, fontSize, screenWidth, screenHeight);
     Vector2 mouse = GetMousePosition(); // Pega a posição do mouse para highlight
 
-    DrawText("Todos vs. Jacques", screenWidth/3, screenHeight/3, fontSize, BLACK);
+    DrawText(GAME_TITLE, screenWidth/3, screenHeight/3, fontSize, BLACK);
     DrawText("Play Game", screenWidth/2.5, screenHeight/2, fontSize, BLACK);
 
     // Highlight visual do botão "Play Game" ao passar o mouse.

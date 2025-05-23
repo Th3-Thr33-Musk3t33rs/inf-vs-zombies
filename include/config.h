@@ -9,7 +9,6 @@
 #define BASE_WIDTH_INT 1280
 #define BASE_HEIGHT_INT 720
 
-// TODO: trocar esses 750 e 40 por algo que faça sentido.
 // Link externo.
 extern const int SELL_POS_X;
 extern const int SELL_POS_Y;
