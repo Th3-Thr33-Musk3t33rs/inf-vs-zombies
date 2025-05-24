@@ -343,7 +343,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
         if (CheckCollisionPointRec(mousePos, moneyBagDest)) {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 state->shouldPlaySound = true;
-                state->soundToPlay = SOUND_COLLECT;
+                state->soundToPlay = SOUND_COLLECTBAG;
                 state->money += 25; // Adiciona dinheiro
                 state->moneyBagsCollected += 1; // Incrementa o contador de bolsas coletadas
                 state->moneyBag = false; // Remove a bolsa

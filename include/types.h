@@ -125,6 +125,8 @@ typedef struct {
     Sound putSFX;
     Sound cancelSFX;
     Sound backgroundMusicSFX;
+    Sound collectBagSFX;
+    Sound hitSFX;
 } GameSounds;
 
 #endif

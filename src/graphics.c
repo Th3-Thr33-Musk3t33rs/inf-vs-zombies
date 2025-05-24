@@ -44,8 +44,10 @@ void InitializeSounds(GameSounds* sounds) {
     sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
     sounds->selectSFX = LoadSound("assets/sfx/select.wav");
     sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
+    sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
     sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
     sounds->backgroundMusicSFX = LoadSound("assets/sfx/BGMusic.wav");
 }
 
@@ -76,6 +78,8 @@ void UnloadSounds(GameSounds* sounds) {
     UnloadSound(sounds->cancelSFX);
     UnloadSound(sounds->selectSFX);
     UnloadSound(sounds->collectSFX);
+    UnloadSound(sounds->collectBagSFX);
+    UnloadSound(sounds->hitSFX);
     UnloadSound(sounds->putSFX);
     UnloadSound(sounds->projectileSFX);
     UnloadSound(sounds->backgroundMusicSFX);
@@ -189,7 +193,9 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         }
         // Highlight que desaparece de acordo com cooldown do personagem
         if (state->inCooldown[f]) {
-            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f)); // Um highlight diferente para o selecionado
+            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f)); 
+
+            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f)); 
         }
     }
 }
@@ -331,6 +337,10 @@ void PlaySounds(GameState* state, const GameSounds* sounds) {
             PlaySound(sounds->selectSFX); break;
         case SOUND_COLLECT:
             PlaySound(sounds->collectSFX); break;
+        case SOUND_COLLECTBAG:
+            PlaySound(sounds->collectBagSFX); break;
+        case SOUND_HIT:
+            PlaySound(sounds->hitSFX); break;
         case SOUND_PUT:
             PlaySound(sounds->putSFX); break;
         case SOUND_CANCEL:

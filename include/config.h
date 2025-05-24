@@ -68,9 +68,11 @@ extern const int FONT_SIZE;
 #define SOUND_PROJECTILE 1
 #define SOUND_SELECT 2
 #define SOUND_COLLECT 3
-#define SOUND_CANCEL 4
-#define SOUND_PUT 5
-#define SOUND_BGMUSIC 6
+#define SOUND_COLLECTBAG 4
+#define SOUND_CANCEL 5
+#define SOUND_PUT 6
+#define SOUND_HIT 7
+#define SOUND_BGMUSIC 98
 
 
 #endif
