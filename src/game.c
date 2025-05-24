@@ -16,6 +16,8 @@ void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds) {
     InitializeTextures(textures);
     InitializeSounds(sounds);
     InitializeGameState(state);
+    SetExitKey(0); // Desabilita a saída com ESC
+
 }
 
 // Inicializa o estado do jogo com valores padrão.
@@ -23,6 +25,8 @@ void InitializeGameState(GameState* state) {
     // Inicializa valores básicos do estado do jogo.
     state->titleScreen = true;
     state->gameOver = false;
+    state->pause = false;
+    state->musicPaused = false;
     state->money = INITIAL_MONEY;
     state->mousePick = 1; // Valor padrão quando nada está selecionado.
 
@@ -58,7 +62,7 @@ void InitializeGameState(GameState* state) {
     // Inicializa contadores de animação e estado da bolsa de dinheiro.
     state->frameCounterPisc = 0;
     state->frameCounterIdle = 0;
-    state->pisc = 0; // Usado para o efeito de piscar da bolsa.
+    state->pisc = 0; // Usado para o efeito de piscar da bolsa. 
     state->moneyBag = false; // Indica se a bolsa de dinheiro está ativa.
     state->randomizePointBagPos = true; // Controla se a posição da bolsa deve ser randomizada.
     state->piscBool = true; // Alterna para o efeito de piscar.
@@ -298,10 +302,15 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
         }
         return; // Não processa mais nada se estiver na tela de título
     }
-
+    // Pausa e despausa o jogo ao apertar ESC ou P
+    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P))
+    {
+        state->pause = !state->pause;
+        state->mousePick = 1;
+    }
     // Lógica do botão "SELL"
     Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
-    if ((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) {
+    if (((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) && !state->pause) {
       
             // Alterna o modo de venda
             state->mousePick = (state->mousePick != SELL_ID) ? SELL_ID : 1;
@@ -311,7 +320,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     // Lógica do seletor de personagens
     for (int f = 0; f < 5; f++) {
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false) {
+        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false && !state->pause) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_SELECT;
             if (state->mousePick != state->frame[f]) {
@@ -323,7 +332,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
         }
 
         // Lógica de Cooldown do personagem
-        if (state->inCooldown[f] == true) {
+        if (state->inCooldown[f] == true && !state->pause) {
             state->frameCounterCD[f] += 96.0f / TimeToFrames(state->characterCD[f]);
             if (state->frameCounterCD[f] >= 96){
                 state->frameCounterCD[f] = 0; 
@@ -436,6 +445,25 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                     state->tiles[r][c] = 1; // Retorna a tile para o estado padrão
                 }
             }
+        }
+    }
+}
+
+// Lógica dos botões do menu de pause
+void HandlePause(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight){
+
+    Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4) + 24, 312, 121 - 48, screenWidth, screenHeight);
+    Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2) + 24, 312, 121 - 48, screenWidth, screenHeight);
+
+    if (CheckCollisionPointRec(mousePos, option1GlowDest)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            state->pause = false; // Sai do menu de pause
+        }
+    }   if (CheckCollisionPointRec(mousePos, option2GlowDest)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            CloseAudioDevice(); // Fecha o áudio
+            CloseWindow();      // Fecha a janela
+            exit(0);            // Finaliza o programa
         }
     }
 }

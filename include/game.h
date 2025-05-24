@@ -27,4 +27,7 @@ void UpdateMoneyBag(GameState* state);
 // Lógica de posicionamento e venda de personagens no grid.
 void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight);
 
+// Lógica de funcionamento dos botões do menu de pause
+void HandlePause(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
+
 #endif

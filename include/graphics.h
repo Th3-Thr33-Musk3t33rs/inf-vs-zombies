@@ -44,4 +44,6 @@ void RenderPointsBag(GameState* state, int screenWidth, int screenHeight,
 // Renderiza o personagem selecionado ao lado do mouse de forma transparente.
 void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textures, Vector2 mouse, int screenWidth, int screenHeight);
 
+// Renderiza a tela de pause
+void RenderPause(GameState* state, const GameTextures* textures, const GameSounds* sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize);
 #endif

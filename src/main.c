@@ -38,9 +38,18 @@ int main(void) {
             // Se estiver na tela de título, renderiza apenas ela.
             if (game_state.titleScreen) {
                 RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
-            } else {
-				// Atualiza a lógica do jogo.
-        		UpdateGame(&game_state);
+            }
+            else {
+                // Se estiver pausado, renderiza e carrega apenas a lógica do menu de pause
+                if (game_state.pause) {
+                    HandlePause(&game_state, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                    RenderPause(&game_state, &game_textures, &game_sounds, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
+                }
+                else
+                {
+                // Atualiza a lógica do jogo.
+                UpdateGame(&game_state);
+                }
 
                 // Se o jogo estiver ativo, renderiza todos os elementos do jogo.
                 RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse, &game_sounds);
@@ -49,6 +58,7 @@ int main(void) {
                 RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, &game_sounds);
                 RenderMoneyBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse, &game_sounds);
                 RenderSelectedCharacterPreview(&game_state, &game_textures, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                RenderPause(&game_state, &game_textures, &game_sounds, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             }
         }
         // TODO: Adicionar tela de Game Over aqui, se game_state.gameOver for true.

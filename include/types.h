@@ -55,6 +55,7 @@ typedef struct {
     // Estado do jogo.
     bool titleScreen;
     bool pause;
+    bool musicPaused;
     bool gameOver;
     int money;
     int mousePick;
@@ -109,6 +110,7 @@ typedef struct {
     Texture2D metallicTile;
     Texture2D buttonTile;
     Texture2D statsFrame;
+    Texture2D optionFrame;
     Texture2D frame;
     Texture2D characterTextures[8][8];
     Texture2D characterFrames[8];
@@ -124,9 +126,9 @@ typedef struct {
     Sound projectileSFX;
     Sound putSFX;
     Sound cancelSFX;
-    Sound backgroundMusicSFX;
     Sound collectBagSFX;
     Sound hitSFX;
+    Music backgroundMusic;
 } GameSounds;
 
 #endif

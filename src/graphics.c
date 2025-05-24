@@ -17,6 +17,7 @@ void InitializeTextures(GameTextures* textures) {
     textures->metallicTile = LoadTexture("assets/elements/metallictile.png"); 
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
     textures->statsFrame = LoadTexture("assets/elements/statsframe.png");
+    textures->optionFrame = LoadTexture("assets/elements/option.png");
     textures->frame = LoadTexture("assets/elements/frame2.png");
     textures->moneyIcon = LoadTexture("assets/elements/money.png");
     textures->projectile = LoadTexture("assets/elements/projectile.png");
@@ -41,6 +42,10 @@ void InitializeTextures(GameTextures* textures) {
 // Carrega os sons do jogo
 void InitializeSounds(GameSounds* sounds) {
     InitAudioDevice();
+    sounds->backgroundMusic = LoadMusicStream("assets/sfx/bgmusic.wav");
+    PlayMusicStream(sounds->backgroundMusic);  // Inicia a música
+
+
     sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
     sounds->selectSFX = LoadSound("assets/sfx/select.wav");
     sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
@@ -48,7 +53,9 @@ void InitializeSounds(GameSounds* sounds) {
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
     sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
     sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
-    sounds->backgroundMusicSFX = LoadSound("assets/sfx/BGMusic.wav");
+
+
+
 }
 
 // Descarrega todas as texturas da memória.
@@ -56,6 +63,7 @@ void UnloadTextures(GameTextures* textures) {
     UnloadTexture(textures->metallicTile);
     UnloadTexture(textures->buttonTile);
     UnloadTexture(textures->statsFrame);
+    UnloadTexture(textures->optionFrame);
     UnloadTexture(textures->frame);
     UnloadTexture(textures->moneyIcon);
     UnloadTexture(textures->projectile);
@@ -82,7 +90,7 @@ void UnloadSounds(GameSounds* sounds) {
     UnloadSound(sounds->hitSFX);
     UnloadSound(sounds->putSFX);
     UnloadSound(sounds->projectileSFX);
-    UnloadSound(sounds->backgroundMusicSFX);
+    UnloadMusicStream(sounds->backgroundMusic);
 }
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
@@ -109,9 +117,10 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
 
 
     PlaySounds(state, sounds); // Chama a função que toca o som específico
-    if (!IsSoundPlaying(sounds->backgroundMusicSFX)) { // Toca a música de fundo imediatamente após ela acabar, a deixando em loop 
-        PlaySound(sounds->backgroundMusicSFX);
-    }
+   
+
+
+    UpdateMusicStream(sounds->backgroundMusic);
 
 
     // Posição do texto de dinheiro.
@@ -142,7 +151,7 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
     DrawText("SELL", SELL_POS_X, SELL_POS_Y, fontSize, BLACK);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, sellDest)) {
+    if (CheckCollisionPointRec(mouse, sellDest) && !state->pause) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
@@ -183,7 +192,7 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         DrawText(costChar, 12+(int)textValue.x, (int)textValue.y, fontSize/1.5, BLACK);
 
         // Highlight visual do personagem selecionado ao passar o mouse.
-        if (CheckCollisionPointRec(mouse, frameDest)) {
+        if (CheckCollisionPointRec(mouse, frameDest) && !state->pause) {
             DrawRectangleRec(frameDest, ColorAlpha(YELLOW, 0.3f));
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         }
@@ -319,7 +328,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
-            if (state->tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest)) {
+            if (state->tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest) && !state->pause) {
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 DrawRectangleRec(tileDest, ColorAlpha(YELLOW, 0.3f));
             }
@@ -390,7 +399,7 @@ void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight,
     DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, Origin, 0.0f, WHITE);
 
     // Highlight visual da bolsa ao passar o mouse.
-    if(CheckCollisionPointRec(mouse, moneyBagDest)) {
+    if(CheckCollisionPointRec(mouse, moneyBagDest) && !state->pause) {
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 }
@@ -410,5 +419,48 @@ void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textur
         
         // Renderiza o ícone do personagem selecionado.
         DrawTexturePro(textures->characterFrames[state->mousePick - CHIMPANZINI_ID], texMSource, texMDest, Origin, 0.0f, Transparency);
+    }
+}
+
+// Renderiza o botão de pause, e deixa o fundo escuro 
+void RenderPause(GameState* state, const GameTextures* textures, const GameSounds* sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize) {
+    Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
+    Rectangle pauseDest = ScaleRectTo720p(0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
+    Rectangle optionSource = { 0, 0, textures->optionFrame.width, textures->optionFrame.height };
+    Rectangle option1Dest = ScaleRectTo720p(480, screenHeight/4 ,  360, 121, screenWidth, screenHeight);
+    Rectangle option2Dest = ScaleRectTo720p(480, screenHeight/2, 360, 121, screenWidth, screenHeight);
+    Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4)+24, 312, 121-48, screenWidth, screenHeight);
+    Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2)+24, 312, 121-48, screenWidth, screenHeight);
+
+    if (state->pause) {
+        if (!state->musicPaused) {
+        PauseMusicStream(sounds->backgroundMusic);
+        state->musicPaused = true;
+    }
+
+
+        DrawRectangleRec(pauseDest, ColorAlpha(BLACK, 0.85f));
+
+        DrawTexturePro(textures->optionFrame, optionSource, option1Dest, Origin, 0.0f, WHITE);
+       
+        DrawText("Resume", 585, screenHeight / 3.3, fontSize, RED);
+        DrawTexturePro(textures->optionFrame, optionSource, option2Dest, Origin, 0.0f, WHITE);
+        DrawText("Exit Game", 560, screenHeight / 1.8, fontSize, RED);
+
+        if (CheckCollisionPointRec(mouse, option1GlowDest)) {
+            DrawRectangleRec(option1GlowDest, ColorAlpha(RED, 0.3f));
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        }
+        if (CheckCollisionPointRec(mouse, option2GlowDest)) {
+            DrawRectangleRec(option2GlowDest, ColorAlpha(RED, 0.3f));
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        }
+    }
+    else {
+        if (state->musicPaused) {
+            ResumeMusicStream(sounds->backgroundMusic);
+            state->musicPaused = false;
+
+        }
     }
 }
