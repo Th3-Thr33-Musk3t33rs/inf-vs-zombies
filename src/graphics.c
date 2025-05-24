@@ -191,6 +191,11 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         sprintf(costChar, "%d", state->characterCost[f]);
         DrawText(costChar, 12+(int)textValue.x, (int)textValue.y, fontSize/1.5, BLACK);
 
+        // Deixa personagem mais transparente caso o jogador não tenha dinheiro o suficiente.
+        if (state->characterCost[f] > state->money) {
+            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
+        }
+
         // Highlight visual do personagem selecionado ao passar o mouse.
         if (CheckCollisionPointRec(mouse, frameDest) && !state->pause) {
             DrawRectangleRec(frameDest, ColorAlpha(YELLOW, 0.3f));

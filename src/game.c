@@ -151,7 +151,7 @@ void UpdateCharacters(GameState* state) {
                         state->chimpanzini[r][c].idle = 0;
                         state->chimpanzini[r][c].loop++;
                     }
-                    if (state->chimpanzini[r][c].loop == 100) { // Após X loops, começa a brilhar
+                    if (state->chimpanzini[r][c].loop == 60) { // Após X loops, começa a brilhar
                         state->chimpanzini[r][c].shining = true;
                         state->chimpanzini[r][c].idle = 4; // Inicia animação de brilho
                     }
@@ -320,7 +320,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     // Lógica do seletor de personagens
     for (int f = 0; f < 5; f++) {
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false && !state->pause) {
+        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false && !state->pause && state->characterCost[f] <= state->money) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_SELECT;
             if (state->mousePick != state->frame[f]) {

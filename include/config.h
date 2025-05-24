@@ -60,7 +60,7 @@ extern const int FONT_SIZE;
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
-#define INITIAL_MONEY 150
+#define INITIAL_MONEY 50
 #define DAMAGE 10
 #define ENEMY_HP 110
 
