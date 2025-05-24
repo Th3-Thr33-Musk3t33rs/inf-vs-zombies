@@ -99,6 +99,9 @@ typedef struct {
     // Cooldown dos Personagens.
     float characterCD[5];
     bool inCooldown[5];
+
+    int soundToPlay;
+    bool shouldPlaySound;
 } GameState;
 
 // Struct para texturas.
@@ -113,5 +116,15 @@ typedef struct {
     Texture2D projectile;
     Texture2D bomb;
 } GameTextures;
+
+// Struct para sons
+typedef struct {
+    Sound selectSFX;
+    Sound collectSFX;
+    Sound projectileSFX;
+    Sound putSFX;
+    Sound cancelSFX;
+    Sound backgroundMusicSFX;
+} GameSounds;
 
 #endif

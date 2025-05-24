@@ -10,16 +10,17 @@
 
 
 int main(void) {
-	// Declaração das variáveis globais de estado e texturas.
+	// Declaração das variáveis globais de estado, texturas e sons.
 	GameState game_state;
 	GameTextures game_textures;
+    GameSounds game_sounds;
 
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
     // Inicializa a janela do jogo e define as configurações básicas.
 	// também carrega as texturas e estado inicial do jogo.
-    InitGame(&game_state, &game_textures);
+    InitGame(&game_state, &game_textures, &game_sounds);
 
     // Loop principal do jogo.
     while (!WindowShouldClose()) {
@@ -42,11 +43,11 @@ int main(void) {
         		UpdateGame(&game_state);
 
                 // Se o jogo estiver ativo, renderiza todos os elementos do jogo.
-                RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
-                RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse);
+                RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse, &game_sounds);
+                RenderCharacterSelector(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &game_textures, mouse, &game_sounds);
                 RenderGameGrid(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse, FONT_SIZE);
-                RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures);
-                RenderMoneyBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse);
+                RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, &game_sounds);
+                RenderMoneyBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT, &game_textures, mouse, &game_sounds);
                 RenderSelectedCharacterPreview(&game_state, &game_textures, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             }
         }
@@ -57,6 +58,7 @@ int main(void) {
 
     // Descarrega as texturas e fecha a janela ao sair do loop.
     UnloadTextures(&game_textures);
+    UnloadSounds(&game_sounds);
     CloseWindow();
 
     return 0;

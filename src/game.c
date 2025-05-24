@@ -10,10 +10,11 @@
 #include <string.h>
 
 // Inicializa a janela do jogo e define o FPS.
-void InitGame(GameState* state, GameTextures* textures) {
+void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds) {
     SetTargetFPS(TARGET_FPS);
     InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
     InitializeTextures(textures);
+    InitializeSounds(sounds);
     InitializeGameState(state);
 }
 
@@ -173,6 +174,8 @@ void UpdateCharacters(GameState* state) {
                 } else { // Animação de ataque
                     if (state->tralalero[r][c].idle == 7) {
                         state->tralalero[r][c].attacking = false;
+                        state->shouldPlaySound = true;
+                        state->soundToPlay = SOUND_PROJECTILE;
                         state->tralalero[r][c].projecB = true; // Ativa o projétil
                         state->tralalero[r][c].idle = 0; // Volta para idle
                         // Define a posição inicial do projétil
@@ -309,6 +312,8 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
     for (int f = 0; f < 5; f++) {
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
         if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE+f)) && state->inCooldown[f] == false) {
+            state->shouldPlaySound = true;
+            state->soundToPlay = SOUND_SELECT;
             if (state->mousePick != state->frame[f]) {
                 state->mousePick = state->frame[f]; // Seleciona o personagem
             }
@@ -316,6 +321,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
                 state->mousePick = 1;
             }
         }
+
         // Lógica de Cooldown do personagem
         if (state->inCooldown[f] == true) {
             state->frameCounterCD[f] += 96.0f / TimeToFrames(state->characterCD[f]);
@@ -336,6 +342,8 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
         Rectangle moneyBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
         if (CheckCollisionPointRec(mousePos, moneyBagDest)) {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                state->shouldPlaySound = true;
+                state->soundToPlay = SOUND_COLLECT;
                 state->money += 25; // Adiciona dinheiro
                 state->moneyBagsCollected += 1; // Incrementa o contador de bolsas coletadas
                 state->moneyBag = false; // Remove a bolsa
@@ -357,6 +365,8 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                 state->chimpanzini[r][c].shining = false;
                 state->money += 25;
                 state->chimpanzini[r][c].idle = 0; // Reseta animação
+                state->shouldPlaySound = true; 
+                state->soundToPlay = SOUND_COLLECT;
             }
 
             // Verifica colisão do mouse com a tile e se o botão esquerdo foi pressionado
@@ -366,12 +376,17 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                     state->chimpanzini[r][c].shining = false;
                     state->money += 25;
                     state->chimpanzini[r][c].idle = 0; // Reseta animação
+                    state->shouldPlaySound = true;
+                    state->soundToPlay = SOUND_COLLECT;
                 }
                 // Lógica de posicionamento de personagem
                 else if (state->tiles[r][c] == 1) { // Se a tile estiver vazia (valor 1)
                     // Verifica se um personagem está selecionado e se o jogador tem dinheiro suficientes
                     if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID && 
                         state->money >= state->characterCost[state->mousePick - CHIMPANZINI_ID]) {
+
+                        state->shouldPlaySound = true;
+                        state->soundToPlay = SOUND_PUT;
                         
                         // Inicializa a struct do personagem e o coloca na tile
                         switch (state->mousePick) {
@@ -404,6 +419,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                 else if (state->mousePick == SELL_ID && state->tiles[r][c] != 0 && state->tiles[r][c] != 1) { 
                     // Se o modo de venda está ativo e a tile não é vazia nem um botão
                     int characterId = state->tiles[r][c];
+          
                     switch (characterId) {
                         case CHIMPANZINI_ID: state->chimpanzini[r][c].exists = false; break;
                         case TRALALERO_ID: state->tralalero[r][c].exists = false; break;
@@ -414,6 +430,8 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
                     if (characterId != BOMBARDINI_ID) { // Adiciona metade do custo de volta, exceto para Bombardini
                         state->money += state->characterCost[characterId - CHIMPANZINI_ID] / 2;
                     }
+                    state->shouldPlaySound = true;
+                    state->soundToPlay = SOUND_CANCEL;
                     state->charactersSold += 1; // Incrementa o número de personagens vendidos
                     state->tiles[r][c] = 1; // Retorna a tile para o estado padrão
                 }

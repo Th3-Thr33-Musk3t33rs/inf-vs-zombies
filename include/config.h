@@ -64,4 +64,13 @@ extern const int FONT_SIZE;
 #define DAMAGE 10
 #define ENEMY_HP 110
 
+// Valores dos sons
+#define SOUND_PROJECTILE 1
+#define SOUND_SELECT 2
+#define SOUND_COLLECT 3
+#define SOUND_CANCEL 4
+#define SOUND_PUT 5
+#define SOUND_BGMUSIC 6
+
+
 #endif

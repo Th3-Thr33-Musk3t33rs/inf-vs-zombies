@@ -4,7 +4,7 @@
 #include "types.h"
 
 // Inicialização dos gráficos e estado do jogo (configurações da janela, FPS, lógica inicial...).
-void InitGame(GameState* state, GameTextures* textures);
+void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds);
 
 // Inicialização do estado do jogo.
 void InitializeGameState(GameState* state);

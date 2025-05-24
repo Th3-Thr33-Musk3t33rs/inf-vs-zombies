@@ -38,6 +38,16 @@ void InitializeTextures(GameTextures* textures) {
     textures->characterFrames[LIRILI_FRAME_ID] = LoadTexture("assets/characters/liriliframe.png");
     textures->characterFrames[BOMBARDINI_FRAME_ID] = LoadTexture("assets/characters/bombardiniframe.png");
 }
+// Carrega os sons do jogo
+void InitializeSounds(GameSounds* sounds) {
+    InitAudioDevice();
+    sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
+    sounds->selectSFX = LoadSound("assets/sfx/select.wav");
+    sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
+    sounds->putSFX = LoadSound("assets/sfx/put.wav");
+    sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->backgroundMusicSFX = LoadSound("assets/sfx/BGMusic.wav");
+}
 
 // Descarrega todas as texturas da memória.
 void UnloadTextures(GameTextures* textures) {
@@ -61,7 +71,15 @@ void UnloadTextures(GameTextures* textures) {
         UnloadTexture(textures->characterFrames[i]);
     }
 }
-
+// Descarrega os sons do jogo
+void UnloadSounds(GameSounds* sounds) {
+    UnloadSound(sounds->cancelSFX);
+    UnloadSound(sounds->selectSFX);
+    UnloadSound(sounds->collectSFX);
+    UnloadSound(sounds->putSFX);
+    UnloadSound(sounds->projectileSFX);
+    UnloadSound(sounds->backgroundMusicSFX);
+}
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     // Posição e tamanho do botão "Play Game" para detecção de colisão.
@@ -80,10 +98,17 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
 
 // Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
 void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
-               const GameTextures* textures, Vector2 mouse) {
+               const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
     char moneyText[10];
     sprintf(moneyText, "%d", state->money); // Converte a pontuação para string
+
+
+    PlaySounds(state, sounds); // Chama a função que toca o som específico
+    if (!IsSoundPlaying(sounds->backgroundMusicSFX)) { // Toca a música de fundo imediatamente após ela acabar, a deixando em loop 
+        PlaySound(sounds->backgroundMusicSFX);
+    }
+
 
     // Posição do texto de dinheiro.
     Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
@@ -127,7 +152,7 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
 
 // Renderiza o seletor de personagens na parte superior da tela.
 void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight, 
-                           int fontSize, const GameTextures* textures, Vector2 mouse) {
+                           int fontSize, const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
     Vector2 Origin = { 0, 0 };
     char costChar[10]; // Para exibir o custo do personagem
 
@@ -172,7 +197,7 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
 
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState* state, int screenWidth, int screenHeight, 
-                   const GameTextures* textures, Vector2 mouse, int fontSize) {
+                   const GameTextures* textures, Vector2 mouse, int fontSize, GameSounds* sounds) {
     Vector2 Origin = { 0, 0 };
     Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight); // Posicionamento das estatísticas gerais, ondas e pontos.
     Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
@@ -225,7 +250,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
       
 
        
-            
+       
 
 
 
@@ -295,16 +320,41 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
         }
     }
 }
+// Função que toca os sons
+void PlaySounds(GameState* state, const GameSounds* sounds) {
+    if (state->shouldPlaySound == true) {  // Caso o boolean de tocar áudio esteja habilitado
+        switch (state->soundToPlay) { // Seleciona o devido áudio que deve ser tocado
+
+        case SOUND_PROJECTILE:
+            PlaySound(sounds->projectileSFX); break;
+        case SOUND_SELECT:
+            PlaySound(sounds->selectSFX); break;
+        case SOUND_COLLECT:
+            PlaySound(sounds->collectSFX); break;
+        case SOUND_PUT:
+            PlaySound(sounds->putSFX); break;
+        case SOUND_CANCEL:
+            PlaySound(sounds->cancelSFX); break;
+     
+        }
+    state->shouldPlaySound = false; // Desabilita o boolean de tocar áudio
+}
+}
+
+
 
 // Renderização dos projéteis ativos no jogo.
 void RenderProjectiles(GameState* state, int screenWidth, int screenHeight, 
-                      const GameTextures* textures) {
+                      const GameTextures* textures, const GameSounds* sounds) {
     Vector2 Origin = { 0, 0 };
     Rectangle projectileSource = { 5, 5, 71, 29 }; // Região da spritesheet do projétil
 
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
             if (state->tralalero[r][c].projecB) { // Se o projétil do Tralalero estiver ativo
+                
+            
+                
                 Rectangle projectileDest = ScaleRectTo720p((int)state->tralalero[r][c].projecX, 
                                                          state->tralalero[r][c].projecY + BOMBARDINI_ID, // BOMBARDINI_ID é um offset, talvez não seja o ideal aqui
                                                          71, 29, screenWidth, screenHeight);
@@ -318,7 +368,7 @@ void RenderProjectiles(GameState* state, int screenWidth, int screenHeight,
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight, 
-                    const GameTextures* textures, Vector2 mouse) {
+                    const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
     if(!state->moneyBag) return; // Só renderiza se a bolsa estiver ativa
 
     Vector2 Origin = { 0, 0 };
