@@ -4,7 +4,7 @@
 #include "types.h"
 
 // Inicialização dos gráficos e estado do jogo (configurações da janela, FPS, lógica inicial...).
-void InitGame(GameState* state, GameTextures* textures);
+void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds);
 
 // Inicialização do estado do jogo.
 void InitializeGameState(GameState* state);
@@ -26,5 +26,8 @@ void UpdateMoneyBag(GameState* state);
 
 // Lógica de posicionamento e venda de personagens no grid.
 void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight);
+
+// Lógica de funcionamento dos botões do menu de pause
+void HandlePause(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
 
 #endif

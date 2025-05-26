@@ -24,23 +24,28 @@ extern const int FONT_SIZE;
 // Características do Chimpanzini.
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
-#define CHIMPAZINI_COST 50
+#define CHIMPANZINI_COST 50
+#define CHIMPANZINI_CD 7.5f
 
 #define TRALALERO_ID 17
 #define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
+#define TRALALERO_CD 7.5f
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
 #define SAHUR_COST 150
+#define SAHUR_CD 7.5f
 
 #define LIRILI_ID 19
 #define LIRILI_FRAME_ID 3
 #define LIRILI_COST 50
+#define LIRILI_CD 30
 
 #define BOMBARDINI_ID 20
 #define BOMBARDINI_FRAME_ID 4
 #define BOMBARDINI_COST 25
+#define BOMBARDINI_CD 30
 
 // ID especial para venda.
 #define SELL_ID 404
@@ -55,8 +60,18 @@ extern const int FONT_SIZE;
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
-#define INITIAL_MONEY 150
+#define INITIAL_MONEY 50
 #define DAMAGE 10
 #define ENEMY_HP 110
+
+// Valores dos sons
+#define SOUND_PROJECTILE 1
+#define SOUND_SELECT 2
+#define SOUND_COLLECT 3
+#define SOUND_COLLECTBAG 4
+#define SOUND_CANCEL 5
+#define SOUND_PUT 6
+#define SOUND_HIT 7
+#define SOUND_BGMUSIC 98
 
 #endif

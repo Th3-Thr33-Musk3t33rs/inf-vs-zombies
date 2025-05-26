@@ -55,6 +55,7 @@ typedef struct {
     // Estado do jogo.
     bool titleScreen;
     bool pause;
+    bool musicPaused;
     bool gameOver;
     int money;
     int mousePick;
@@ -83,6 +84,7 @@ typedef struct {
     // Contadores de frame.
     int frameCounterPisc;
     int frameCounterIdle;
+    float frameCounterCD[5];
     int pisc;
     
     // Bolsa de dinheiro aleatória.
@@ -93,8 +95,14 @@ typedef struct {
     int randomNumX;
     int randomNumY;
     
-    // Custos dos personagens.
+    // Custos dos Personagens.
     int characterCost[5];
+    // Cooldown dos Personagens.
+    float characterCD[5];
+    bool inCooldown[5];
+
+    int soundToPlay;
+    bool shouldPlaySound;
 } GameState;
 
 // Struct para texturas.
@@ -102,6 +110,7 @@ typedef struct {
     Texture2D metallicTile;
     Texture2D buttonTile;
     Texture2D statsFrame;
+    Texture2D optionFrame;
     Texture2D frame;
     Texture2D characterTextures[8][8];
     Texture2D characterFrames[8];
@@ -109,5 +118,17 @@ typedef struct {
     Texture2D projectile;
     Texture2D bomb;
 } GameTextures;
+
+// Struct para sons
+typedef struct {
+    Sound selectSFX;
+    Sound collectSFX;
+    Sound projectileSFX;
+    Sound putSFX;
+    Sound cancelSFX;
+    Sound collectBagSFX;
+    Sound hitSFX;
+    Music backgroundMusic;
+} GameSounds;
 
 #endif

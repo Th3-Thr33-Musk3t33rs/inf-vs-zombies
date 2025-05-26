@@ -17,6 +17,7 @@ void InitializeTextures(GameTextures* textures) {
     textures->metallicTile = LoadTexture("assets/elements/metallictile.png"); 
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
     textures->statsFrame = LoadTexture("assets/elements/statsframe.png");
+    textures->optionFrame = LoadTexture("assets/elements/option.png");
     textures->frame = LoadTexture("assets/elements/frame2.png");
     textures->moneyIcon = LoadTexture("assets/elements/money.png");
     textures->projectile = LoadTexture("assets/elements/projectile.png");
@@ -38,12 +39,31 @@ void InitializeTextures(GameTextures* textures) {
     textures->characterFrames[LIRILI_FRAME_ID] = LoadTexture("assets/characters/liriliframe.png");
     textures->characterFrames[BOMBARDINI_FRAME_ID] = LoadTexture("assets/characters/bombardiniframe.png");
 }
+// Carrega os sons do jogo
+void InitializeSounds(GameSounds* sounds) {
+    InitAudioDevice();
+    sounds->backgroundMusic = LoadMusicStream("assets/sfx/bgmusic.wav");
+    PlayMusicStream(sounds->backgroundMusic);  // Inicia a música
+
+
+    sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
+    sounds->selectSFX = LoadSound("assets/sfx/select.wav");
+    sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
+    sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
+    sounds->putSFX = LoadSound("assets/sfx/put.wav");
+    sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
+
+
+
+}
 
 // Descarrega todas as texturas da memória.
 void UnloadTextures(GameTextures* textures) {
     UnloadTexture(textures->metallicTile);
     UnloadTexture(textures->buttonTile);
     UnloadTexture(textures->statsFrame);
+    UnloadTexture(textures->optionFrame);
     UnloadTexture(textures->frame);
     UnloadTexture(textures->moneyIcon);
     UnloadTexture(textures->projectile);
@@ -61,7 +81,17 @@ void UnloadTextures(GameTextures* textures) {
         UnloadTexture(textures->characterFrames[i]);
     }
 }
-
+// Descarrega os sons do jogo
+void UnloadSounds(GameSounds* sounds) {
+    UnloadSound(sounds->cancelSFX);
+    UnloadSound(sounds->selectSFX);
+    UnloadSound(sounds->collectSFX);
+    UnloadSound(sounds->collectBagSFX);
+    UnloadSound(sounds->hitSFX);
+    UnloadSound(sounds->putSFX);
+    UnloadSound(sounds->projectileSFX);
+    UnloadMusicStream(sounds->backgroundMusic);
+}
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     // Posição e tamanho do botão "Play Game" para detecção de colisão.
@@ -79,11 +109,17 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
 }
 
 // Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
-void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
-               const GameTextures* textures, Vector2 mouse) {
+void RenderHUD(GameState *state, int screenWidth, int screenHeight, int fontSize, 
+               GameTextures *textures, Vector2 mouse, GameSounds *sounds) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
     char moneyText[10];
     sprintf(moneyText, "%d", state->money); // Converte a pontuação para string
+
+
+    PlaySounds(state, sounds); // Chama a função que toca o som específico
+
+    UpdateMusicStream(sounds->backgroundMusic);
+
 
     // Posição do texto de dinheiro.
     Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
@@ -113,7 +149,7 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
     DrawText("SELL", SELL_POS_X, SELL_POS_Y, fontSize, BLACK);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, sellDest)) {
+    if (CheckCollisionPointRec(mouse, sellDest) && !state->pause) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
@@ -122,11 +158,12 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
     if(state->mousePick == SELL_ID) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
     }
+    
 }
 
 // Renderiza o seletor de personagens na parte superior da tela.
 void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight, 
-                           int fontSize, const GameTextures* textures, Vector2 mouse) {
+                           int fontSize, GameTextures* textures, Vector2 mouse) {
     Vector2 Origin = { 0, 0 };
     char costChar[10]; // Para exibir o custo do personagem
 
@@ -134,6 +171,7 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         Vector2 textValue = ScaleTo720p(310 + (f * 77), 117, screenWidth, screenHeight);
 
         Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
+        Rectangle frameCDDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96 - state->frameCounterCD[f], screenWidth, screenHeight);
         Rectangle frameSource = { 0, 0, textures->frame.width, textures->frame.height };
 
         Rectangle charFrameDest = ScaleRectTo720p(300 + (f * 77), 29, 78, 82.75f, screenWidth, screenHeight);
@@ -151,8 +189,13 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         sprintf(costChar, "%d", state->characterCost[f]);
         DrawText(costChar, 12+(int)textValue.x, (int)textValue.y, fontSize/1.5, BLACK);
 
+        // Deixa personagem mais transparente caso o jogador não tenha dinheiro o suficiente.
+        if (state->characterCost[f] > state->money) {
+            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
+        }
+
         // Highlight visual do personagem selecionado ao passar o mouse.
-        if (CheckCollisionPointRec(mouse, frameDest)) {
+        if (CheckCollisionPointRec(mouse, frameDest) && !state->pause) {
             DrawRectangleRec(frameDest, ColorAlpha(YELLOW, 0.3f));
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         }
@@ -160,13 +203,19 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
         if (state->mousePick == state->frame[f]) {
             DrawRectangleRec(frameDest, ColorAlpha(BLUE, 0.2f)); // Um highlight diferente para o selecionado
         }
+        // Highlight que desaparece de acordo com cooldown do personagem
+        if (state->inCooldown[f]) {
+            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f)); 
+
+            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f)); 
+        }
     }
 }
 
 
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState* state, int screenWidth, int screenHeight, 
-                   const GameTextures* textures, Vector2 mouse, int fontSize) {
+                   GameTextures* textures, Vector2 mouse, int fontSize) {
     Vector2 Origin = { 0, 0 };
     Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight); // Posicionamento das estatísticas gerais, ondas e pontos.
     Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
@@ -219,7 +268,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
       
 
        
-            
+       
 
 
 
@@ -282,23 +331,52 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
-            if (state->tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest)) {
+            if (state->tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest) && !state->pause) {
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 DrawRectangleRec(tileDest, ColorAlpha(YELLOW, 0.3f));
             }
         }
     }
 }
+// Função que toca os sons
+void PlaySounds(GameState* state,  GameSounds* sounds) {
+    if (state->shouldPlaySound == true) {  // Caso o boolean de tocar áudio esteja habilitado
+        switch (state->soundToPlay) { // Seleciona o devido áudio que deve ser tocado
+
+        case SOUND_PROJECTILE:
+            PlaySound(sounds->projectileSFX); break;
+        case SOUND_SELECT:
+            PlaySound(sounds->selectSFX); break;
+        case SOUND_COLLECT:
+            PlaySound(sounds->collectSFX); break;
+        case SOUND_COLLECTBAG:
+            PlaySound(sounds->collectBagSFX); break;
+        case SOUND_HIT:
+            PlaySound(sounds->hitSFX); break;
+        case SOUND_PUT:
+            PlaySound(sounds->putSFX); break;
+        case SOUND_CANCEL:
+            PlaySound(sounds->cancelSFX); break;
+     
+        }
+    state->shouldPlaySound = false; // Desabilita o boolean de tocar áudio
+}
+}
+
+
 
 // Renderização dos projéteis ativos no jogo.
 void RenderProjectiles(GameState* state, int screenWidth, int screenHeight, 
-                      const GameTextures* textures) {
+                       GameTextures* textures,  GameSounds* sounds) {
     Vector2 Origin = { 0, 0 };
     Rectangle projectileSource = { 5, 5, 71, 29 }; // Região da spritesheet do projétil
 
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
             if (state->tralalero[r][c].projecB) { // Se o projétil do Tralalero estiver ativo
+                
+            
+                
                 Rectangle projectileDest = ScaleRectTo720p((int)state->tralalero[r][c].projecX, 
                                                          state->tralalero[r][c].projecY + BOMBARDINI_ID, // BOMBARDINI_ID é um offset, talvez não seja o ideal aqui
                                                          71, 29, screenWidth, screenHeight);
@@ -312,7 +390,7 @@ void RenderProjectiles(GameState* state, int screenWidth, int screenHeight,
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight, 
-                    const GameTextures* textures, Vector2 mouse) {
+                     GameTextures* textures, Vector2 mouse,  GameSounds* sounds) {
     if(!state->moneyBag) return; // Só renderiza se a bolsa estiver ativa
 
     Vector2 Origin = { 0, 0 };
@@ -324,13 +402,13 @@ void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight,
     DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, Origin, 0.0f, WHITE);
 
     // Highlight visual da bolsa ao passar o mouse.
-    if(CheckCollisionPointRec(mouse, moneyBagDest)) {
+    if(CheckCollisionPointRec(mouse, moneyBagDest) && !state->pause) {
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 }
 
 // Renderiza o personagem selecionado ao lado do mouse de forma transparente.
-void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textures, Vector2 mouse, int screenWidth, int screenHeight) {
+void RenderSelectedCharacterPreview(GameState* state,  GameTextures* textures, Vector2 mouse, int screenWidth, int screenHeight) {
     // Só renderiza se um personagem estiver selecionado (não for 1 ou SELL_ID).
     if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID) {
         Vector2 Origin = { 0, 0 };
@@ -344,5 +422,48 @@ void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textur
         
         // Renderiza o ícone do personagem selecionado.
         DrawTexturePro(textures->characterFrames[state->mousePick - CHIMPANZINI_ID], texMSource, texMDest, Origin, 0.0f, Transparency);
+    }
+}
+
+// Renderiza o botão de pause, e deixa o fundo escuro 
+void RenderPause(GameState* state,  GameTextures* textures,  GameSounds* sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize) {
+    Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
+    Rectangle pauseDest = ScaleRectTo720p(0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
+    Rectangle optionSource = { 0, 0, textures->optionFrame.width, textures->optionFrame.height };
+    Rectangle option1Dest = ScaleRectTo720p(480, screenHeight/4 ,  360, 121, screenWidth, screenHeight);
+    Rectangle option2Dest = ScaleRectTo720p(480, screenHeight/2, 360, 121, screenWidth, screenHeight);
+    Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4)+24, 312, 121-48, screenWidth, screenHeight);
+    Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2)+24, 312, 121-48, screenWidth, screenHeight);
+
+    if (state->pause) {
+        if (!state->musicPaused) {
+        PauseMusicStream(sounds->backgroundMusic);
+        state->musicPaused = true;
+    }
+
+
+        DrawRectangleRec(pauseDest, ColorAlpha(BLACK, 0.85f));
+
+        DrawTexturePro(textures->optionFrame, optionSource, option1Dest, Origin, 0.0f, WHITE);
+       
+        DrawText("Resume", 585, screenHeight / 3.3, fontSize, RED);
+        DrawTexturePro(textures->optionFrame, optionSource, option2Dest, Origin, 0.0f, WHITE);
+        DrawText("Exit Game", 560, screenHeight / 1.8, fontSize, RED);
+
+        if (CheckCollisionPointRec(mouse, option1GlowDest)) {
+            DrawRectangleRec(option1GlowDest, ColorAlpha(RED, 0.3f));
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        }
+        if (CheckCollisionPointRec(mouse, option2GlowDest)) {
+            DrawRectangleRec(option2GlowDest, ColorAlpha(RED, 0.3f));
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        }
+    }
+    else {
+        if (state->musicPaused) {
+            ResumeMusicStream(sounds->backgroundMusic);
+            state->musicPaused = false;
+
+        }
     }
 }
