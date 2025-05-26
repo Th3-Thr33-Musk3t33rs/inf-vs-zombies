@@ -24,10 +24,9 @@ make run
 
 ## Regras do Jogo
 
-* **Plantas:** Podem ser do tipo Dispara Ervilha ou Girassol
+* **Plantas:** TBD
 
-  * Disparam ervilhas a cada 4 segundos (dano: 20)
-  * Girassol gera 1 sol a cada 4 segundos
+  * TBD
 * **Zumbis:**
 
   * Entram pelo lado direito da tela em hordas
