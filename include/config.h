@@ -74,5 +74,4 @@ extern const int FONT_SIZE;
 #define SOUND_HIT 7
 #define SOUND_BGMUSIC 98
 
-
 #endif

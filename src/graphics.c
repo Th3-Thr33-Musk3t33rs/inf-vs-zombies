@@ -109,16 +109,14 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
 }
 
 // Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
-void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize, 
-               const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
+void RenderHUD(GameState *state, int screenWidth, int screenHeight, int fontSize, 
+               GameTextures *textures, Vector2 mouse, GameSounds *sounds) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
     char moneyText[10];
     sprintf(moneyText, "%d", state->money); // Converte a pontuação para string
 
 
     PlaySounds(state, sounds); // Chama a função que toca o som específico
-   
-
 
     UpdateMusicStream(sounds->backgroundMusic);
 
@@ -165,7 +163,7 @@ void RenderHUD(GameState* state, int screenWidth, int screenHeight, int fontSize
 
 // Renderiza o seletor de personagens na parte superior da tela.
 void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight, 
-                           int fontSize, const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
+                           int fontSize, GameTextures* textures, Vector2 mouse) {
     Vector2 Origin = { 0, 0 };
     char costChar[10]; // Para exibir o custo do personagem
 
@@ -217,7 +215,7 @@ void RenderCharacterSelector(GameState* state, int screenWidth, int screenHeight
 
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState* state, int screenWidth, int screenHeight, 
-                   const GameTextures* textures, Vector2 mouse, int fontSize, GameSounds* sounds) {
+                   GameTextures* textures, Vector2 mouse, int fontSize) {
     Vector2 Origin = { 0, 0 };
     Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight); // Posicionamento das estatísticas gerais, ondas e pontos.
     Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
@@ -341,7 +339,7 @@ void RenderGameGrid(GameState* state, int screenWidth, int screenHeight,
     }
 }
 // Função que toca os sons
-void PlaySounds(GameState* state, const GameSounds* sounds) {
+void PlaySounds(GameState* state,  GameSounds* sounds) {
     if (state->shouldPlaySound == true) {  // Caso o boolean de tocar áudio esteja habilitado
         switch (state->soundToPlay) { // Seleciona o devido áudio que deve ser tocado
 
@@ -369,7 +367,7 @@ void PlaySounds(GameState* state, const GameSounds* sounds) {
 
 // Renderização dos projéteis ativos no jogo.
 void RenderProjectiles(GameState* state, int screenWidth, int screenHeight, 
-                      const GameTextures* textures, const GameSounds* sounds) {
+                       GameTextures* textures,  GameSounds* sounds) {
     Vector2 Origin = { 0, 0 };
     Rectangle projectileSource = { 5, 5, 71, 29 }; // Região da spritesheet do projétil
 
@@ -392,7 +390,7 @@ void RenderProjectiles(GameState* state, int screenWidth, int screenHeight,
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight, 
-                    const GameTextures* textures, Vector2 mouse, const GameSounds* sounds) {
+                     GameTextures* textures, Vector2 mouse,  GameSounds* sounds) {
     if(!state->moneyBag) return; // Só renderiza se a bolsa estiver ativa
 
     Vector2 Origin = { 0, 0 };
@@ -410,7 +408,7 @@ void RenderMoneyBag(GameState* state, int screenWidth, int screenHeight,
 }
 
 // Renderiza o personagem selecionado ao lado do mouse de forma transparente.
-void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textures, Vector2 mouse, int screenWidth, int screenHeight) {
+void RenderSelectedCharacterPreview(GameState* state,  GameTextures* textures, Vector2 mouse, int screenWidth, int screenHeight) {
     // Só renderiza se um personagem estiver selecionado (não for 1 ou SELL_ID).
     if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID) {
         Vector2 Origin = { 0, 0 };
@@ -428,7 +426,7 @@ void RenderSelectedCharacterPreview(GameState* state, const GameTextures* textur
 }
 
 // Renderiza o botão de pause, e deixa o fundo escuro 
-void RenderPause(GameState* state, const GameTextures* textures, const GameSounds* sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize) {
+void RenderPause(GameState* state,  GameTextures* textures,  GameSounds* sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize) {
     Vector2 Origin = { 0, 0 }; // Ponto de origem para DrawTexturePro
     Rectangle pauseDest = ScaleRectTo720p(0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
     Rectangle optionSource = { 0, 0, textures->optionFrame.width, textures->optionFrame.height };

@@ -115,7 +115,7 @@ void UpdateCharacters(GameState* state) {
             // Lógica para remover personagens com HP <= 0
             if (state->chimpanzini[r][c].exists && state->chimpanzini[r][c].hp <= 0) {
                 state->chimpanzini[r][c].exists = false;
-                state->tiles[r][c] = 1; // Retorna a tile para o estado padrão
+                state->tiles[r][c] = 1; // Retorna a tile para o estado padrão.
                 state->charactersLost += 1; // Incremente o contador de personagens perdidos
             }
             if (state->tralalero[r][c].exists && state->tralalero[r][c].hp <= 0) {
