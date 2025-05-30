@@ -3,6 +3,9 @@
 
 #define GAME_TITLE "Todos vs. Jacques"
 
+#define MAX_HORDES 10
+#define TIME_BETWEEN_HORDES 10
+
 // Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f
 #define BASE_HEIGHT_FLOAT 720.0f
@@ -72,5 +75,8 @@ extern const int FONT_SIZE;
 #define SOUND_PUT 6
 #define SOUND_HIT 7
 #define SOUND_BGMUSIC 98
+
+// ReadHordesConfig lê o arquivo de configPath e retorna o array com a configuração de hordas e o número de hordas.
+int ReadHordesConfig(char *configPath, int hordes[], int maxHordes);
 
 #endif

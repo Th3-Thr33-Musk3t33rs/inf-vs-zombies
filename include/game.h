@@ -3,31 +3,32 @@
 
 #include "types.h"
 
-// Inicialização dos gráficos e estado do jogo (configurações da janela, FPS, lógica inicial...).
-void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds);
+// Inicialização dos gráficos e estado do jogo (configurações da janela, FPS,
+// lógica inicial...).
+void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds);
 
 // Inicialização do estado do jogo.
-void InitializeGameState(GameState* state);
+void InitializeGameState(GameState *state);
 
 // Atualização da lógica principal do jogo (chamada por frame).
-void UpdateGame(GameState* state);
+void UpdateGame(GameState *state);
 
 // Processamento de entrada do usuário que afeta o estado do jogo.
-void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
+void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight);
 
 // Atualização dos estados e animações dos personagens.
-void UpdateCharacters(GameState* state);
+void UpdateCharacters(GameState *state);
 
 // Atualização da lógica dos projéteis.
-void UpdateProjectiles(GameState* state, float deltaTime);
+void UpdateProjectiles(GameState *state, float deltaTime);
 
 // Atualização da lógica da bolsa de dinheiro aleatória.
-void UpdateMoneyBag(GameState* state);
+void UpdateMoneyBag(GameState *state);
 
 // Lógica de posicionamento e venda de personagens no grid.
-void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight);
+void HandleCharacterPlacementAndSelling(GameState *state, Vector2 mouse, int screenWidth, int screenHeight);
 
 // Lógica de funcionamento dos botões do menu de pause
-void HandlePause(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight);
+void HandlePause(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight);
 
 #endif

@@ -52,7 +52,7 @@ inf-vs-zombies/
 ## Funcionalidades Implementadas
 
 * [ ] Menu inicial com três opções: Jogar, LeaderBoard e Sair
-* [ ] Leitura do arquivo `config.txt` para definir as hordas
+* [X] Leitura do arquivo `config.txt` para definir as hordas
 * [ ] Controle de plantas, zumbis e colisões
 * [ ] Atualização e exibição do ranking (`top_scores.bin`)
 * [X] Interface gráfica com Raylib

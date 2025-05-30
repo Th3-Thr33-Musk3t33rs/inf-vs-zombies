@@ -50,6 +50,14 @@ typedef struct {
     bool exists;
 } Bombardini;
 
+typedef struct {
+    int hp;
+    int idle;
+    int speed;
+    int dmg;
+    bool exists;
+} RegularZombie;
+
 // Struct principal do jogo.
 typedef struct {
     // Estado do jogo.

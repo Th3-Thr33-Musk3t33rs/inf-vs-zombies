@@ -12,7 +12,7 @@
 #include "utils.h"
 
 // Inicializa a janela do jogo e define o FPS.
-void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds) {
+void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     SetTargetFPS(TARGET_FPS);
     InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
     InitializeTextures(textures);
@@ -22,7 +22,7 @@ void InitGame(GameState* state, GameTextures* textures, GameSounds* sounds) {
 }
 
 // Inicializa o estado do jogo com valores padrão.
-void InitializeGameState(GameState* state) {
+void InitializeGameState(GameState *state) {
     // Inicializa valores básicos do estado do jogo.
     state->titleScreen = true;
     state->gameOver = false;
@@ -93,7 +93,7 @@ void InitializeGameState(GameState* state) {
 }
 
 // Atualiza a lógica principal do jogo por frame.
-void UpdateGame(GameState* state) {
+void UpdateGame(GameState *state) {
     // Incrementa o contador de frames para animações e inatividade.
     state->frameCounterIdle++;
 
@@ -108,7 +108,7 @@ void UpdateGame(GameState* state) {
 }
 
 // Atualiza os estados e animações dos personagens.
-void UpdateCharacters(GameState* state) {
+void UpdateCharacters(GameState *state) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
             // Lógica para remover personagens com HP <= 0
@@ -224,7 +224,7 @@ void UpdateCharacters(GameState* state) {
 }
 
 // Atualiza a lógica dos projéteis.
-void UpdateProjectiles(GameState* state, float deltaTime) {
+void UpdateProjectiles(GameState *state, float deltaTime) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
             if (state->tralalero[r][c].projecB) {
@@ -243,7 +243,7 @@ void UpdateProjectiles(GameState* state, float deltaTime) {
 }
 
 // Atualiza a lógica da bolsa de dinheiro aleatória.
-void UpdateMoneyBag(GameState* state) {
+void UpdateMoneyBag(GameState *state) {
     // Lógica da bolsa de dinheiro aleatória.
     // Alterna piscBool para fazer a bolsa piscar.
     if (state->frameCounterPisc % 18 == 0) {
@@ -290,7 +290,7 @@ void UpdateMoneyBag(GameState* state) {
 }
 
 // Processa a entrada do usuário que afeta o estado do jogo (cliques em botões, tiles).
-void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight) {
+void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
     // Lógica da tela de título
     if (state->titleScreen) {
         Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, BASE_FONT_SIZE, screenWidth, screenHeight);
@@ -357,7 +357,7 @@ void ProcessGameInput(GameState* state, Vector2 mousePos, int screenWidth, int s
 }
 
 // Lógica de posicionamento e venda de personagens no grid.
-void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int screenWidth, int screenHeight) {
+void HandleCharacterPlacementAndSelling(GameState *state, Vector2 mouse, int screenWidth, int screenHeight) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
             Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
@@ -453,7 +453,7 @@ void HandleCharacterPlacementAndSelling(GameState* state, Vector2 mouse, int scr
 }
 
 // Lógica dos botões do menu de pause
-void HandlePause(GameState* state, Vector2 mousePos, int screenWidth, int screenHeight) {
+void HandlePause(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
     Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4) + 24, 312, 121 - 48, screenWidth, screenHeight);
     Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2) + 24, 312, 121 - 48, screenWidth, screenHeight);
 
