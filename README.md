@@ -55,14 +55,14 @@ inf-vs-zombies/
 * [ ] Leitura do arquivo `config.txt` para definir as hordas
 * [ ] Controle de plantas, zumbis e colisões
 * [ ] Atualização e exibição do ranking (`top_scores.bin`)
-* [ ] Interface gráfica com Raylib
+* [X] Interface gráfica com Raylib
 
 ## Possíveis Expansões (Tarefas Extras)
 
-* [ ] Novos tipos de plantas
+* [X] Novos tipos de plantas
 * [ ] Novos tipos de zumbis (chefões, especiais, etc.)
-* [ ] Menu de pause
-* [ ] Novas formas de gerar sóis
+* [X] Menu de pause
+* [X] Novas formas de gerar sóis
 
 ## Autores
 
