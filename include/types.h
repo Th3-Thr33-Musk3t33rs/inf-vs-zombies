@@ -1,8 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "raylib.h"
 #include "config.h"
+#include "raylib.h"
 
 // Struct dos personagens.
 typedef struct {
@@ -59,7 +59,7 @@ typedef struct {
     bool gameOver;
     int money;
     int mousePick;
-    
+
     // Grid de tiles.
     int tiles[ROWS][COLUMNS];
     int frame[5];
@@ -73,20 +73,20 @@ typedef struct {
     int moneyBagsCollected;
     int moneyBagsMissed;
     int currentPoints;
-    
+
     // Arrays de personagens.
     Chimpanzini chimpanzini[ROWS][COLUMNS];
     Tralalero tralalero[ROWS][COLUMNS];
     Sahur sahur[ROWS][COLUMNS];
     Lirili lirili[ROWS][COLUMNS];
     Bombardini bombardini[ROWS][COLUMNS];
-    
+
     // Contadores de frame.
     int frameCounterPisc;
     int frameCounterIdle;
     float frameCounterCD[5];
     int pisc;
-    
+
     // Bolsa de dinheiro aleatória.
     bool moneyBag;
     bool randomizePointBagPos;
@@ -94,7 +94,7 @@ typedef struct {
 
     int randomNumX;
     int randomNumY;
-    
+
     // Custos dos Personagens.
     int characterCost[5];
     // Cooldown dos Personagens.

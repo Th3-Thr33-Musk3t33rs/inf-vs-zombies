@@ -1,8 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "raylib.h"
 #include "config.h"
+#include "raylib.h"
 
 // Função para manter o HUD igual independente da resolução.
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight);

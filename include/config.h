@@ -20,7 +20,6 @@ extern const int FONT_SIZE;
 #define GRID_MARGIN_X 418
 #define GRID_MARGIN_Y 174
 
-
 // Características do Chimpanzini.
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0

@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+
+BreakBeforeBraces: Attach # This is the key setting for K&R style
+
+# Other common settings you might want to adjust:
+IndentWidth: 4             # Number of spaces for indentation
+UseTab: Never              # Use spaces instead of tabs
+ColumnLimit: 0             # Don't wrap lines based on column limit (0 disables it)
+AccessModifierOffset: -4   # For public:, private:, etc.
+NamespaceIndentation: None # Or All, Inner, None
+AllowShortIfStatementsOnASingleLine: true # Keep short ifs on one line

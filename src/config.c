@@ -1,6 +1,5 @@
 #include "config.h"
 
-
 // Definição de constantes de configuração
 const int SELL_POS_X = (int)(750 * BASE_WIDTH_INT / BASE_WIDTH_FLOAT);
 const int SELL_POS_Y = (int)(40 * BASE_HEIGHT_INT / BASE_HEIGHT_FLOAT);
