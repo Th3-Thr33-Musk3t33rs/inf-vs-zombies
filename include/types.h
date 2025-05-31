@@ -58,13 +58,20 @@ typedef struct {
     bool exists;
 } RegularZombie;
 
+typedef struct {
+    int horde_number;
+    int zombies_alive_in_horde;
+} HordeState;
+
 // Struct principal do jogo.
 typedef struct {
-    // Estado do jogo.
+    // Variáveis de controle do jogo.
     bool titleScreen;
     bool pause;
     bool musicPaused;
     bool gameOver;
+    HordeState current_horde;
+    int final_horde;
     int money;
     int mousePick;
 
@@ -125,6 +132,7 @@ typedef struct {
     Texture2D moneyIcon;
     Texture2D projectile;
     Texture2D bomb;
+    Texture2D zombie;
 } GameTextures;
 
 // Struct para sons

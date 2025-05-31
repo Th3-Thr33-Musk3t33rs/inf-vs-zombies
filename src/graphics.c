@@ -23,6 +23,7 @@ void InitializeTextures(GameTextures *textures) {
     textures->moneyIcon = LoadTexture("assets/elements/money.png");
     textures->projectile = LoadTexture("assets/elements/projectile.png");
     textures->bomb = LoadTexture("assets/elements/bomb.png");
+    textures->zombie = LoadTexture("assets/characters/zombie.png");
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];

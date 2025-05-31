@@ -18,15 +18,6 @@ int main(void) {
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
-    // hordes é a nossa variável com a quantidade de zumbis por horda.
-    int hordes[MAX_HORDES] = {0};
-    
-    // hordes_number é o número de hordas.
-    // Em C, quando você passa um array como argumento para uma função,
-    // você não está enviando uma cópia do array, você está enviando o endereço de memória do array original.
-    // Dessa forma, hordes é passada por referência aqui e será propriamente populada.
-    int hordes_number = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
-
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
     InitGame(&game_state, &game_textures, &game_sounds);
@@ -81,9 +72,11 @@ int main(void) {
                 RenderPause(&game_state, &game_textures, &game_sounds, mouse,
                             BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             }
+        } else {
+            // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
+            // RenderTitleScreen é só um placeholder aqui.
+            RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
         }
-        // TODO: Adicionar tela de Game Over aqui, se game_state.gameOver for
-        // true.
 
         EndDrawing();  // Finaliza o desenho.
     }

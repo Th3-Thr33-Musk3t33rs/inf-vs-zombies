@@ -16,6 +16,9 @@ void UpdateGame(GameState *state);
 // Processamento de entrada do usuário que afeta o estado do jogo.
 void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight);
 
+// UpdateHordeState atualiza as configurações da horda atual no jogo.
+void UpdateHordeState(GameState *state);
+
 // Atualização dos estados e animações dos personagens.
 void UpdateCharacters(GameState *state);
 

@@ -19,5 +19,6 @@
         "graphics.h": "c",
         "config.h": "c",
         "game.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

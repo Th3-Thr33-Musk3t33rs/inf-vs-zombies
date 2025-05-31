@@ -18,11 +18,22 @@ void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     InitializeTextures(textures);
     InitializeSounds(sounds);
     InitializeGameState(state);
-    SetExitKey(0);  // Desabilita a saída com ESC
+    SetExitKey(0);  // Desabilita a saída com ESC.
 }
 
 // Inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState *state) {
+    // hordes é a nossa variável com a quantidade de zumbis por horda.
+    int hordes[MAX_HORDES] = {0};
+    
+    // hordes_number é o número de hordas.
+    // Em C, quando você passa um array como argumento para uma função,
+    // você não está enviando uma cópia do array, você está enviando o endereço de memória do array original.
+    // Dessa forma, hordes é passada por referência aqui e será propriamente populada.
+    int hordes_number = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
+
+    state->current_horde = {0, hordes_number, hordes[0], hordes[0]};
+
     // Inicializa valores básicos do estado do jogo.
     state->titleScreen = true;
     state->gameOver = false;
@@ -85,11 +96,11 @@ void InitializeGameState(GameState *state) {
     }
 
     // Inicializa arrays de personagens com valores default.
-    memset(state->chimpanzini, 0, sizeof(state->chimpanzini));
-    memset(state->tralalero, 0, sizeof(state->tralalero));
-    memset(state->sahur, 0, sizeof(state->sahur));
-    memset(state->lirili, 0, sizeof(state->lirili));
-    memset(state->bombardini, 0, sizeof(state->bombardini));
+    state->chimpanzini = {0};
+    state->tralalero = {0};
+    state->sahur = {0};
+    state->lirili = {0};
+    state->bombardini = {0};
 }
 
 // Atualiza a lógica principal do jogo por frame.
@@ -102,9 +113,10 @@ void UpdateGame(GameState *state) {
         state->frameCounterIdle = 0;
     }
 
-    UpdateCharacters(state);                   // Atualiza o estado e animações dos personagens
-    UpdateProjectiles(state, GetFrameTime());  // Atualiza a posição dos projéteis
-    UpdateMoneyBag(state);                     // Atualiza a lógica da bolsa de dinheiro
+    UpdateCharacters(state);                   // Atualiza o estado e animações dos personagens.
+    UpdateProjectiles(state, GetFrameTime());  // Atualiza a posição dos projéteis.
+    UpdateMoneyBag(state);                     // Atualiza a lógica da bolsa de dinheiro.
+    UpdateHordeState(state);                   // Atualiza as configurações de horda do jogo.
 }
 
 // Atualiza os estados e animações dos personagens.
@@ -467,6 +479,19 @@ void HandlePause(GameState *state, Vector2 mousePos, int screenWidth, int screen
             CloseAudioDevice();  // Fecha o áudio
             CloseWindow();       // Fecha a janela
             exit(0);             // Finaliza o programa
+        }
+    }
+}
+
+void UpdateHordeState(GameState *state) {
+    HordeState current_horde = state->current_horde;
+    
+    // Todos os zumbis da horda foram mortos?
+    if (current_horde.zombies_alive_in_horde == 0) {
+        if (current_horde.horde_number < state->final_horde) {
+            state->current_horde.horde_number += 1;
+        } else {
+            state->gameOver = true;
         }
     }
 }
