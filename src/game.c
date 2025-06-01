@@ -32,7 +32,7 @@ void InitializeGameState(GameState *state) {
     // Dessa forma, hordes é passada por referência aqui e será propriamente populada.
     int hordes_number = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
 
-    state->current_horde = {0, hordes_number, hordes[0], hordes[0]};
+    //state->current_horde = {0, hordes_number, hordes[0], hordes[0]};
 
     // Inicializa valores básicos do estado do jogo.
     state->titleScreen = true;
@@ -96,11 +96,11 @@ void InitializeGameState(GameState *state) {
     }
 
     // Inicializa arrays de personagens com valores default.
-    state->chimpanzini = {0};
-    state->tralalero = {0};
-    state->sahur = {0};
-    state->lirili = {0};
-    state->bombardini = {0};
+    memset(state->chimpanzini, 0, sizeof(state->chimpanzini));
+    memset(state->tralalero, 0, sizeof(state->tralalero));
+    memset(state->sahur, 0, sizeof(state->sahur));
+    memset(state->lirili, 0, sizeof(state->lirili));
+    memset(state->bombardini, 0, sizeof(state->bombardini));
 }
 
 // Atualiza a lógica principal do jogo por frame.

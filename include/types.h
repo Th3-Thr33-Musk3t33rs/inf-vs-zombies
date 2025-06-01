@@ -63,6 +63,18 @@ typedef struct {
     int zombies_alive_in_horde;
 } HordeState;
 
+// Player é uma estrutura focada nas características que são atribuídas a um jogador do nosso jogo.
+typedef struct {
+    int money;
+    int currentPoints;
+    int currentWave;
+} Player;
+
+// AppState é uma estrutura para controle de estado da nossa aplicação.
+typedef struct {
+    int 
+} AppState;
+
 // Struct principal do jogo.
 typedef struct {
     // Variáveis de controle do jogo.
