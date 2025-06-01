@@ -72,7 +72,7 @@ typedef struct {
 
 // AppState é uma estrutura para controle de estado da nossa aplicação.
 typedef struct {
-    int 
+//
 } AppState;
 
 // Struct principal do jogo.
