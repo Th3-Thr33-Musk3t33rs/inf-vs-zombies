@@ -29,7 +29,7 @@ int main(void) {
 
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do
         // jogo.
-        ProcessGameInput(&game_state, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        ProcessGameInput(&game_state, mouse);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);  // Limpa a tela a cada frame.

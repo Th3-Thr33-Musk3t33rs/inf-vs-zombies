@@ -7,11 +7,11 @@
 #include <string.h>
 #include <time.h>
 
+#include "character_data.h"
 #include "config.h"
 #include "graphics.h"
 #include "utils.h"
 
-// Inicializa a janela do jogo e define o FPS.
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     SetTargetFPS(TARGET_FPS);
     InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
@@ -23,213 +23,151 @@ void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
 
 // Inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState *state) {
+    // Zera toda a estrutura GameState para garantir que não haja lixo de memória.
+    *state = (GameState){0};
+
+    // Inicializa valores básicos do estado do jogo(TitleScreen, Money).
+    state->app.onTitleScreen = true;
+    state->stats.money = INITIAL_MONEY;
+
+    // Seta todas as Tiles como 1 (gramado padrão), exceto as da coluna 0, que possuem valor 0 (botões).
+    for (int r = 0; r < ROWS; r++) {
+        for (int c = 0; c < COLUMNS; c++) {
+            if (c == TILE_TYPE_BUTTON) {  // Coluna 0 é para botões/seleção.
+                state->tiles[r][c] = TILE_TYPE_BUTTON;
+            } else {
+                state->tiles[r][c] = TILE_TYPE_GRASS;
+            }
+        }
+    }
+
+    state->moneyBag.shouldRandomizePos = true;
+
     // hordes é a nossa variável com a quantidade de zumbis por horda.
     int hordes[MAX_HORDES] = {0};
-    
+
     // hordes_number é o número de hordas.
     // Em C, quando você passa um array como argumento para uma função,
     // você não está enviando uma cópia do array, você está enviando o endereço de memória do array original.
     // Dessa forma, hordes é passada por referência aqui e será propriamente populada.
     int hordes_number = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
-
-    //state->current_horde = {0, hordes_number, hordes[0], hordes[0]};
-
-    // Inicializa valores básicos do estado do jogo.
-    state->titleScreen = true;
-    state->gameOver = false;
-    state->pause = false;
-    state->musicPaused = false;
-    state->money = INITIAL_MONEY;
-    state->mousePick = 1;  // Valor padrão quando nada está selecionado.
-
-    // Inicializa custos dos personagens.
-    state->characterCost[CHIMPANZINI_FRAME_ID] = CHIMPANZINI_COST;
-    state->characterCost[TRALALERO_FRAME_ID] = TRALALERO_COST;
-    state->characterCost[SAHUR_FRAME_ID] = SAHUR_COST;
-    state->characterCost[LIRILI_FRAME_ID] = LIRILI_COST;
-    state->characterCost[BOMBARDINI_FRAME_ID] = BOMBARDINI_COST;
-
-    // Inicializa o valor de cooldown dos personagens.
-    state->characterCD[CHIMPANZINI_FRAME_ID] = CHIMPANZINI_CD;
-    state->characterCD[TRALALERO_FRAME_ID] = TRALALERO_CD;
-    state->characterCD[SAHUR_FRAME_ID] = SAHUR_CD;
-    state->characterCD[LIRILI_FRAME_ID] = LIRILI_CD;
-    state->characterCD[BOMBARDINI_FRAME_ID] = BOMBARDINI_CD;
-
-    // Inicializa o bool e o contador de frames de verificação de personagem em cooldown
-    for (int i = 0; i < 5; i++) {
-        state->inCooldown[i] = false;
-        state->frameCounterCD[i] = 0;
-    }
-    // Inicializa valores das estatisticas
-    state->currentWave = 1;
-    state->charactersBought = 0;
-    state->charactersSold = 0;
-    state->charactersLost = 0;
-    state->moneyBagsCollected = 0;
-    state->moneyBagsMissed = 0;
-    state->enemiesKilled = 0;
-    state->currentPoints = 0;
-
-    // Inicializa contadores de animação e estado da bolsa de dinheiro.
-    state->frameCounterPisc = 0;
-    state->frameCounterIdle = 0;
-    state->pisc = 0;                     // Usado para o efeito de piscar da bolsa.
-    state->moneyBag = false;             // Indica se a bolsa de dinheiro está ativa.
-    state->randomizePointBagPos = true;  // Controla se a posição da bolsa deve ser randomizada.
-    state->piscBool = true;              // Alterna para o efeito de piscar.
-    state->randomNumX = 0;               // Posição X da bolsa de dinheiro.
-    state->randomNumY = 0;               // Posição Y da bolsa de dinheiro.
-
-    // Seta todas as Tiles como 1 (gramado padrão), exceto as da coluna 0, que possuem valor 0 (botões).
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLUMNS; c++) {
-            state->tiles[r][c] = 1;
-            state->tiles[r][0] = 0;  // Coluna 0 é para botões/seleção
-        }
-    }
-
-    // Insere os códigos dos personagens no seletor.
-    // Os IDs dos personagens são definidos em config.h (ex: CHIMPANZINI_ID = 16).
-    for (int f = CHIMPANZINI_ID; f <= BOMBARDINI_ID; f++) {
-        state->frame[f - CHIMPANZINI_ID] = f;
-    }
-
-    // Inicializa arrays de personagens com valores default.
-    memset(state->chimpanzini, 0, sizeof(state->chimpanzini));
-    memset(state->tralalero, 0, sizeof(state->tralalero));
-    memset(state->sahur, 0, sizeof(state->sahur));
-    memset(state->lirili, 0, sizeof(state->lirili));
-    memset(state->bombardini, 0, sizeof(state->bombardini));
 }
 
 // Atualiza a lógica principal do jogo por frame.
-void UpdateGame(GameState *state) {
-    // Incrementa o contador de frames para animações e inatividade.
-    state->frameCounterIdle++;
+void UpdateGame(GameState *state, float deltaTime) {
+    UpdateCharacters(state, deltaTime);   // Atualiza os estados e animações dos personagens.
+    UpdateProjectiles(state, deltaTime);  // Atualiza a lógica dos projéteis.
+    UpdateMoneyBag(state, deltaTime);     // Atualiza a lógica da bolsa de dinheiro.
 
-    // Reseta FrameCounterIdle após 1 minuto (60 segundos * 60 FPS = 3600 frames).
-    if (state->frameCounterIdle >= TimeToFrames(60)) {
-        state->frameCounterIdle = 0;
+    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
+        if (state->characterCooldowns[i] > 0) {
+            state->characterCooldowns[i] -= deltaTime;
+        } else {
+            state->characterCooldowns[i] = 0;
+        }
     }
-
-    UpdateCharacters(state);                   // Atualiza o estado e animações dos personagens.
-    UpdateProjectiles(state, GetFrameTime());  // Atualiza a posição dos projéteis.
-    UpdateMoneyBag(state);                     // Atualiza a lógica da bolsa de dinheiro.
-    UpdateHordeState(state);                   // Atualiza as configurações de horda do jogo.
 }
 
 // Atualiza os estados e animações dos personagens.
-void UpdateCharacters(GameState *state) {
+void UpdateCharacters(GameState *state, float deltaTime) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
-            // Lógica para remover personagens com HP <= 0
-            if (state->chimpanzini[r][c].exists && state->chimpanzini[r][c].hp <= 0) {
-                state->chimpanzini[r][c].exists = false;
-                state->tiles[r][c] = 1;      // Retorna a tile para o estado padrão.
-                state->charactersLost += 1;  // Incremente o contador de personagens perdidos
-            }
-            if (state->tralalero[r][c].exists && state->tralalero[r][c].hp <= 0) {
-                state->tralalero[r][c].exists = false;
-                state->tiles[r][c] = 1;
-            }
-            if (state->sahur[r][c].exists && state->sahur[r][c].hp <= 0) {
-                state->sahur[r][c].exists = false;
-                state->tiles[r][c] = 1;
-            }
-            if (state->lirili[r][c].exists && state->lirili[r][c].hp <= 0) {
-                state->lirili[r][c].exists = false;
-                state->tiles[r][c] = 1;
-            }
-            if (state->bombardini[r][c].exists && state->bombardini[r][c].hp <= 0) {
-                state->bombardini[r][c].exists = false;
-                state->tiles[r][c] = 1;
+            Character *character = &state->entities.characters[r][c];
+            if (!character->exists) continue;  // Se nenhum personagem existe ali, podemos pular.
+
+            character->animationCounter += deltaTime;
+            if (character->animationCounter > 0.2f) {  // Muda de frame a cada 0.2s.
+                character->currentFrame++;
+                character->animationCounter = 0;
             }
 
-            // Atualiza o frame de animação dos personagens a cada 8 frames de inatividade.
-            if (state->frameCounterIdle % 8 == 0) {
-                if (state->chimpanzini[r][c].exists) state->chimpanzini[r][c].idle++;
-                if (state->tralalero[r][c].exists) state->tralalero[r][c].idle++;
-                if (state->sahur[r][c].exists) state->sahur[r][c].idle++;
-                // Bombardini só anima se não estiver "pronto" (carregando a bomba)
-                if (state->bombardini[r][c].exists && !state->bombardini[r][c].ready) state->bombardini[r][c].idle++;
+            // Lógica de HP.
+            if (character->hp <= 0) {
+                character->exists = false;
+                state->tiles[r][c] = TILE_TYPE_GRASS;  // Tile volta ao estado padrão.
+                state->stats.charactersLost++;         // Atualiza stat.
+                continue;
             }
 
-            // Lógica de comportamento do Chimpanzini (geração de dinheiro)
-            if (state->chimpanzini[r][c].exists) {
-                if (!state->chimpanzini[r][c].shining) {  // Animação de idle
-                    if (state->chimpanzini[r][c].idle == 3) {
-                        state->chimpanzini[r][c].idle = 0;
-                        state->chimpanzini[r][c].loop++;
-                    }
-                    if (state->chimpanzini[r][c].loop == 60) {  // Após X loops, começa a brilhar
-                        state->chimpanzini[r][c].shining = true;
-                        state->chimpanzini[r][c].idle = 4;  // Inicia animação de brilho
-                    }
-                } else {  // Animação de brilho
-                    if (state->chimpanzini[r][c].idle == 7) {
-                        state->chimpanzini[r][c].idle = 4;  // Mantém no loop de brilho
-                        state->chimpanzini[r][c].loop = 0;  // Reseta loop para próxima geração
-                    }
-                }
-            }
+            switch (character->type) {
+                // Lógica de comportamento do Chimpanzini (geração de dinheiro).
+                case CHAR_TYPE_CHIMPANZINI:
+                    if (!character->specific.chimpanzini.shining) {
+                        if (character->currentFrame > 3) {  // Loop de idle.
+                            character->currentFrame = 0;
+                            character->specific.chimpanzini.loop++;
+                        }
 
-            // Lógica de comportamento do Tralalero (ataque de projétil)
-            if (state->tralalero[r][c].exists) {
-                if (!state->tralalero[r][c].attacking) {  // Animação de idle
-                    if (state->tralalero[r][c].idle == 3) {
-                        state->tralalero[r][c].idle = 0;
-                        state->tralalero[r][c].loop++;
+                        if (character->specific.chimpanzini.loop >= 40) {  // Após 40 loops, começa a brilhar.
+                            character->specific.chimpanzini.shining = true;
+                            character->currentFrame = 4;               // Inicia animação de brilho.
+                            character->specific.chimpanzini.loop = 0;  // Reseta loop.
+                        }
+                    } else {  // Animação enquanto brilha.
+                        if (character->currentFrame > 7) {
+                            character->currentFrame = 4;  // Mantém no loop do brilho.
+                        }
                     }
-                    if (state->tralalero[r][c].loop == 20) {  // Após X loops, começa a atacar
-                        state->tralalero[r][c].attacking = true;
-                        state->tralalero[r][c].idle = 4;  // Inicia animação de ataque
-                        state->tralalero[r][c].loop = 0;  // Reseta loop
+                    break;
+
+                // Lógica de comportamento do Tralalero (ataque de projétil).
+                case CHAR_TYPE_TRALALERO:
+                    if (character->currentFrame > 3 && !character->specific.tralalero.attacking) {
+                        character->currentFrame = 0;
+                        character->specific.tralalero.loop++;
+                        if (character->specific.tralalero.loop >= 20) {  // Após 20 loops, começa a atacar.
+                            character->specific.tralalero.attacking = true;
+                            character->currentFrame = 4;             // Inicia animação de ataque.
+                            character->specific.tralalero.loop = 0;  // Reseta loop.
+                        }
+                    } else {  // Animação de ataque.
+                        if (character->currentFrame > 7) {
+                            character->specific.tralalero.attacking = false;
+                            state->shouldPlaySound = true;
+                            state->soundToPlay = SOUND_PROJECTILE;
+                            character->specific.tralalero.projecB = true;  // Ativa o projétil.
+                            character->currentFrame = 0;                   // Volta para idle.
+
+                            // Define a posição inicial do projétil.
+                            character->specific.tralalero.projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;
+                            character->specific.tralalero.projecY = GRID_MARGIN_Y + (r * 78);
+                        }
                     }
-                } else {  // Animação de ataque
-                    if (state->tralalero[r][c].idle == 7) {
-                        state->tralalero[r][c].attacking = false;
-                        state->shouldPlaySound = true;
-                        state->soundToPlay = SOUND_PROJECTILE;
-                        state->tralalero[r][c].projecB = true;  // Ativa o projétil
-                        state->tralalero[r][c].idle = 0;        // Volta para idle
-                        // Define a posição inicial do projétil
-                        state->tralalero[r][c].projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;
-                        state->tralalero[r][c].projecY = GRID_MARGIN_Y + (r * 78);
+                    break;
+                // Lógica de comportamento do Sahur (idle simples).
+                case CHAR_TYPE_SAHUR:
+                    if (character->currentFrame == 3) {
+                        character->currentFrame = 0;
                     }
-                }
-            }
-
-            // Lógica de comportamento do Sahur (idle simples)
-            if (state->sahur[r][c].exists) {
-                if (state->sahur[r][c].idle == 3) {
-                    state->sahur[r][c].idle = 0;
-                }
-            }
-
-            // Lógica de comportamento do Lirili (mudança de sprite conforme HP)
-            if (state->lirili[r][c].exists) {
-                if (state->lirili[r][c].hp < 100 && state->lirili[r][c].hp >= 75) {
-                    state->lirili[r][c].idle = 1;
-                } else if (state->lirili[r][c].hp < 75 && state->lirili[r][c].hp >= 50) {
-                    state->lirili[r][c].idle = 2;
-                } else if (state->lirili[r][c].hp < 50) {
-                    state->lirili[r][c].idle = 3;
-                } else {
-                    state->lirili[r][c].idle = 0;  // Estado inicial
-                }
-            }
-
-            // Lógica de comportamento do Bombardini (carregamento da bomba)
-            if (state->bombardini[r][c].exists && !state->bombardini[r][c].ready) {
-                if (state->bombardini[r][c].idle == 3) {
-                    state->bombardini[r][c].idle = 0;
-                    state->bombardini[r][c].loop++;
-                }
-                if (state->bombardini[r][c].loop == 300) {  // Após X loops, fica "pronto"
-                    state->bombardini[r][c].ready = true;
-                    state->bombardini[r][c].idle = 4;  // Inicia animação de pronto
-                }
+                    break;
+                // Lógica de comportamento do Lirili (mudança de sprite conforme HP).
+                case CHAR_TYPE_LIRILI:
+                    if (character->hp < 100 && character->hp >= 75) {
+                        character->currentFrame = 1;
+                    } else if (character->hp < 75 && character->hp >= 50) {
+                        character->currentFrame = 2;
+                    } else if (character->hp < 50) {
+                        character->currentFrame = 3;
+                    } else {
+                        character->currentFrame = 0;  // Estado inicial.
+                    }
+                    break;
+                // Lógica de comportamento do Bombardini (carregamento da bomba).
+                case CHAR_TYPE_BOMBARDINI:
+                    if (!character->specific.bombardini.ready) {
+                        character->currentFrame++;
+                        if (character->currentFrame == 3) {
+                            character->currentFrame = 0;
+                            character->specific.bombardini.loop++;
+                        }
+                        if (character->specific.bombardini.loop >= 300) {  // Após 300 loops, fica "pronto".
+                            character->specific.bombardini.ready = true;
+                            character->currentFrame = 4;  // Inicia animação de pronto.
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -239,14 +177,17 @@ void UpdateCharacters(GameState *state) {
 void UpdateProjectiles(GameState *state, float deltaTime) {
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
-            if (state->tralalero[r][c].projecB) {
-                // Move o projétil
-                state->tralalero[r][c].projecX += PROJECTILE_SPEED * deltaTime;
+            if (state->entities.characters[r][c].specific.tralalero.projecB) {
+                // Move o projétil.
+                state->entities.characters[r][c].specific.tralalero.projecX += PROJECTILE_SPEED * deltaTime;
 
                 // Se o projétil sair da tela, reseta-o
-                if (state->tralalero[r][c].projecX > BASE_WIDTH_INT) {
-                    state->tralalero[r][c].projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;  // Posição inicial
-                    state->tralalero[r][c].projecB = false;                                 // Desativa o projétil
+                if (state->entities.characters[r][c].specific.tralalero.projecX > BASE_WIDTH_INT) {
+                    // Posição inicial.
+                    state->entities.characters[r][c].specific.tralalero.projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;
+
+                    // Desativa o projétil.
+                    state->entities.characters[r][c].specific.tralalero.projecB = false;
                 }
             }
             // Lógica para bombas do Bombardini (se houver)
@@ -255,243 +196,243 @@ void UpdateProjectiles(GameState *state, float deltaTime) {
 }
 
 // Atualiza a lógica da bolsa de dinheiro aleatória.
-void UpdateMoneyBag(GameState *state) {
-    // Lógica da bolsa de dinheiro aleatória.
-    // Alterna piscBool para fazer a bolsa piscar.
-    if (state->frameCounterPisc % 18 == 0) {
-        state->piscBool = !state->piscBool;
-    }
+void UpdateMoneyBag(GameState *state, float deltaTime) {
+    // Lógica de spawn: Tenta gerar uma nova bolsa se permitido.
+    // A lógica só roda se 'shouldRandomizePos' for verdadeiro, evitando gerar uma bolsa em cima da outra.
+    if (state->moneyBag.shouldRandomizePos) {
+        // Gera um número aleatório para decidir se a bolsa aparece.
+        int randomChance = rand() % MONEY_BAG_RANDOMNESS;  // Ajuste este valor para mudar a frequência.
 
-    // Define o tamanho da bolsa para o efeito de piscar.
-    if (state->piscBool == true) {
-        state->pisc = 3;
-    } else {
-        state->pisc = 0;
-    }
-
-    // Gera bolsa aleatória se ainda não houver uma ativa.
-    // srand(time(NULL)) deve ser chamado apenas uma vez no início do programa (em main.c ou InitGame).
-    // Aqui, vamos usar um número aleatório simples para decidir se a bolsa aparece.
-    if (state->randomizePointBagPos) {
-        // Gera um número aleatório para decidir se a bolsa aparece
-        int randomChance = rand() % MONEY_BAG_RANDOMNESS;  // Ajuste este valor para mudar a frequência
-        // Debugging.
+        // --- Debugging ---
         char RandomText[10];
         sprintf(RandomText, "%d", randomChance);
         DrawText(RandomText, 100, 80, FONT_SIZE, BLACK);
-        if (randomChance == 0 && !state->moneyBag) {
-            state->moneyBag = true;
+        // --- Debugging ---
+
+        if (randomChance == 0 && !state->moneyBag.isActive) {
+            state->moneyBag.isActive = true;
+            state->moneyBag.shouldRandomizePos = false;                // Impede novo spawn até esta desaparecer.
+            state->moneyBag.timeRemainingInFrames = TimeToFrames(30);  // Duração da bolsa (30 segundos).
+            state->moneyBag.pulseCounter = 0;
             // Define a posição aleatória da bolsa
-            state->randomNumX = rand() % (BASE_WIDTH_INT - 150) + 50;    // Evita bordas.
-            state->randomNumY = rand() % (BASE_HEIGHT_INT - 200) + 150;  // Evita HUD superior
-            state->frameCounterPisc = TimeToFrames(30);                  // Duração da bolsa (30 segundos)
-            state->randomizePointBagPos = false;                         // Impede que a posição seja randomizada novamente enquanto ativa
+            state->moneyBag.position.x = (float)(rand() % (BASE_WIDTH_INT - 150) + 50);    // Evita bordas.
+            state->moneyBag.position.x = (float)(rand() % (BASE_HEIGHT_INT - 200) + 150);  // Evita HUD superior
         }
     }
 
-    if (state->moneyBag) {
-        state->frameCounterPisc--;  // Decrementa o contador de tempo da bolsa
+    // Lógica de atualização, somente se a bolsa estiver na tela.
+    if (state->moneyBag.isActive) {
+        state->moneyBag.timeRemainingInFrames--;  // Decrementa o contador de tempo da bolsa.
 
         // Se o tempo da bolsa acabar, ela desaparece.
-        if (state->frameCounterPisc <= 0) {
-            state->randomizePointBagPos = true;  // Permite nova randomização
-            state->moneyBag = false;
-            state->moneyBagsMissed += 1;  // Incrementa o contador de bolsas perdidas
+        if (state->moneyBag.timeRemainingInFrames <= 0) {
+            state->moneyBag.shouldRandomizePos = true;  // Permite nova randomização.
+            state->moneyBag.isActive = false;
+            state->stats.moneyBagsMissed++;  // Incrementa o contador de bolsas perdidas.
+            return;
         }
+    }
+
+    // Lógica de piscar.
+    state->moneyBag.pulseCounter++;
+    if (state->moneyBag.pulseCounter >= 18) {
+        state->moneyBag.isPulsing = !state->moneyBag.isPulsing;  // Alterna o estado de piscar.
+        state->moneyBag.pulseCounter = 0;                        // Reseta o contador do pulso.
     }
 }
 
 // Processa a entrada do usuário que afeta o estado do jogo (cliques em botões, tiles).
 void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
-    // Lógica da tela de título
-    if (state->titleScreen) {
+    // Lógica da tela de título.
+    if (state->app.onTitleScreen) {
         Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, BASE_FONT_SIZE, screenWidth, screenHeight);
-        if (CheckCollisionPointRec(mousePos, playDest)) {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                state->titleScreen = false;  // Sai da tela de título
-            }
+        if (CheckCollisionPointRec(mousePos, playDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            state->app.onTitleScreen = false;  // Sai da tela de título.
         }
-        return;  // Não processa mais nada se estiver na tela de título
+        return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
     }
+
     // Pausa e despausa o jogo ao apertar ESC ou P
     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P)) {
-        state->pause = !state->pause;
-        state->mousePick = 1;
+        state->app.isPaused = !state->app.isPaused;   // Toggle do pause.
+        state->app.characterInHand = CHAR_TYPE_NONE;  // Solta o personagem segurado ao pausar.
     }
-    // Lógica do botão "SELL"
+
+    if (state->app.isPaused) {
+        HandlePauseMenu(state, mousePos, screenWidth, screenHeight);
+        return;  // Não processa mais nada se estiver pausado.
+    }
+
+    // Lógica do toggle de modo venda.
     Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
-    if (((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) && !state->pause) {
-        // Alterna o modo de venda
-        state->mousePick = (state->mousePick != SELL_ID) ? SELL_ID : 1;
+    if ((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) {
+        if (state->app.characterInHand != CHAR_TYPE_SELL_MODE) {
+            state->app.characterInHand = CHAR_TYPE_SELL_MODE;
+        } else {
+            state->app.characterInHand = CHAR_TYPE_NONE;
+        }
     }
 
-    // Lógica do seletor de personagens
-    for (int f = 0; f < 5; f++) {
-        Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + f)) && state->inCooldown[f] == false && !state->pause && state->characterCost[f] <= state->money) {
+    // Coleta dinheiro de TODOS os Chimpanzinis brilhantes com a tecla C.
+    if (IsKeyPressed(KEY_C)) {
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLUMNS; c++) {
+                HandleCharacterInteraction(state, r, c);  // A função checa internamente se é um Chimpanzini brilhante.
+            }
+        }
+    }
+
+    // Lógica do seletor de personagens.
+    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
+        Rectangle frameDest = {300 + ((i - 1) * 77), 20, 78, 96};
+        const CharacterInfo *info = &CHARACTER_INFO[i];
+
+        if (CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            if (state->stats.money >= info->cost && state->characterCooldowns[i] <= 0) {
+                if (state->app.characterInHand == info->type) {
+                    state->app.characterInHand = CHAR_TYPE_NONE;
+                } else {
+                    state->app.characterInHand = info->type;
+                }
+                state->soundToPlay = SOUND_SELECT;
+                state->shouldPlaySound = true;
+            }
+        }
+    }
+
+    // Lógica de coleta da bolsa de dinheiro.
+    if (state->moneyBag.isActive) {
+        Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y, 78, 96, screenWidth, screenHeight);
+        if (CheckCollisionPointRec(mousePos, moneyBagDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->shouldPlaySound = true;
-            state->soundToPlay = SOUND_SELECT;
-            if (state->mousePick != state->frame[f]) {
-                state->mousePick = state->frame[f];  // Seleciona o personagem
-            } else {
-                state->mousePick = 1;
-            }
-        }
-
-        // Lógica de Cooldown do personagem
-        if (state->inCooldown[f] == true && !state->pause) {
-            state->frameCounterCD[f] += 96.0f / TimeToFrames(state->characterCD[f]);
-            if (state->frameCounterCD[f] >= 96) {
-                state->frameCounterCD[f] = 0;
-                state->inCooldown[f] = false;
-            }
+            state->soundToPlay = SOUND_COLLECTBAG;
+            state->stats.money += MONEY_BAG_AMOUNT;     // Adiciona dinheiro.
+            state->stats.moneyBagsCollected++;          // Incrementa o contador de bolsas coletadas.
+            state->moneyBag.isActive = false;           // Remove a bolsa.
+            state->moneyBag.shouldRandomizePos = true;  // Permite nova randomização.
         }
     }
 
-    // Lógica de manipulação de personagens no grid (colocar ou vender)
-    HandleCharacterPlacementAndSelling(state, mousePos, screenWidth, screenHeight);
-
-    // Lógica de coleta da bolsa de dinheiro
-    if (state->moneyBag) {
-        Rectangle moneyBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
-        if (CheckCollisionPointRec(mousePos, moneyBagDest)) {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                state->shouldPlaySound = true;
-                state->soundToPlay = SOUND_COLLECTBAG;
-                state->money += 25;                  // Adiciona dinheiro
-                state->moneyBagsCollected += 1;      // Incrementa o contador de bolsas coletadas
-                state->moneyBag = false;             // Remove a bolsa
-                state->frameCounterPisc = -2;        // Garante que o timer resete
-                state->randomizePointBagPos = true;  // Permite nova randomização
+    // Lógica de interação com o grid.
+    for (int row = 0; row < ROWS; row++) {
+        for (int col = 0; col < COLUMNS; col++) {
+            if (state->tiles[row][col] == TILE_TYPE_BUTTON) continue;
+            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * 96), GRID_MARGIN_Y + (row * 78), 96, 78, screenWidth, screenHeight);
+            if (CheckCollisionPointRec(mousePos, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                // Tenta executar uma ação na tile clicada. As funções internas vão cuidar das condições.
+                HandleCharacterPlacement(state, row, col);
+                HandleCharacterSelling(state, row, col);
+                HandleCharacterInteractions(state, row, col);
             }
         }
     }
 }
 
-// Lógica de posicionamento e venda de personagens no grid.
-void HandleCharacterPlacementAndSelling(GameState *state, Vector2 mouse, int screenWidth, int screenHeight) {
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLUMNS; c++) {
-            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
+void HandleCharacterPlacement(GameState *state, int row, int col) {
+    CharacterType charType = state->app.characterInHand;
 
-            // Lógica para Chimpanzini brilhando (coletar dinheiro) com a tecla de atalho "C"
-            if (state->chimpanzini[r][c].shining == true && IsKeyPressed(KEY_C)) {
-                state->chimpanzini[r][c].shining = false;
-                state->money += 25;
-                state->chimpanzini[r][c].idle = 0;  // Reseta animação
-                state->shouldPlaySound = true;
-                state->soundToPlay = SOUND_COLLECT;
-            }
+    // Se já existe um personagem naquela tile, não podemos sobrescrever outro por cima.
+    if (charType == CHAR_TYPE_NONE || state->entities.characters[row][col].exists) {
+        return;
+    }
 
-            // Verifica colisão do mouse com a tile e se o botão esquerdo foi pressionado
-            if (CheckCollisionPointRec(mouse, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                // Lógica para Chimpanzini brilhando (coletar dinheiro) clicando nele
-                if (state->tiles[r][c] == CHIMPANZINI_ID && state->chimpanzini[r][c].shining) {
-                    state->chimpanzini[r][c].shining = false;
-                    state->money += 25;
-                    state->chimpanzini[r][c].idle = 0;  // Reseta animação
-                    state->shouldPlaySound = true;
-                    state->soundToPlay = SOUND_COLLECT;
-                }
-                // Lógica de posicionamento de personagem
-                else if (state->tiles[r][c] == 1) {  // Se a tile estiver vazia (valor 1)
-                    // Verifica se um personagem está selecionado e se o jogador tem dinheiro suficientes
-                    if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID &&
-                        state->money >= state->characterCost[state->mousePick - CHIMPANZINI_ID]) {
-                        state->shouldPlaySound = true;
-                        state->soundToPlay = SOUND_PUT;
+    const CharacterInfo *charInfo = &CHARACTER_INFO[charType];
 
-                        // Inicializa a struct do personagem e o coloca na tile
-                        switch (state->mousePick) {
-                            case CHIMPANZINI_ID:
-                                state->chimpanzini[r][c] = (Chimpanzini){.hp = 20, .idle = 0, .loop = 0, .shining = false, .exists = true};
+    if (state->stats.money >= charInfo->cost) {
+        state->stats.money -= charInfo->cost;
+        state->stats.charactersBought++;
 
-                                break;
-                            case TRALALERO_ID:
-                                state->tralalero[r][c] = (Tralalero){.hp = 50, .idle = 0, .loop = 0, .projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35, .projecY = GRID_MARGIN_Y + (r * 78), .projecB = false, .attacking = false, .exists = true};
-                                break;
-                            case SAHUR_ID:
-                                state->sahur[r][c] = (Sahur){.hp = 50, .idle = 0, .cooldown = 0, .attacking = false, .wait = false, .exists = true};
-                                break;
-                            case LIRILI_ID:
-                                state->lirili[r][c] = (Lirili){.hp = 150, .idle = 0, .exists = true};
-                                break;
-                            case BOMBARDINI_ID:
-                                state->bombardini[r][c] = (Bombardini){.hp = 10, .idle = 0, .loop = 0, .bombX = 0, .bombY = 0, .bombB = false, .ready = false, .exists = true};
-                                break;
-                        }
-                        state->charactersBought += 1;                                             // Incrementa o número de personagens comprados
-                        state->tiles[r][c] = state->mousePick;                                    // Atualiza o tipo da tile
-                        state->inCooldown[state->mousePick - CHIMPANZINI_ID] = true;              // Deixa o personagem em cooldown
-                        state->money -= state->characterCost[state->mousePick - CHIMPANZINI_ID];  // Deduz o custo
-                        state->mousePick = 1;                                                     // Reseta a seleção do mouse
-                    }
-                }
+        state->characterCooldowns[charType] = charInfo->cooldown;
 
-                // Lógica de venda de personagem
-                else if (state->mousePick == SELL_ID && state->tiles[r][c] != 0 && state->tiles[r][c] != 1) {
-                    // Se o modo de venda está ativo e a tile não é vazia nem um botão
-                    int characterId = state->tiles[r][c];
+        // Criação do personagem no grid.
+        Character *newChar = &state->entities.characters[row][col];
+        *newChar = (Character){0};  // Zera a struct antes de preencher.
+        newChar->exists = true;
+        newChar->type = charType;
+        newChar->hp = charInfo->initialHp;
+        newChar->row = row;
+        newChar->col = col;
 
-                    switch (characterId) {
-                        case CHIMPANZINI_ID:
-                            state->chimpanzini[r][c].exists = false;
-                            break;
-                        case TRALALERO_ID:
-                            state->tralalero[r][c].exists = false;
-                            break;
-                        case SAHUR_ID:
-                            state->sahur[r][c].exists = false;
-                            break;
-                        case LIRILI_ID:
-                            state->lirili[r][c].exists = false;
-                            break;
-                        case BOMBARDINI_ID:
-                            state->bombardini[r][c].exists = false;
-                            state->money += 10;
-                            break;  // Bombardini tem um retorno diferente
-                    }
-                    if (characterId != BOMBARDINI_ID) {  // Adiciona metade do custo de volta, exceto para Bombardini
-                        state->money += state->characterCost[characterId - CHIMPANZINI_ID] / 2;
-                    }
-                    state->shouldPlaySound = true;
-                    state->soundToPlay = SOUND_CANCEL;
-                    state->charactersSold += 1;  // Incrementa o número de personagens vendidos
-                    state->tiles[r][c] = 1;      // Retorna a tile para o estado padrão
-                }
-            }
+        if (charType == TRALALERO_ID) {
+            newChar->specific.tralalero.projecX = (GRID_MARGIN_X + 20) + (col * 96) + 35;
+            newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * 78);
         }
+
+        state->app.characterInHand = CHAR_TYPE_NONE;
+        state->soundToPlay = SOUND_PUT;
+        state->shouldPlaySound = true;
     }
 }
 
-// Lógica dos botões do menu de pause
-void HandlePause(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
+void HandleCharacterSelling(GameState *state, int row, int col) {
+    Character *character = &state->entities.characters[row][col];
+
+    // Só vende se estiver no modo de venda e se houver um personagem na tile.
+    if (state->app.characterInHand != CHAR_TYPE_SELL_MODE || !character->exists) {
+        return;
+    }
+
+    CharacterType charType = character->type;
+
+    const CharacterInfo *charInfo = &CHARACTER_INFO[charType];
+
+    if (charType != CHAR_TYPE_BOMBARDINI) {
+        state->stats.money += (float)charInfo->cost / 1.5f;  // Reembolso padrão.
+    } else {
+        state->stats.money += 10;  // Reembolso do Bombardini, visto que ele é uma bomba que não faz nada até que pisem nele.
+    }
+
+    character->exists = false;
+
+    state->stats.charactersSold++;
+    state->soundToPlay = SOUND_CANCEL;
+    state->shouldPlaySound = true;
+}
+
+void HandleCharacterInteractions(GameState *state, int row, int col) {
+    Character *character = &state->entities.characters[row][col];
+    if (!character->exists) return;
+
+    // Lógica específica para coletar dinheiro do Chimpanzini ao clicar.
+    if (character->type == CHAR_TYPE_CHIMPANZINI && character->specific.chimpanzini.shining) {
+        character->specific.chimpanzini.shining = false;
+        character->specific.chimpanzini.loop = 0;
+        character->currentFrame = 0;  // Volta para a animação de idle.
+        state->stats.money += 25;
+        state->soundToPlay = SOUND_COLLECT;
+        state->shouldPlaySound = true;
+    }
+}
+
+// Lógica dos botões do menu de pause.
+void HandlePauseMenu(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
     Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4) + 24, 312, 121 - 48, screenWidth, screenHeight);
     Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2) + 24, 312, 121 - 48, screenWidth, screenHeight);
 
     if (CheckCollisionPointRec(mousePos, option1GlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            state->pause = false;  // Sai do menu de pause
+            state->app.isPaused = false;  // Sai do menu de pause.
         }
     }
+
     if (CheckCollisionPointRec(mousePos, option2GlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            CloseAudioDevice();  // Fecha o áudio
-            CloseWindow();       // Fecha a janela
-            exit(0);             // Finaliza o programa
+            CloseAudioDevice();  // Fecha o áudio.
+            CloseWindow();       // Fecha a janela.
+            exit(0);             // Finaliza o programa.
         }
     }
 }
 
 void UpdateHordeState(GameState *state) {
-    HordeState current_horde = state->current_horde;
-    
+    HordeState *currentHorde = &state->currentHorde;
+
     // Todos os zumbis da horda foram mortos?
-    if (current_horde.zombies_alive_in_horde == 0) {
-        if (current_horde.horde_number < state->final_horde) {
-            state->current_horde.horde_number += 1;
+    if (currentHorde->zombies_alive_in_horde == 0) {
+        if (currentHorde->horde_number < state->finalHorde) {
+            state->currentHorde.horde_number += 1;
         } else {
-            state->gameOver = true;
+            state->app.isGameOver = true;
         }
     }
 }

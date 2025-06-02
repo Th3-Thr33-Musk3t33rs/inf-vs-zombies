@@ -6,6 +6,10 @@
 #define MAX_HORDES 10
 #define TIME_BETWEEN_HORDES 10
 
+#define TILE_TYPE_BUTTON 0
+#define TILE_TYPE_GRASS 1
+#define CHAR_TYPE_SELL_MODE 404
+
 // Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f
 #define BASE_HEIGHT_FLOAT 720.0f
@@ -50,13 +54,11 @@ extern const int FONT_SIZE;
 #define BOMBARDINI_COST 25
 #define BOMBARDINI_CD 30
 
-// ID especial para venda.
-#define SELL_ID 404
-
 // Configurações de jogo.
 #define TARGET_FPS 60
 #define BASE_FONT_SIZE 40
-#define MONEY_BAG_RANDOMNESS 1200
+#define MONEY_BAG_RANDOMNESS 800
+#define MONEY_BAG_AMOUNT 40
 
 // Velocidades.
 #define PROJECTILE_SPEED 400.0f

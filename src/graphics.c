@@ -7,13 +7,10 @@
 #include "config.h"
 #include "raylib.h"
 #include "utils.h"
+#include "character_data.h"
 
 // Carrega todas as texturas necessárias para o jogo.
 void InitializeTextures(GameTextures *textures) {
-    // Nomes base para carregar as texturas dos personagens.
-    const char *nomes[5] = {
-        "chimpanzini", "tralalero", "sahur", "lirili", "bombardini"};
-
     // Carrega texturas básicas do ambiente e elementos do jogo.
     textures->metallicTile = LoadTexture("assets/elements/metallictile.png");
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
@@ -27,19 +24,15 @@ void InitializeTextures(GameTextures *textures) {
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
-    for (int i = 0; i < 5; i++) {      // Itera sobre os tipos de personagem
+    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {      // Itera sobre os tipos de personagem
         for (int t = 0; t < 8; t++) {  // Itera sobre os frames de animação
-            sprintf(path, "assets/characters/%s%d.png", nomes[i], t);
+            sprintf(path, "assets/characters/%s%d.png", CHARACTER_INFO[i].textureName, t);
             textures->characterTextures[i][t] = LoadTexture(path);
         }
+        // Carrega as texturas dos ícones dos personagens para o seletor.
+        sprintf(path, "assets/characters/%sframe.png", CHARACTER_INFO[i].textureName);
+        textures->characterFrames[i] = LoadTexture(path);
     }
-
-    // Carrega as texturas dos ícones dos personagens para o seletor.
-    textures->characterFrames[CHIMPANZINI_FRAME_ID] = LoadTexture("assets/characters/chimpanziniframe.png");
-    textures->characterFrames[TRALALERO_FRAME_ID] = LoadTexture("assets/characters/tralaleroframe.png");
-    textures->characterFrames[SAHUR_FRAME_ID] = LoadTexture("assets/characters/sahurframe.png");
-    textures->characterFrames[LIRILI_FRAME_ID] = LoadTexture("assets/characters/liriliframe.png");
-    textures->characterFrames[BOMBARDINI_FRAME_ID] = LoadTexture("assets/characters/bombardiniframe.png");
 }
 // Carrega os sons do jogo
 void InitializeSounds(GameSounds *sounds) {
@@ -67,18 +60,16 @@ void UnloadTextures(GameTextures *textures) {
     UnloadTexture(textures->projectile);
     UnloadTexture(textures->bomb);
 
-    // Descarrega as texturas de animação dos personagens.
-    for (int i = 0; i < 5; i++) {
+    for (int i = 1; i < CHAR_TYPE_COUNT; i++) {
         for (int t = 0; t < 8; t++) {
+            // Descarrega as texturas de animação dos personagens.
             UnloadTexture(textures->characterTextures[i][t]);
         }
-    }
-
-    // Descarrega as texturas dos ícones dos personagens.
-    for (int i = 0; i < 5; i++) {
+        // Descarrega as texturas dos ícones dos personagens.
         UnloadTexture(textures->characterFrames[i]);
     }
 }
+
 // Descarrega os sons do jogo
 void UnloadSounds(GameSounds *sounds) {
     UnloadSound(sounds->cancelSFX);
@@ -89,30 +80,31 @@ void UnloadSounds(GameSounds *sounds) {
     UnloadSound(sounds->putSFX);
     UnloadSound(sounds->projectileSFX);
     UnloadMusicStream(sounds->backgroundMusic);
+    CloseAudioDevice();
 }
 
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
-    // Posição e tamanho do botão "Play Game" para detecção de colisão.
-    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
-    Vector2 mouse = GetMousePosition();  // Pega a posição do mouse para highlight
-
     DrawText(GAME_TITLE, screenWidth / 3, screenHeight / 3, fontSize, BLACK);
     DrawText("Play Game", screenWidth / 2.5, screenHeight / 2, fontSize, BLACK);
+    
+    // Posição e tamanho do botão "Play Game" para detecção de colisão.
+    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
 
     // Highlight visual do botão "Play Game" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, playDest)) {
+    if (CheckCollisionPointRec(GetMousePosition(), playDest)) {
         DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
-// Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
-void RenderHUD(GameState *state, int screenWidth, int screenHeight, int fontSize,
-               GameTextures *textures, Vector2 mouse, GameSounds *sounds) {
+// Renderiza o HUD com dinheiro e botão de venda.
+void RenderHUD(PlayerStats *stats,  GameTextures *textures, int screenWidth, int screeHeight) {
     Vector2 Origin = {0, 0};  // Ponto de origem para DrawTexturePro
     char moneyText[10];
-    sprintf(moneyText, "%d", state->money);  // Converte a pontuação para string
+    sprintf(moneyText, "%d", stats->money); // Converte o money para string.
 
     PlaySounds(state, sounds);  // Chama a função que toca o som específico
 
@@ -322,9 +314,10 @@ void RenderGameGrid(GameState *state, int screenWidth, int screenHeight,
 
 // Função que toca os sons
 void PlaySounds(GameState *state, GameSounds *sounds) {
-    if (state->shouldPlaySound == true) {  // Caso o boolean de tocar áudio esteja habilitado
-        switch (state->soundToPlay) {      // Seleciona o devido áudio que deve ser tocado
-
+    if (!state->shouldPlaySound) {
+        return;
+    } else {
+        switch (state->soundToPlay) {      // Seleciona o devido áudio que deve ser tocado.
             case SOUND_PROJECTILE:
                 PlaySound(sounds->projectileSFX);
                 break;
@@ -348,6 +341,7 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
                 break;
         }
         state->shouldPlaySound = false;  // Desabilita o boolean de tocar áudio
+        state->soundToPlay = 0;
     }
 }
 
