@@ -8,7 +8,6 @@
 
 #define TILE_TYPE_BUTTON 0
 #define TILE_TYPE_GRASS 1
-#define CHAR_TYPE_SELL_MODE 404
 
 // Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f

@@ -4,10 +4,10 @@
 
 #include <stdio.h>
 
+#include "character_data.h"
 #include "config.h"
 #include "raylib.h"
 #include "utils.h"
-#include "character_data.h"
 
 // Carrega todas as texturas necessárias para o jogo.
 void InitializeTextures(GameTextures *textures) {
@@ -24,8 +24,8 @@ void InitializeTextures(GameTextures *textures) {
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
-    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {      // Itera sobre os tipos de personagem
-        for (int t = 0; t < 8; t++) {  // Itera sobre os frames de animação
+    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {  // Itera sobre os tipos de personagem
+        for (int t = 0; t < 8; t++) {                                // Itera sobre os frames de animação
             sprintf(path, "assets/characters/%s%d.png", CHARACTER_INFO[i].textureName, t);
             textures->characterTextures[i][t] = LoadTexture(path);
         }
@@ -87,7 +87,7 @@ void UnloadSounds(GameSounds *sounds) {
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     DrawText(GAME_TITLE, screenWidth / 3, screenHeight / 3, fontSize, BLACK);
     DrawText("Play Game", screenWidth / 2.5, screenHeight / 2, fontSize, BLACK);
-    
+
     // Posição e tamanho do botão "Play Game" para detecção de colisão.
     Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
 
@@ -101,137 +101,124 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
 }
 
 // Renderiza o HUD com dinheiro e botão de venda.
-void RenderHUD(PlayerStats *stats,  GameTextures *textures, int screenWidth, int screeHeight) {
-    Vector2 Origin = {0, 0};  // Ponto de origem para DrawTexturePro
+void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     char moneyText[10];
-    sprintf(moneyText, "%d", stats->money); // Converte o money para string.
-
-    PlaySounds(state, sounds);  // Chama a função que toca o som específico
-
-    UpdateMusicStream(sounds->backgroundMusic);
+    sprintf(moneyText, "%d", state->stats.money);  // Converte o money para string.
 
     // Posição do texto de dinheiro.
-    Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
-    float spacing = 10;
-    int textWidth = MeasureText(moneyText, fontSize);
-    float textHeight = fontSize;
+    Vector2 textmoney = ScaleTo720p(110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    int textWidth = MeasureText(moneyText, FONT_SIZE);
 
     // Retângulo de destino para o ícone de moeda.
     Rectangle moneyCountDest = {
-        textmoney.x + textWidth + spacing,
-        textmoney.y + (textHeight / 2.1f) - (35 * screenHeight / 720.0f) / 2.0f,
-        35 * screenWidth / 1280.0f,
-        35 * screenHeight / 720.0f};
-    Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone
+        textmoney.x + textWidth + 10,
+        textmoney.y + (FONT_SIZE / 2.1f) - (35 * BASE_HEIGHT_INT / 720.0f) / 2.0f, 35, 35};
+    Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone.
 
     // Renderiza o texto do número de dinheiro.
-    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, fontSize, BLACK);
+    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, FONT_SIZE, BLACK);
 
     // Renderiza o ícone de moeda.
-    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, (Vector2){0,0}, 0.0f, WHITE);
 
     // Posição e tamanho do botão "SELL".
     // Usamos as constantes de config.h para a posição.
-    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
+    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    DrawText("SELL", SELL_POS_X, SELL_POS_Y, fontSize, BLACK);
+    DrawText("SELL", SELL_POS_X, SELL_POS_Y, FONT_SIZE, BLACK);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, sellDest) && !state->pause) {
+    if (CheckCollisionPointRec(mouse, sellDest) && !state->app.isPaused) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 
     // Highlight se o modo de venda estiver ativo.
-    if (state->mousePick == SELL_ID) {
+    if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
     }
 }
 
 // Renderiza o seletor de personagens na parte superior da tela.
-void RenderCharacterSelector(GameState *state, int screenWidth, int screenHeight,
-                             int fontSize, GameTextures *textures, Vector2 mouse) {
-    Vector2 Origin = {0, 0};
-    char costChar[10];  // Para exibir o custo do personagem
+void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse) {
+    char costText[10];  // Para exibir o custo do personagem.
 
-    for (int f = 0; f < 5; f++) {  // Itera sobre os 5 slots de personagem no seletor
-        Vector2 textValue = ScaleTo720p(310 + (f * 77), 117, screenWidth, screenHeight);
+    for (int f = CHAR_TYPE_CHIMPANZINI; f < CHAR_TYPE_COUNT; f++) {  // Itera sobre os 5 slots de personagem no seletor.
+        const CharacterInfo *charInfo = &CHARACTER_INFO[f];
 
-        Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        Rectangle frameCDDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96 - state->frameCounterCD[f], screenWidth, screenHeight);
+        // Renderiza quadro base.
+        Rectangle frameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 20, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle frameSource = {0, 0, textures->frame.width, textures->frame.height};
+        DrawTexturePro(textures->frame, frameSource, frameDest, (Vector2){0,0}, 0.0f, WHITE);
 
-        Rectangle charFrameDest = ScaleRectTo720p(300 + (f * 77), 29, 78, 82.75f, screenWidth, screenHeight);
+        // Renderiza ícone do personagem.
         // A fonte da textura do frame do personagem é a mesma para todos os ícones no seletor,
         // então podemos usar um índice fixo como 2 (Sahur) para pegar as dimensões.
+        Rectangle charFrameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 29, 78, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle charFrameSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
-
-        // Renderiza o quadro do seletor.
-        DrawTexturePro(textures->frame, frameSource, frameDest, Origin, 0.0f, WHITE);
-
-        // Renderiza o ícone do personagem dentro do quadro.
-        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, Origin, 0.0f, WHITE);
-
+        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, (Vector2){0,0}, 0.0f, WHITE);
+        
         // Renderiza o custo do personagem embaixo do quadro.
-        sprintf(costChar, "%d", state->characterCost[f]);
-        DrawText(costChar, 12 + (int)textValue.x, (int)textValue.y, fontSize / 1.5, BLACK);
+        sprintf(costText, "%d", charInfo->cost);
+        Vector2 costPos = ScaleTo720p(310 + ((f - 1) * 77), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, BLACK);
 
-        // Deixa personagem mais transparente caso o jogador não tenha dinheiro o suficiente.
-        if (state->characterCost[f] > state->money) {
-            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
-        }
-
-        // Highlight visual do personagem selecionado ao passar o mouse.
-        if (CheckCollisionPointRec(mouse, frameDest) && !state->pause) {
+        if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
+            // Cinza, pois não consegue comprar por falta de dinheiro ou personagem está em cooldown.
+            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f)); 
+        } else if (CheckCollisionPointRec(mouse, frameDest) && !state->app.isPaused) {
+            // Highlight visual do personagem selecionado ao passar o mouse.
             DrawRectangleRec(frameDest, ColorAlpha(YELLOW, 0.3f));
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         }
+
         // Highlight se este personagem estiver atualmente selecionado.
-        if (state->mousePick == state->frame[f]) {
+        if (state->app.characterInHand == charInfo->type) {
             DrawRectangleRec(frameDest, ColorAlpha(BLUE, 0.2f));  // Um highlight diferente para o selecionado
         }
-        // Highlight que desaparece de acordo com cooldown do personagem
-        if (state->inCooldown[f]) {
-            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
 
-            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f));
+        // Highlight que desaparece de acordo com cooldown do personagem.
+        if (state->characterCooldowns[f] > 0) {
+            float cooldownFraction = state->characterCooldowns[f] / charInfo->cooldown;
+            float overlayHeight = frameDest.height * cooldownFraction;
+            Rectangle cooldownOverlayRect = {frameDest.x, frameDest.y, frameDest.width, overlayHeight};
+
+            DrawRectangleRec(cooldownOverlayRect, ColorAlpha(BLACK, 0.7f));
         }
     }
 }
 
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
-void RenderGameGrid(GameState *state, int screenWidth, int screenHeight,
-                    GameTextures *textures, Vector2 mouse, int fontSize) {
+void RenderGameGrid(GameState *state, GameTextures *textures) {
     Vector2 Origin = {0, 0};
-    Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight);  // Posicionamento das estatísticas gerais, ondas e pontos.
-    Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
-    Vector2 textpoints = ScaleTo720p(70, 645, screenWidth, screenHeight);
+    Vector2 textstats = ScaleTo720p(70, 280, BASE_WIDTH_INT, BASE_HEIGHT_INT);  // Posicionamento das estatísticas gerais, ondas e pontos.
+    Vector2 textwave = ScaleTo720p(135, 220, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Vector2 textpoints = ScaleTo720p(70, 645, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, screenWidth - ((COLUMNS + 1) * 96) - (screenWidth - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, screenWidth, screenHeight);
+    Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, BASE_WIDTH_INT - ((COLUMNS + 1) * 96) - (BASE_WIDTH_INT - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle statsSource = {0, 0, textures->statsFrame.width, textures->statsFrame.height};
 
     // Renderiza o quadro de estatísticas, e os textos dentro dele.
     DrawTexturePro(textures->statsFrame, statsSource, statsDest, Origin, 0.0f, WHITE);
     char currentWaveText[50], currentPointsText[55], enemiesKilledText[50], charactersBoughtText[50], charactersSoldText[50], charactersLostText[50], moneyBagsCollectedText[50], moneyBagsMissedText[50];
 
-    sprintf(currentWaveText, "WAVE: %d", state->currentWave);  // Converte os valores em strings
-    sprintf(charactersBoughtText, "Characters Bought: %d", state->charactersBought);
-    sprintf(charactersSoldText, "Characters Sold: %d", state->charactersSold);
-    sprintf(charactersLostText, "Characters Lost: %d", state->charactersLost);
-    sprintf(moneyBagsCollectedText, "Bags Collected: %d", state->moneyBagsCollected);
-    sprintf(moneyBagsMissedText, "Bags Missed: %d", state->moneyBagsMissed);
+    sprintf(currentWaveText, "WAVE: %d", state->stats.currentWave);  // Converte os valores em strings
+    sprintf(charactersBoughtText, "Characters Bought: %d", state->stats.charactersBought);
+    sprintf(charactersSoldText, "Characters Sold: %d", state->stats.charactersSold);
+    sprintf(charactersLostText, "Characters Lost: %d", state->stats.charactersLost);
+    sprintf(moneyBagsCollectedText, "Bags Collected: %d", state->stats.moneyBagsCollected);
+    sprintf(moneyBagsMissedText, "Bags Missed: %d", state->stats.moneyBagsMissed);
+    sprintf(enemiesKilledText, "Enemies Killed: %d", state->stats.enemiesKilled);
+    sprintf(currentPointsText, "Points: %d", state->stats.currentPoints);
 
-    sprintf(enemiesKilledText, "Enemies Killed: %d", state->enemiesKilled);
-    sprintf(currentPointsText, "Points: %d", state->currentPoints);
-
-    DrawText(currentWaveText, (int)textwave.x, (int)textwave.y, fontSize, RED);
-    DrawText(charactersBoughtText, (int)textstats.x, (int)textstats.y, fontSize / 1.5, RED);
-    DrawText(charactersSoldText, (int)textstats.x, (int)textstats.y + 30, fontSize / 1.5, RED);
-    DrawText(charactersLostText, (int)textstats.x, (int)textstats.y + 60, fontSize / 1.5, RED);
-    DrawText(enemiesKilledText, (int)textstats.x, (int)textstats.y + 90, fontSize / 1.5, RED);
-    DrawText(moneyBagsCollectedText, (int)textstats.x, (int)textstats.y + 120, fontSize / 1.5, RED);
-    DrawText(moneyBagsMissedText, (int)textstats.x, (int)textstats.y + 150, fontSize / 1.5, RED);
-    DrawText(currentPointsText, (int)textpoints.x, (int)textpoints.y, fontSize / 2, RED);
+    DrawText(currentWaveText, (int)textwave.x, (int)textwave.y, FONT_SIZE, RED);
+    DrawText(charactersBoughtText, (int)textstats.x, (int)textstats.y, FONT_SIZE / 1.5, RED);
+    DrawText(charactersSoldText, (int)textstats.x, (int)textstats.y + 30, FONT_SIZE / 1.5, RED);
+    DrawText(charactersLostText, (int)textstats.x, (int)textstats.y + 60, FONT_SIZE / 1.5, RED);
+    DrawText(enemiesKilledText, (int)textstats.x, (int)textstats.y + 90, FONT_SIZE / 1.5, RED);
+    DrawText(moneyBagsCollectedText, (int)textstats.x, (int)textstats.y + 120, FONT_SIZE / 1.5, RED);
+    DrawText(moneyBagsMissedText, (int)textstats.x, (int)textstats.y + 150, FONT_SIZE / 1.5, RED);
+    DrawText(currentPointsText, (int)textpoints.x, (int)textpoints.y, FONT_SIZE / 2, RED);
 
     // Regiões das spritesheets para os personagens no grid.
     Rectangle sahurSource = {8, 20, 122, 244};
@@ -317,7 +304,7 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
     if (!state->shouldPlaySound) {
         return;
     } else {
-        switch (state->soundToPlay) {      // Seleciona o devido áudio que deve ser tocado.
+        switch (state->soundToPlay) {  // Seleciona o devido áudio que deve ser tocado.
             case SOUND_PROJECTILE:
                 PlaySound(sounds->projectileSFX);
                 break;

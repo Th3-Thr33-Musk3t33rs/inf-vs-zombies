@@ -11,65 +11,66 @@
 
 int main(void) {
     // Declaração das variáveis globais de estado, texturas e sons.
-    GameState game_state;
-    GameTextures game_textures;
-    GameSounds game_sounds;
+    GameState gameState;
+    GameTextures gameTextures;
+    GameSounds gameSounds;
 
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
-    InitGame(&game_state, &game_textures, &game_sounds);
+    InitGame(&gameState, &gameTextures, &gameSounds);
 
     // Loop principal do jogo.
     while (!WindowShouldClose()) {
         // Pega a posição atual do mouse.
         Vector2 mouse = GetMousePosition();
 
+        UpdateMusicStream(gameSounds.backgroundMusic);
+
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do
         // jogo.
-        ProcessGameInput(&game_state, mouse);
+        ProcessGameInput(&gameState, mouse);
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);  // Limpa a tela a cada frame.
+        ClearBackground(RAYWHITE); // Limpa a tela a cada frame.
 
         // Verifica se o jogo não está em estado de Game Over.
-        if (!game_state.gameOver) {
+        if (!gameState.app.isGameOver) {
             // Se estiver na tela de título, renderiza apenas ela.
-            if (game_state.titleScreen) {
+            if (gameState.app.onTitleScreen) {
                 RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             } else {
                 // Se estiver pausado, renderiza e carrega apenas a lógica do
-                // menu de pause
-                if (game_state.pause) {
-                    HandlePause(&game_state, mouse, BASE_WIDTH_INT,
-                                BASE_HEIGHT_INT);
-                    RenderPause(&game_state, &game_textures, &game_sounds,
-                                mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT,
-                                FONT_SIZE);
+                // menu de pause.
+                if (gameState.app.isPaused) {
+                    HandlePause(&gameState, mouse, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                    RenderPause(&gameState, &gameTextures, mouse);
                 } else {
                     // Atualiza a lógica do jogo.
-                    UpdateGame(&game_state);
+                    UpdateGame(&gameState);
                 }
+                
+                PlaySounds(&gameState, &gameSounds);
 
                 // Se o jogo estiver ativo, renderiza todos os elementos do
                 // jogo.
-                RenderHUD(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT,
-                          FONT_SIZE, &game_textures, mouse, &game_sounds);
-                RenderCharacterSelector(&game_state, BASE_WIDTH_INT,
+                RenderHUD(&gameState, BASE_WIDTH_INT, BASE_HEIGHT_INT,
+                          FONT_SIZE, &gameTextures, mouse, &gameSounds);
+                RenderCharacterSelector(&gameState, BASE_WIDTH_INT,
                                         BASE_HEIGHT_INT, FONT_SIZE,
-                                        &game_textures, mouse);
-                RenderGameGrid(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT,
-                               &game_textures, mouse, FONT_SIZE);
-                RenderProjectiles(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT,
-                                  &game_textures, &game_sounds);
-                RenderMoneyBag(&game_state, BASE_WIDTH_INT, BASE_HEIGHT_INT,
-                               &game_textures, mouse, &game_sounds);
-                RenderSelectedCharacterPreview(&game_state, &game_textures,
+                                        &gameTextures, mouse);
+                RenderGameGrid(&gameState, BASE_WIDTH_INT, BASE_HEIGHT_INT,
+                               &gameTextures, mouse, FONT_SIZE);
+                RenderProjectiles(&gameState, BASE_WIDTH_INT, BASE_HEIGHT_INT,
+                                  &gameTextures, &gameSounds);
+                RenderMoneyBag(&gameState, BASE_WIDTH_INT, BASE_HEIGHT_INT,
+                               &gameTextures, mouse, &gameSounds);
+                RenderSelectedCharacterPreview(&gameState, &gameTextures,
                                                mouse, BASE_WIDTH_INT,
                                                BASE_HEIGHT_INT);
-                RenderPause(&game_state, &game_textures, &game_sounds, mouse,
+                RenderPause(&gameState, &gameTextures, &gameSounds, mouse,
                             BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
             }
         } else {
@@ -82,8 +83,8 @@ int main(void) {
     }
 
     // Descarrega as texturas e fecha a janela ao sair do loop.
-    UnloadTextures(&game_textures);
-    UnloadSounds(&game_sounds);
+    UnloadTextures(&gameTextures);
+    UnloadSounds(&gameSounds);
     CloseWindow();
 
     return 0;

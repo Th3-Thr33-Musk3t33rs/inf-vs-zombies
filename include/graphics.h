@@ -23,13 +23,13 @@ void PlaySounds(GameState *state, GameSounds *sounds);
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize);
 
 // RenderHUD renderiza o HUD.
-void RenderHUD(PlayerStats *stats,  GameTextures *textures, int screenWidth, int screeHeight);
+void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse);
 
 // RenderCharacterSelector renderiza o seletor de personagens.
 void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse);
 
 // RenderGameGrid renderiza o grid principal do jogo, incluindo tiles e personagens.
-void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse);
+void RenderGameGrid(GameState *state, GameTextures *textures);
 
 // RenderProjectiles renderiza os projéteis ativos no jogo.
 void RenderProjectiles(GameState *state, GameTextures *textures);

@@ -11,7 +11,8 @@ typedef enum {
     CHAR_TYPE_SAHUR,
     CHAR_TYPE_LIRILI,
     CHAR_TYPE_BOMBARDINI,
-    CHAR_TYPE_COUNT
+    CHAR_TYPE_COUNT,
+    CHAR_TYPE_SELL_MODE // Novo tipo para identificar o modo de venda
 } CharacterType;
 
 // CharacterInfo é uma estrutura que define as propriedades estáticas de um personagem.
