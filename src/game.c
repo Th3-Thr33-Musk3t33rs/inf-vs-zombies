@@ -87,17 +87,25 @@ void UpdateCharacters(GameState *state, float deltaTime) {
             Character *character = &state->entities.characters[r][c];
             if (!character->exists) continue;  // Se nenhum personagem existe ali, podemos pular.
 
-            character->animationCounter += deltaTime;
-            if (character->animationCounter > 0.2f) {  // Muda de frame a cada 0.2s.
-                character->currentFrame++;
-                character->animationCounter = 0;
+            bool canAnimate = true;
+
+            if (character->type == CHAR_TYPE_BOMBARDINI && character->specific.bombardini.ready) {
+                canAnimate = false;
+            }
+
+            if (canAnimate) {
+                character->animationCounter += deltaTime;
+                if (character->animationCounter > 0.2f) {  // Muda de frame a cada 0.2s.
+                    character->currentFrame++;
+                    character->animationCounter = 0;
+                }
             }
 
             // Lógica de HP.
             if (character->hp <= 0) {
                 character->exists = false;
                 state->tiles[r][c] = TILE_TYPE_GRASS;  // Tile volta ao estado padrão.
-                state->stats.charactersLost++;         // Atualiza stat.
+                state->stats.charactersLost++;
                 continue;
             }
 
@@ -167,7 +175,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
                 // Lógica de comportamento do Sahur (idle simples).
                 case CHAR_TYPE_SAHUR:
-                    if (character->currentFrame == 3) {
+                    if (character->currentFrame > 2) {
                         character->currentFrame = 0;
                     }
                     break;
@@ -186,8 +194,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                 // Lógica de comportamento do Bombardini (carregamento da bomba).
                 case CHAR_TYPE_BOMBARDINI:
                     if (!character->specific.bombardini.ready) {
-                        character->currentFrame++;
-                        if (character->currentFrame == 3) {
+                        if (character->currentFrame > 2) {
                             character->currentFrame = 0;
                             character->specific.bombardini.loop++;
                         }
@@ -206,22 +213,16 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
 // Atualiza a lógica dos projéteis.
 void UpdateProjectiles(GameState *state, float deltaTime) {
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLUMNS; c++) {
-            if (state->entities.characters[r][c].specific.tralalero.projecB) {
-                // Move o projétil.
-                state->entities.characters[r][c].specific.tralalero.projecX += PROJECTILE_SPEED * deltaTime;
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        // Se o projétil estiver ativo, move-o.
+        if (state->entities.projectiles[i].isActive) {
+            // Move o projétil para a direita.
+            state->entities.projectiles[i].position.x += PROJECTILE_SPEED * deltaTime;
 
-                // Se o projétil sair da tela, reseta-o
-                if (state->entities.characters[r][c].specific.tralalero.projecX > BASE_WIDTH_INT) {
-                    // Posição inicial.
-                    state->entities.characters[r][c].specific.tralalero.projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;
-
-                    // Desativa o projétil.
-                    state->entities.characters[r][c].specific.tralalero.projecB = false;
-                }
+            // Se o projétil sair da tela, desativa-o para que possa ser reutilizado.
+            if (state->entities.projectiles[i].position.x > BASE_WIDTH_INT) {
+                state->entities.projectiles[i].isActive = false;
             }
-            // Lógica para bombas do Bombardini (se houver)
         }
     }
 }
@@ -356,10 +357,20 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
             if (state->tiles[row][col] == TILE_TYPE_BUTTON) continue;
             Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * 96), GRID_MARGIN_Y + (row * 78), 96, 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             if (CheckCollisionPointRec(mousePos, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                // Tenta executar uma ação na tile clicada. As funções internas vão cuidar das condições.
-                HandleCharacterPlacement(state, row, col);
-                HandleCharacterSelling(state, row, col);
-                HandleCharacterInteractions(state, row, col);
+                // Ações dos cliques:
+
+                // Se está no modo vender, lida com a venda de um personagem.
+                if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
+                    HandleCharacterSelling(state, row, col);
+
+                    // Se tem um character selecionado, lida com a colocação dele no grid.
+                } else if (state->app.characterInHand > CHAR_TYPE_NONE && state->app.characterInHand < CHAR_TYPE_COUNT) {
+                    HandleCharacterPlacement(state, row, col);
+
+                    // Senão, interage com o que está ali.
+                } else {
+                    HandleCharacterInteractions(state, row, col);
+                }
             }
         }
     }

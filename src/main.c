@@ -40,7 +40,7 @@ int main(void) {
             UpdateGame(&gameState, GetFrameTime());  // Aqui pegamos o tempo do frame.
         }
 
-        // Toca os sons que foram solicitados durante o ciclo de input/update.
+        // Toca os sons que foram solicitados durante o ciclo de inputs/updates.
         PlaySounds(&gameState, &gameSounds);
 
         // 3. RENDERIZAÇÃO
