@@ -1,9 +1,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "character_data.h"
 #include "config.h"
 #include "raylib.h"
-#include "character_data.h"
 
 // Character é uma struct genérica dos personagens existentes.
 typedef struct {
@@ -58,6 +58,7 @@ typedef struct {
     bool isPaused;
     bool isMusicPaused;
     bool isGameOver;
+    bool shouldQuit;
     CharacterType characterInHand;
 } AppState;
 
@@ -66,9 +67,15 @@ typedef struct {
     int zombies_alive_in_horde;
 } HordeState;
 
+typedef struct {
+    bool isActive;
+    Vector2 position;
+} Projectile;
+
 // EntityManager é uma estrutura para gerenciar as entidades do jogo (personagens, zumbis...).
 typedef struct {
     Character characters[ROWS][COLUMNS];
+    Projectile projectiles[MAX_PROJECTILES];
     // Adicionar array de zumbis e projéteis aqui futuramente.
 } EntityManager;
 

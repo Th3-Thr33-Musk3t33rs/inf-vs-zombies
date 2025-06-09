@@ -28,8 +28,11 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse);
 // RenderCharacterSelector renderiza o seletor de personagens.
 void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse);
 
+// RenderStatsPanel renderiza o painel de estatísticas.
+void RenderStatsPanel(PlayerStats *stats, GameTextures *textures);
+
 // RenderGameGrid renderiza o grid principal do jogo, incluindo tiles e personagens.
-void RenderGameGrid(GameState *state, GameTextures *textures);
+void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse);
 
 // RenderProjectiles renderiza os projéteis ativos no jogo.
 void RenderProjectiles(GameState *state, GameTextures *textures);
@@ -42,5 +45,4 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
 
 // RenderPause renderiza a tela de pause.
 void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse);
-
 #endif

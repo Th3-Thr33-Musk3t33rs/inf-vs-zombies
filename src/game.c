@@ -12,6 +12,7 @@
 #include "graphics.h"
 #include "utils.h"
 
+// InitGame inicializa o jogo.
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     SetTargetFPS(TARGET_FPS);
     InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
@@ -112,28 +113,47 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
                 // Lógica de comportamento do Tralalero (ataque de projétil).
                 case CHAR_TYPE_TRALALERO:
-                    if (character->currentFrame > 3 && !character->specific.tralalero.attacking) {
-                        character->currentFrame = 0;
-                        character->specific.tralalero.loop++;
-                        if (character->specific.tralalero.loop >= 20) {  // Após 20 loops, começa a atacar.
-                            character->specific.tralalero.attacking = true;
-                            character->currentFrame = 4;             // Inicia animação de ataque.
-                            character->specific.tralalero.loop = 0;  // Reseta loop.
+                    // Se não estiver no meio da animação de ataque, processa a lógica de idle.
+                    if (!character->specific.tralalero.attacking) {
+                        if (character->currentFrame > 3) {
+                            character->currentFrame = 0;  // Reinicia a animação de idle
+                            character->specific.tralalero.loop++;
                         }
-                    } else {  // Animação de ataque.
+                        // Após um número de ciclos de idle, inicia o ataque.
+                        if (character->specific.tralalero.loop >= 20) {
+                            character->specific.tralalero.attacking = true;
+                            character->specific.tralalero.loop = 0;  // Reseta o contador de ciclos
+                            character->currentFrame = 4;             // Inicia a animação de ataque (frame 4 a 7)
+                        }
+                    } else {  // Se estiver na animação de ataque
+                        // Quando a animação de ataque terminar...
                         if (character->currentFrame > 7) {
+                            // Volta para o estado de idle.
                             character->specific.tralalero.attacking = false;
-                            state->shouldPlaySound = true;
-                            state->soundToPlay = SOUND_PROJECTILE;
-                            character->specific.tralalero.projecB = true;  // Ativa o projétil.
-                            character->currentFrame = 0;                   // Volta para idle.
+                            character->currentFrame = 0;
 
-                            // Define a posição inicial do projétil.
-                            character->specific.tralalero.projecX = (GRID_MARGIN_X + 20) + (c * 96) + 35;
-                            character->specific.tralalero.projecY = GRID_MARGIN_Y + (r * 78);
+                            // Toca o som de disparo.
+                            state->soundToPlay = SOUND_PROJECTILE;
+                            state->shouldPlaySound = true;
+
+                            // Procura por um projétil inativo no array para lançar.
+                            for (int i = 0; i < MAX_PROJECTILES; i++) {
+                                if (!state->entities.projectiles[i].isActive) {
+                                    state->entities.projectiles[i].isActive = true;
+
+                                    // Define a posição inicial do projétil, saindo do personagem.
+                                    // Os números (+80, +40) são ajustes finos para que o projétil
+                                    // saia da "boca" do personagem, e não do canto da tile.
+                                    state->entities.projectiles[i].position.x = (GRID_MARGIN_X) + (character->col * 96) + 80;
+                                    state->entities.projectiles[i].position.y = (GRID_MARGIN_Y) + (character->row * 78) + 40;
+
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
+
                 // Lógica de comportamento do Sahur (idle simples).
                 case CHAR_TYPE_SAHUR:
                     if (character->currentFrame == 3) {
@@ -242,10 +262,10 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 }
 
 // Processa a entrada do usuário que afeta o estado do jogo (cliques em botões, tiles).
-void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
+void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-        Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, BASE_FONT_SIZE, screenWidth, screenHeight);
+        Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, BASE_FONT_SIZE, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, playDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
@@ -256,15 +276,21 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int s
     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P)) {
         state->app.isPaused = !state->app.isPaused;   // Toggle do pause.
         state->app.characterInHand = CHAR_TYPE_NONE;  // Solta o personagem segurado ao pausar.
+
+        if (state->app.isPaused) {
+            PauseMusicStream(sounds->backgroundMusic);
+        } else {
+            ResumeMusicStream(sounds->backgroundMusic);
+        }
     }
 
     if (state->app.isPaused) {
-        HandlePauseMenu(state, mousePos, screenWidth, screenHeight);
+        HandlePauseMenu(state, mousePos);
         return;  // Não processa mais nada se estiver pausado.
     }
 
     // Lógica do toggle de modo venda.
-    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
+    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     if ((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) {
         if (state->app.characterInHand != CHAR_TYPE_SELL_MODE) {
             state->app.characterInHand = CHAR_TYPE_SELL_MODE;
@@ -277,7 +303,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int s
     if (IsKeyPressed(KEY_C)) {
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLUMNS; c++) {
-                HandleCharacterInteraction(state, r, c);  // A função checa internamente se é um Chimpanzini brilhante.
+                HandleCharacterInteractions(state, r, c);  // A função checa internamente se é um Chimpanzini brilhante.
             }
         }
     }
@@ -302,7 +328,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int s
 
     // Lógica de coleta da bolsa de dinheiro.
     if (state->moneyBag.isActive) {
-        Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y, 78, 96, screenWidth, screenHeight);
+        Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, moneyBagDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_COLLECTBAG;
@@ -317,7 +343,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int s
     for (int row = 0; row < ROWS; row++) {
         for (int col = 0; col < COLUMNS; col++) {
             if (state->tiles[row][col] == TILE_TYPE_BUTTON) continue;
-            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * 96), GRID_MARGIN_Y + (row * 78), 96, 78, screenWidth, screenHeight);
+            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * 96), GRID_MARGIN_Y + (row * 78), 96, 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             if (CheckCollisionPointRec(mousePos, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 // Tenta executar uma ação na tile clicada. As funções internas vão cuidar das condições.
                 HandleCharacterPlacement(state, row, col);
@@ -405,21 +431,19 @@ void HandleCharacterInteractions(GameState *state, int row, int col) {
 }
 
 // Lógica dos botões do menu de pause.
-void HandlePauseMenu(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight) {
-    Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4) + 24, 312, 121 - 48, screenWidth, screenHeight);
-    Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2) + 24, 312, 121 - 48, screenWidth, screenHeight);
+void HandlePauseMenu(GameState *state, Vector2 mousePos) {
+    Rectangle resumeGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_INT / 4) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_INT / 2) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    if (CheckCollisionPointRec(mousePos, option1GlowDest)) {
+    if (CheckCollisionPointRec(mousePos, resumeGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.isPaused = false;  // Sai do menu de pause.
         }
     }
 
-    if (CheckCollisionPointRec(mousePos, option2GlowDest)) {
+    if (CheckCollisionPointRec(mousePos, exitGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            CloseAudioDevice();  // Fecha o áudio.
-            CloseWindow();       // Fecha a janela.
-            exit(0);             // Finaliza o programa.
+            state->app.shouldQuit = true;
         }
     }
 }

@@ -58,6 +58,7 @@ extern const int FONT_SIZE;
 #define BASE_FONT_SIZE 40
 #define MONEY_BAG_RANDOMNESS 800
 #define MONEY_BAG_AMOUNT 40
+#define MAX_PROJECTILES 100
 
 // Velocidades.
 #define PROJECTILE_SPEED 400.0f

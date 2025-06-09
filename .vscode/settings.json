@@ -25,6 +25,7 @@
         "forward_list": "c",
         "limits": "c",
         "ratio": "c",
-        "variant": "c"
+        "variant": "c",
+        "types.h": "c"
     },
 }

@@ -9,7 +9,7 @@ const int SELL_POS_Y = (int)(40 * BASE_HEIGHT_INT / BASE_HEIGHT_FLOAT);
 // Define o tamanho da fonte base e a escala para a resolução atual.
 const int FONT_SIZE = (int)(BASE_FONT_SIZE * ((float)BASE_HEIGHT_INT / BASE_HEIGHT_FLOAT));
 
-int ReadHordesConfig(char *configPath, int hordes[], int maxHordes) {
+int ReadHordesConfig(char *configPath, int hordes[MAX_HORDES], int maxHordes) {
     FILE *configFile = fopen(configPath, "r");  // r: readOnly mode.
     if (configFile == NULL) {
         printf("Erro ao abrir arquivo %s", configPath);
@@ -21,7 +21,7 @@ int ReadHordesConfig(char *configPath, int hordes[], int maxHordes) {
 
     // 1. Continua lendo enquanto 'fscanf' encontrar um inteiro.
     // 2. PARA se o contador atingir o tamanho máximo do array.
-    while (count < maxHordes && fscanf(configFile, "%d", &read_val) == 1 ) {
+    while (count < maxHordes && fscanf(configFile, "%d", &read_val) == 1) {
         if (read_val == 0) break;
         hordes[count] = read_val;
         count++;

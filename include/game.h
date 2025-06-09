@@ -13,7 +13,7 @@ void InitializeGameState(GameState *state);
 void UpdateGame(GameState *state, float deltaTime);
 
 // ProcessGameInput processa a entrada do usuário.
-void ProcessGameInput(GameState *state, Vector2 mousePos);
+void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds);
 
 // UpdateCharacters atualiza os estados e animações dos personagens.
 void UpdateCharacters(GameState *state, float deltaTime);
