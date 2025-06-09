@@ -34,6 +34,5 @@ void HandleCharacterSelling(GameState *state, int row, int col);
 void HandleCharacterInteractions(GameState *state, int row, int col);
 
 // HandlePauseMenu lida com a lógica do menu de pause.
-void HandlePauseMenu(GameState *state, Vector2 mousePos);
-
+void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds);
 #endif

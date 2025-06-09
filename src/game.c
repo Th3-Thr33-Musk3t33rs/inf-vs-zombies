@@ -296,7 +296,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     }
 
     if (state->app.isPaused) {
-        HandlePauseMenu(state, mousePos);
+        HandlePauseMenu(state, mousePos, sounds);
         return;  // Não processa mais nada se estiver pausado.
     }
 
@@ -442,13 +442,14 @@ void HandleCharacterInteractions(GameState *state, int row, int col) {
 }
 
 // Lógica dos botões do menu de pause.
-void HandlePauseMenu(GameState *state, Vector2 mousePos) {
+void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     Rectangle resumeGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_INT / 4) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle exitGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_INT / 2) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     if (CheckCollisionPointRec(mousePos, resumeGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.isPaused = false;  // Sai do menu de pause.
+            ResumeMusicStream(sounds->backgroundMusic);
         }
     }
 
