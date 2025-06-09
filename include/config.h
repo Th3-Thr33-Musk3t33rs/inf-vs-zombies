@@ -15,7 +15,8 @@
 #define BASE_WIDTH_INT 1280
 #define BASE_HEIGHT_INT 720
 
-// Link externo.
+// 'extern' diz ao compilador: "Esta variável existe, mas sua definição
+// está em outro arquivo .c. Apenas saiba que ela está disponível."
 extern const int SELL_POS_X;
 extern const int SELL_POS_Y;
 extern const int FONT_SIZE;
