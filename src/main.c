@@ -26,7 +26,7 @@ int main(void) {
     InitGame(&gameState, &gameTextures, &gameSounds);
 
     // Loop principal do jogo.
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !gameState.app.shouldQuit) {
         // 1. ENTRADAS
         Vector2 mousePos = GetMousePosition();
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do jogo.
