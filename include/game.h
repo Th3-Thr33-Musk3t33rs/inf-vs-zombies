@@ -35,4 +35,10 @@ void HandleCharacterInteractions(GameState *state, int row, int col);
 
 // HandlePauseMenu lida com a lógica do menu de pause.
 void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds);
+
+// Coloca um zumbi no início do caminho.
+void SpawnZombie(GameState *state);
+
+// UpdateHordeLogic controla o spawn de zumbis.
+void UpdateHordeLogic(GameState *state, float deltaTime);
 #endif

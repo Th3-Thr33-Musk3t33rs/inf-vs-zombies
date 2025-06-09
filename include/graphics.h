@@ -45,4 +45,7 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
 
 // RenderPause renderiza a tela de pause.
 void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse);
+
+// RenderZombies renderiza os zumbis no grid.
+void RenderZombies(GameState *state, GameTextures *textures);
 #endif

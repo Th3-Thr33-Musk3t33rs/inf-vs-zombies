@@ -18,12 +18,16 @@ int main(void) {
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
-    int hordes[MAX_HORDES];
-    int hordesNumber = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
-
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
     InitGame(&gameState, &gameTextures, &gameSounds);
+
+    // Lê e aplica a configuração de hordas.
+    int hordes[MAX_HORDES] = {0};
+    gameState.totalHordes = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
+    for (int i = 0; i < gameState.totalHordes; i++) {
+        gameState.hordes[i] = hordes[i];
+    }
 
     // Loop principal do jogo.
     while (!WindowShouldClose() && !gameState.app.shouldQuit) {
@@ -55,6 +59,7 @@ int main(void) {
                 // Desenha todos os elementos do jogo principal
                 RenderGameGrid(&gameState, &gameTextures, mousePos);
                 RenderProjectiles(&gameState, &gameTextures);
+                RenderZombies(&gameState, &gameTextures);
                 RenderHUD(&gameState, &gameTextures, mousePos);
                 RenderCharacterSelector(&gameState, &gameTextures, mousePos);
                 RenderMoneyBag(&gameState, &gameTextures, mousePos);

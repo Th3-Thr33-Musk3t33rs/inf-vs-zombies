@@ -27,7 +27,10 @@ extern const int FONT_SIZE;
 #define GRID_MARGIN_X 418
 #define GRID_MARGIN_Y 174
 
-#define ZOMBIE_ID 15
+#define MAX_ZOMBIES_ON_SCREEN 50
+#define ZOMBIE_HP 100
+#define HORDE_SPAWN_TIMER 5.0f
+#define ZOMBIE_SPEED 40.0f
 
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
@@ -38,6 +41,9 @@ extern const int FONT_SIZE;
 #define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
 #define TRALALERO_CD 7.5f
+#define TRALALERO_PROJECTILE_CD 3
+#define PROJECTILE_SPEED 400.0f
+#define PROJECTILE_DAMAGE 10
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
@@ -59,16 +65,13 @@ extern const int FONT_SIZE;
 #define BASE_FONT_SIZE 40
 #define MONEY_BAG_RANDOMNESS 800
 #define MONEY_BAG_AMOUNT 40
-#define MAX_PROJECTILES 100
+#define MAX_PROJECTILES_ON_SCREEN 100
 
 // Velocidades.
-#define PROJECTILE_SPEED 400.0f
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
 #define INITIAL_MONEY 50
-#define DAMAGE 10
-#define ENEMY_HP 110
 
 // Valores dos sons
 #define SOUND_PROJECTILE 1

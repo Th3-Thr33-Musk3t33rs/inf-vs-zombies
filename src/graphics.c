@@ -307,7 +307,7 @@ void RenderProjectiles(GameState *state, GameTextures *textures) {
     // A região da spritesheet do projétil.
     Rectangle projectileSource = {5, 5, 71, 29};
 
-    for (int i = 0; i < MAX_PROJECTILES; i++) {
+    for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
         // Se o projétil estiver ativo, desenha-o.
         if (state->entities.projectiles[i].isActive) {
             // Pega a posição do projétil e a escala para a resolução atual.
@@ -399,5 +399,24 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
+void RenderZombies(GameState *state, GameTextures *textures) {
+    float ZOMBIE_RENDER_WIDTH = 72.0f;
+    float ZOMBIE_RENDER_HEIGHT = 96.0f;
+
+    float frameWidth = (float)textures->zombie.width / 6.0f;
+    float frameHeight = (float)textures->zombie.height;
+
+    for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
+        Zombie *zombie = &state->entities.zombies[i];
+        if (zombie->isActive) {
+            Rectangle sourceRec = {zombie->currentFrame * frameWidth, 0, frameWidth, frameHeight};
+
+            Rectangle destRec = {zombie->position.x, zombie->position.y, ZOMBIE_RENDER_WIDTH, ZOMBIE_RENDER_HEIGHT};
+
+            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
+        }
     }
 }

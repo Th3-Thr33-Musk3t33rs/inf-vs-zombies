@@ -36,8 +36,17 @@ typedef struct {
         } bombardini;
         // CASO HAJA MAIS PERSONAGENS COM CAMPOS ESPECÍFICOS, ADICIONAR AQUI.
     } specific;
-
 } Character;
+
+typedef struct {
+    bool isActive;
+    Vector2 position;
+    int hp;
+    int row;
+    float animationCounter;
+    int currentFrame;
+    // Futuramente, podemos adicionar um estado (ex: WALKING, EATING)
+} Zombie;
 
 // PlayerStats é uma estrutura focada nas estatísticas do jogador.
 typedef struct {
@@ -62,10 +71,20 @@ typedef struct {
     CharacterType characterInHand;
 } AppState;
 
-typedef struct {
-    int horde_number;
-    int zombies_alive_in_horde;
+typedef enum {
+    HORDE_STATE_SPAWNING,
+    HORDE_STATE_WAITING_CLEAR,
+    HORDE_STATE_BETWEEN_WAVES,
+    HORDE_STATE_INACTIVE
 } HordeState;
+
+typedef struct {
+    HordeState state;
+    int currentHorde;
+    int zombiesToSpawnInHorde;
+    int remainingZombies;
+    float spawnTimer;
+} Horde;
 
 typedef struct {
     bool isActive;
@@ -75,8 +94,8 @@ typedef struct {
 // EntityManager é uma estrutura para gerenciar as entidades do jogo (personagens, zumbis...).
 typedef struct {
     Character characters[ROWS][COLUMNS];
-    Projectile projectiles[MAX_PROJECTILES];
-    // Adicionar array de zumbis e projéteis aqui futuramente.
+    Projectile projectiles[MAX_PROJECTILES_ON_SCREEN];
+    Zombie zombies[MAX_ZOMBIES_ON_SCREEN];
 } EntityManager;
 
 // MoneyBag é uma estrutura para a bolsa de dinheiro e suas interações.
@@ -95,8 +114,10 @@ typedef struct {
     AppState app;
     EntityManager entities;
     MoneyBag moneyBag;
-    HordeState currentHorde;
-    int finalHorde;
+    Horde horde;
+
+    int hordes[MAX_HORDES];
+    int totalHordes;
 
     int tiles[ROWS][COLUMNS];
     float characterCooldowns[CHAR_TYPE_COUNT];
