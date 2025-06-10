@@ -403,20 +403,34 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 }
 
 void RenderZombies(GameState *state, GameTextures *textures) {
-    float ZOMBIE_RENDER_WIDTH = 72.0f;
-    float ZOMBIE_RENDER_HEIGHT = 96.0f;
+    const float ZOMBIE_RENDER_WIDTH = 72.0f;
+    const float ZOMBIE_RENDER_HEIGHT = 90.0f;
 
-    float frameWidth = (float)textures->zombie.width / 6.0f;
-    float frameHeight = (float)textures->zombie.height;
+    // 2. Tamanho de UM ÚNICO frame DENTRO DA SUA IMAGEM 'zombie.png' (origem).
+    //    >>> IMPORTANTE: Você talvez precise ajustar estes valores! <<<
+    //    Abra seu arquivo 'zombie.png' em um editor de imagem e veja a largura e altura
+    //    de um dos 6 zumbis. Um bom chute inicial é 80x140.
+    const float ZOMBIE_SPRITE_FRAME_WIDTH = 340.0f;
+    const float ZOMBIE_SPRITE_FRAME_HEIGHT = 550.0f;
 
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
-        Zombie *zombie = &state->entities.zombies[i];
+        const Zombie *zombie = &state->entities.zombies[i];
         if (zombie->isActive) {
-            Rectangle sourceRec = {zombie->currentFrame * frameWidth, 0, frameWidth, frameHeight};
+            Rectangle sourceRec = {
+                zombie->currentFrame * ZOMBIE_SPRITE_FRAME_WIDTH,
+                0,
+                ZOMBIE_SPRITE_FRAME_WIDTH,
+                ZOMBIE_SPRITE_FRAME_HEIGHT
+            };
+            
+            Rectangle destRec = {
+                zombie->position.x,
+                zombie->position.y,
+                ZOMBIE_RENDER_WIDTH,
+                ZOMBIE_RENDER_HEIGHT
+            };
 
-            Rectangle destRec = {zombie->position.x, zombie->position.y, ZOMBIE_RENDER_WIDTH, ZOMBIE_RENDER_HEIGHT};
-
-            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
+            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0,0}, 0, WHITE);
         }
     }
 }

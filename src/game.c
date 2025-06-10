@@ -580,7 +580,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
             zombie->position.x -= ZOMBIE_SPEED * deltaTime;
 
             zombie->animationCounter += deltaTime;
-            if (zombie->animationCounter > 0.15f) {
+            if (zombie->animationCounter > 0.25f) {
                 zombie->currentFrame++;
                 zombie->animationCounter = 0;
 
@@ -599,8 +599,8 @@ void UpdateZombies(GameState *state, float deltaTime) {
 
 // Atualiza a lógica principal do jogo por frame.
 void UpdateGame(GameState *state, float deltaTime) {
-    UpdateZombies(state, deltaTime);      // Atualiza os zumbis e suas animações.
     UpdateHordeLogic(state, deltaTime);   // Atualiza a lógica de spawn dos zumbis.
+    UpdateZombies(state, deltaTime);      // Atualiza os zumbis e suas animações.
     UpdateCharacters(state, deltaTime);   // Atualiza os estados e animações dos personagens.
     UpdateProjectiles(state, deltaTime);  // Atualiza a lógica dos projéteis.
     UpdateMoneyBag(state, deltaTime);     // Atualiza a lógica da bolsa de dinheiro.
