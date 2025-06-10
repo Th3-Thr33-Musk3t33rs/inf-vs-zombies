@@ -2,8 +2,8 @@
 
 #include "graphics.h"
 
+#include <math.h>
 #include <stdio.h>
-#include<math.h>
 
 #include "character_data.h"
 #include "config.h"
@@ -421,17 +421,15 @@ void RenderZombies(GameState *state, GameTextures *textures) {
                 zombie->currentFrame * ZOMBIE_SPRITE_FRAME_WIDTH,
                 0,
                 ZOMBIE_SPRITE_FRAME_WIDTH,
-                ZOMBIE_SPRITE_FRAME_HEIGHT
-            };
-            
+                ZOMBIE_SPRITE_FRAME_HEIGHT};
+
             Rectangle destRec = {
                 zombie->position.x,
                 zombie->position.y,
                 ZOMBIE_RENDER_WIDTH,
-                ZOMBIE_RENDER_HEIGHT
-            };
+                ZOMBIE_RENDER_HEIGHT};
 
-            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0,0}, 0, WHITE);
+            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
         }
     }
 }
@@ -451,8 +449,7 @@ void RenderHordeStatus(GameState *state) {
     int padding = 20;
     Vector2 textPos = {
         (float)BASE_WIDTH_FLOAT - textWidth - padding,
-        (float)padding
-    };
-    
+        (float)padding};
+
     DrawText(buffer, textPos.x, textPos.y, fontSize, BLACK);
 }

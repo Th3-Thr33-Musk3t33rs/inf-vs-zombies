@@ -474,9 +474,9 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 void SpawnZombie(GameState *state) {
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
         Zombie *zombie = &state->entities.zombies[i];
-        
+
         if (zombie->isActive) continue;
-        
+
         *zombie = (Zombie){0};
 
         zombie->isActive = true;
@@ -512,17 +512,17 @@ void UpdateHordeLogic(GameState *state, float deltaTime) {
                 horde->zombiesToSpawnInHorde = state->hordes[horde->currentHorde];
                 horde->state = HORDE_STATE_SPAWNING;
                 state->stats.currentWave = horde->currentHorde + 1;
-                horde->spawnTimer = 1.0f; 
+                horde->spawnTimer = 1.0f;
             }
             break;
 
         case HORDE_STATE_SPAWNING:
             if (horde->zombiesToSpawnInHorde > 0) {
                 horde->spawnTimer -= deltaTime;
-                if (horde->spawnTimer <= 0){
+                if (horde->spawnTimer <= 0) {
                     SpawnZombie(state);
                     horde->zombiesToSpawnInHorde--;
-                    horde->spawnTimer = (float)(rand() % 3 + 3); // Nasce um zumbi a cada 2-4 segundos.
+                    horde->spawnTimer = (float)(rand() % 3 + 3);  // Nasce um zumbi a cada 2-4 segundos.
                 }
             } else {
                 // Se todos os zumbis da horda foram criados, espera o jogador limpá-los.
