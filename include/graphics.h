@@ -1,45 +1,54 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "raylib.h"  // Necessário para Texture2D e outras estruturas Raylib
+#include "raylib.h"
 #include "types.h"
 
-// Carregamento de todas as texturas do jogo.
+// InitializeTextures carrega todas as texturas do jogo.
 void InitializeTextures(GameTextures *textures);
 
-// Liberação de todas as texturas carregadas.
+// UnloadTextures libera todas as texturas carregadas.
 void UnloadTextures(GameTextures *textures);
 
-// Carregamento de todos os sons do jogo.
+// InitializeSounds carrega todos os sons do jogo.
 void InitializeSounds(GameSounds *Sounds);
 
-// Liberação de todos sons carregadas.
+// UnloadSounds libera todos os sons carregados.
 void UnloadSounds(GameSounds *sounds);
 
+// PlaySounds toca os sons dados como entrada.
 void PlaySounds(GameState *state, GameSounds *sounds);
 
-// Renderização da tela de título.
+// RenderTitleScreen renderiza a tela de título.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize);
 
-// Renderização do HUD (Heads-Up Display: dinheiro, botão de venda).
-void RenderHUD(GameState *state, int screenWidth, int screenHeight, int fontSize, GameTextures *textures, Vector2 mouse, GameSounds *sounds);
+// RenderHUD renderiza o HUD.
+void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse);
 
-// Renderização do seletor de personagens na parte superior da tela.
-void RenderCharacterSelector(GameState *state, int screenWidth, int screenHeight, int fontSize,
-                             GameTextures *textures, Vector2 mouse);
+// RenderCharacterSelector renderiza o seletor de personagens.
+void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse);
 
-// Renderização do grid principal do jogo, incluindo as tiles e personagens.
-void RenderGameGrid(GameState *state, int screenWidth, int screenHeight, GameTextures *textures, Vector2 mouse, int fontSize);
+// RenderStatsPanel renderiza o painel de estatísticas.
+void RenderStatsPanel(PlayerStats *stats, GameTextures *textures);
 
-// Renderização dos projéteis ativos no jogo.
-void RenderProjectiles(GameState *state, int screenWidth, int screenHeight, GameTextures *textures, GameSounds *sounds);
+// RenderGameGrid renderiza o grid principal do jogo, incluindo tiles e personagens.
+void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse);
 
-// Renderização da bolsa de dinheiro aleatória.
-void RenderMoneyBag(GameState *state, int screenWidth, int screenHeight, GameTextures *textures, Vector2 mouse, GameSounds *sounds);
+// RenderProjectiles renderiza os projéteis ativos no jogo.
+void RenderProjectiles(GameState *state, GameTextures *textures);
 
-// Renderiza o personagem selecionado ao lado do mouse de forma transparente.
-void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Vector2 mouse, int screenWidth, int screenHeight);
+// RenderMoneyBag renderiza a bolsa de dinheiro aleatória.
+void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse);
 
-// Renderiza a tela de pause
-void RenderPause(GameState *state, GameTextures *textures, GameSounds *sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize);
+// RenderSelectedCharacterPreview renderiza  o personagem selecionado ao lado do mouse.
+void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Vector2 mouse);
+
+// RenderPause renderiza a tela de pause.
+void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse);
+
+// RenderZombies renderiza os zumbis no grid.
+void RenderZombies(GameState *state, GameTextures *textures);
+
+// RenderHordeStatus renderiza o timer para a próxima horda.
+void RenderHordeStatus(GameState *state);
 #endif

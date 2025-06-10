@@ -3,35 +3,42 @@
 
 #include "types.h"
 
-// Inicialização dos gráficos e estado do jogo (configurações da janela, FPS,
-// lógica inicial...).
+// InitGame inicializa os gráficos e estado do jogo.
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds);
 
-// Inicialização do estado do jogo.
+// InitializeGameState inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState *state);
 
-// Atualização da lógica principal do jogo (chamada por frame).
-void UpdateGame(GameState *state);
+// UpdateGame atualiza a lógica principal do jogo (chamada por frame).
+void UpdateGame(GameState *state, float deltaTime);
 
-// Processamento de entrada do usuário que afeta o estado do jogo.
-void ProcessGameInput(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight);
+// ProcessGameInput processa a entrada do usuário.
+void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds);
 
-// UpdateHordeState atualiza as configurações da horda atual no jogo.
-void UpdateHordeState(GameState *state);
+// UpdateCharacters atualiza os estados e animações dos personagens.
+void UpdateCharacters(GameState *state, float deltaTime);
 
-// Atualização dos estados e animações dos personagens.
-void UpdateCharacters(GameState *state);
-
-// Atualização da lógica dos projéteis.
+// UpdateProjectiles atualiza a lógica dos projéteis.
 void UpdateProjectiles(GameState *state, float deltaTime);
 
-// Atualização da lógica da bolsa de dinheiro aleatória.
-void UpdateMoneyBag(GameState *state);
+// UpdateMoneyBag atualiza a lógica da bolsa de dinheiro.
+void UpdateMoneyBag(GameState *state, float deltaTime);
 
-// Lógica de posicionamento e venda de personagens no grid.
-void HandleCharacterPlacementAndSelling(GameState *state, Vector2 mouse, int screenWidth, int screenHeight);
+// HandleCharacterPlacement lida com a lógica de posicionamento de personagens no grid.
+void HandleCharacterPlacement(GameState *state, int row, int col);
 
-// Lógica de funcionamento dos botões do menu de pause
-void HandlePause(GameState *state, Vector2 mousePos, int screenWidth, int screenHeight);
+// HandleCharacterSelling lida com a lógica de venda de personagens no grid.
+void HandleCharacterSelling(GameState *state, int row, int col);
 
+// HandleCharacterInteraction lida com a lógica de interações com os personagens no grid.
+void HandleCharacterInteractions(GameState *state, int row, int col);
+
+// HandlePauseMenu lida com a lógica do menu de pause.
+void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds);
+
+// Coloca um zumbi no início do caminho.
+void SpawnZombie(GameState *state);
+
+// UpdateHordeLogic controla o spawn de zumbis.
+void UpdateHordeLogic(GameState *state, float deltaTime);
 #endif

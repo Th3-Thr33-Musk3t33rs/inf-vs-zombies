@@ -4,7 +4,10 @@
 #define GAME_TITLE "Todos vs. Jacques"
 
 #define MAX_HORDES 10
-#define TIME_BETWEEN_HORDES 10
+#define TIME_BETWEEN_HORDES 30.0f
+
+#define TILE_TYPE_BUTTON 0
+#define TILE_TYPE_GRASS 1
 
 // Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f
@@ -12,7 +15,8 @@
 #define BASE_WIDTH_INT 1280
 #define BASE_HEIGHT_INT 720
 
-// Link externo.
+// 'extern' diz ao compilador: "Esta variável existe, mas sua definição
+// está em outro arquivo .c. Apenas saiba que ela está disponível."
 extern const int SELL_POS_X;
 extern const int SELL_POS_Y;
 extern const int FONT_SIZE;
@@ -23,17 +27,24 @@ extern const int FONT_SIZE;
 #define GRID_MARGIN_X 418
 #define GRID_MARGIN_Y 174
 
-#define ZOMBIE_ID 15
+#define MAX_ZOMBIES_ON_SCREEN 50
+#define ZOMBIE_HP 100
+#define HORDE_SPAWN_TIMER 12.0f
+#define ZOMBIE_SPEED 20.0f
 
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
 #define CHIMPANZINI_COST 50
 #define CHIMPANZINI_CD 7.5f
+#define CHIMPANZINI_LOOPS_GENERATE 20
 
 #define TRALALERO_ID 17
 #define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
 #define TRALALERO_CD 7.5f
+#define TRALALERO_PROJECTILE_CD 3
+#define PROJECTILE_SPEED 400.0f
+#define PROJECTILE_DAMAGE 30
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
@@ -50,22 +61,18 @@ extern const int FONT_SIZE;
 #define BOMBARDINI_COST 25
 #define BOMBARDINI_CD 30
 
-// ID especial para venda.
-#define SELL_ID 404
-
 // Configurações de jogo.
 #define TARGET_FPS 60
 #define BASE_FONT_SIZE 40
-#define MONEY_BAG_RANDOMNESS 1200
+#define MONEY_BAG_RANDOMNESS 800
+#define MONEY_BAG_AMOUNT 40
+#define MAX_PROJECTILES_ON_SCREEN 100
 
 // Velocidades.
-#define PROJECTILE_SPEED 400.0f
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
-#define INITIAL_MONEY 50
-#define DAMAGE 10
-#define ENEMY_HP 110
+#define INITIAL_MONEY 150
 
 // Valores dos sons
 #define SOUND_PROJECTILE 1

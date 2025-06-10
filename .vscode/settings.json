@@ -18,7 +18,14 @@
         "stdlib.h": "c",
         "graphics.h": "c",
         "config.h": "c",
-        "game.h": "c"
+        "game.h": "c",
+        "__hash_table": "c",
+        "array": "c",
+        "type_traits": "c",
+        "forward_list": "c",
+        "limits": "c",
+        "ratio": "c",
+        "variant": "c",
+        "types.h": "c"
     },
-    "C_Cpp.errorSquiggles": "disabled"
 }

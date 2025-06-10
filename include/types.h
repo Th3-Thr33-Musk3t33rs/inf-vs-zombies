@@ -1,97 +1,57 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "character_data.h"
 #include "config.h"
 #include "raylib.h"
 
-// Struct dos personagens.
+// Character é uma struct genérica dos personagens existentes.
 typedef struct {
-    int hp;
-    int idle;
-    int loop;
-    bool shining;
     bool exists;
-} Chimpanzini;
-
-typedef struct {
+    CharacterType type;
     int hp;
-    int idle;
-    int loop;
-    float projecX;
-    int projecY;
-    bool projecB;
-    bool attacking;
-    bool exists;
-} Tralalero;
+    int row;
+    int col;
+    float animationCounter;  // Controla a animação.
+    int currentFrame;        // Frame atual da animação.
+
+    // Union para dados específicos de cada tipo, economizando memória.
+    // Para saber mais sobre unions:
+    // https://pt.stackoverflow.com/questions/46668/o-que-s%C3%A3o-unions-por-que-utiliz%C3%A1-los-dentro-de-structs
+    union {
+        struct {
+            bool shining;
+            int loop;
+        } chimpanzini;
+        struct {
+            bool attacking;
+            float projecX;
+            float projecY;
+            bool projecB;
+            int loop;
+        } tralalero;
+        struct {
+            bool ready;
+            int loop;
+        } bombardini;
+        // CASO HAJA MAIS PERSONAGENS COM CAMPOS ESPECÍFICOS, ADICIONAR AQUI.
+    } specific;
+} Character;
 
 typedef struct {
+    bool isActive;
+    Vector2 position;
     int hp;
-    int idle;
-    int cooldown;
-    bool attacking;
-    bool wait;
-    bool exists;
-} Sahur;
+    int row;
+    float animationCounter;
+    int currentFrame;
+    // Futuramente, podemos adicionar um estado (ex: WALKING, EATING)
+} Zombie;
 
-typedef struct {
-    int hp;
-    int idle;
-    bool exists;
-} Lirili;
-
-typedef struct {
-    int hp;
-    int idle;
-    int loop;
-    int bombX;
-    float bombY;
-    bool bombB;
-    bool ready;
-    bool exists;
-} Bombardini;
-
-typedef struct {
-    int hp;
-    int idle;
-    int speed;
-    int dmg;
-    bool exists;
-} RegularZombie;
-
-typedef struct {
-    int horde_number;
-    int zombies_alive_in_horde;
-} HordeState;
-
-// Player é uma estrutura focada nas características que são atribuídas a um jogador do nosso jogo.
+// PlayerStats é uma estrutura focada nas estatísticas do jogador.
 typedef struct {
     int money;
     int currentPoints;
-    int currentWave;
-} Player;
-
-// AppState é uma estrutura para controle de estado da nossa aplicação.
-typedef struct {
-//
-} AppState;
-
-// Struct principal do jogo.
-typedef struct {
-    // Variáveis de controle do jogo.
-    bool titleScreen;
-    bool pause;
-    bool musicPaused;
-    bool gameOver;
-    HordeState current_horde;
-    int final_horde;
-    int money;
-    int mousePick;
-
-    // Grid de tiles.
-    int tiles[ROWS][COLUMNS];
-    int frame[5];
-
-    // Estatisticas
     int currentWave;
     int enemiesKilled;
     int charactersBought;
@@ -99,55 +59,90 @@ typedef struct {
     int charactersLost;
     int moneyBagsCollected;
     int moneyBagsMissed;
-    int currentPoints;
+} PlayerStats;
 
-    // Arrays de personagens.
-    Chimpanzini chimpanzini[ROWS][COLUMNS];
-    Tralalero tralalero[ROWS][COLUMNS];
-    Sahur sahur[ROWS][COLUMNS];
-    Lirili lirili[ROWS][COLUMNS];
-    Bombardini bombardini[ROWS][COLUMNS];
+// AppState é uma estrutura para o estado geral da aplicação.
+typedef struct {
+    bool onTitleScreen;
+    bool isPaused;
+    bool isMusicPaused;
+    bool isGameOver;
+    bool shouldQuit;
+    CharacterType characterInHand;
+} AppState;
 
-    // Contadores de frame.
-    int frameCounterPisc;
-    int frameCounterIdle;
-    float frameCounterCD[5];
-    int pisc;
+typedef enum {
+    HORDE_STATE_SPAWNING,
+    HORDE_STATE_WAITING_CLEAR,
+    HORDE_STATE_BETWEEN_WAVES,
+    HORDE_STATE_INACTIVE
+} HordeState;
 
-    // Bolsa de dinheiro aleatória.
-    bool moneyBag;
-    bool randomizePointBagPos;
-    bool piscBool;
+typedef struct {
+    HordeState state;
+    int currentHorde;
+    int zombiesToSpawnInHorde;
+    int remainingZombies;
+    float spawnTimer;
+} Horde;
 
-    int randomNumX;
-    int randomNumY;
+typedef struct {
+    bool isActive;
+    Vector2 position;
+} Projectile;
 
-    // Custos dos Personagens.
-    int characterCost[5];
-    // Cooldown dos Personagens.
-    float characterCD[5];
-    bool inCooldown[5];
+// EntityManager é uma estrutura para gerenciar as entidades do jogo (personagens, zumbis...).
+typedef struct {
+    Character characters[ROWS][COLUMNS];
+    Projectile projectiles[MAX_PROJECTILES_ON_SCREEN];
+    Zombie zombies[MAX_ZOMBIES_ON_SCREEN];
+} EntityManager;
 
+// MoneyBag é uma estrutura para a bolsa de dinheiro e suas interações.
+typedef struct {
+    bool isActive;
+    bool shouldRandomizePos;
+    bool isPulsing;
+    int timeRemainingInFrames;
+    int pulseCounter;  // Para o efeito de piscar.
+    Vector2 position;
+} MoneyBag;
+
+// GameState é uma estrutura com  os estados do jogo e principais funções.
+typedef struct {
+    PlayerStats stats;
+    AppState app;
+    EntityManager entities;
+    MoneyBag moneyBag;
+    Horde horde;
+
+    int hordes[MAX_HORDES];
+    int totalHordes;
+
+    int tiles[ROWS][COLUMNS];
+    float characterCooldowns[CHAR_TYPE_COUNT];
+
+    // Controle de som
     int soundToPlay;
     bool shouldPlaySound;
 } GameState;
 
-// Struct para texturas.
+// GameTextures é uma estrutura de recursos de texturas 2D do jogo.
 typedef struct {
     Texture2D metallicTile;
     Texture2D buttonTile;
     Texture2D statsFrame;
     Texture2D optionFrame;
     Texture2D frame;
-    Texture2D characterTextures[8][8];
-    Texture2D characterFrames[8];
+    Texture2D characterTextures[CHAR_TYPE_COUNT][8];  // [Tipo de personagem][frame].
+    Texture2D characterFrames[CHAR_TYPE_COUNT];
     Texture2D moneyIcon;
     Texture2D projectile;
     Texture2D bomb;
     Texture2D zombie;
 } GameTextures;
 
-// Struct para sons
+// GameSounds é uma estrutura com os efeitos sonoros do jogo.
 typedef struct {
     Sound selectSFX;
     Sound collectSFX;

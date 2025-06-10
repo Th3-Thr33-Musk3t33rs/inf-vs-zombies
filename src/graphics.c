@@ -3,17 +3,15 @@
 #include "graphics.h"
 
 #include <stdio.h>
+#include<math.h>
 
+#include "character_data.h"
 #include "config.h"
 #include "raylib.h"
 #include "utils.h"
 
 // Carrega todas as texturas necessárias para o jogo.
 void InitializeTextures(GameTextures *textures) {
-    // Nomes base para carregar as texturas dos personagens.
-    const char *nomes[5] = {
-        "chimpanzini", "tralalero", "sahur", "lirili", "bombardini"};
-
     // Carrega texturas básicas do ambiente e elementos do jogo.
     textures->metallicTile = LoadTexture("assets/elements/metallictile.png");
     textures->buttonTile = LoadTexture("assets/elements/buttontilemetallic.png");
@@ -27,33 +25,15 @@ void InitializeTextures(GameTextures *textures) {
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
-    for (int i = 0; i < 5; i++) {      // Itera sobre os tipos de personagem
-        for (int t = 0; t < 8; t++) {  // Itera sobre os frames de animação
-            sprintf(path, "assets/characters/%s%d.png", nomes[i], t);
+    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {  // Itera sobre os tipos de personagem
+        for (int t = 0; t < 8; t++) {                                // Itera sobre os frames de animação
+            sprintf(path, "assets/characters/%s%d.png", CHARACTER_INFO[i].textureName, t);
             textures->characterTextures[i][t] = LoadTexture(path);
         }
+        // Carrega as texturas dos ícones dos personagens para o seletor.
+        sprintf(path, "assets/characters/%sframe.png", CHARACTER_INFO[i].textureName);
+        textures->characterFrames[i] = LoadTexture(path);
     }
-
-    // Carrega as texturas dos ícones dos personagens para o seletor.
-    textures->characterFrames[CHIMPANZINI_FRAME_ID] = LoadTexture("assets/characters/chimpanziniframe.png");
-    textures->characterFrames[TRALALERO_FRAME_ID] = LoadTexture("assets/characters/tralaleroframe.png");
-    textures->characterFrames[SAHUR_FRAME_ID] = LoadTexture("assets/characters/sahurframe.png");
-    textures->characterFrames[LIRILI_FRAME_ID] = LoadTexture("assets/characters/liriliframe.png");
-    textures->characterFrames[BOMBARDINI_FRAME_ID] = LoadTexture("assets/characters/bombardiniframe.png");
-}
-// Carrega os sons do jogo
-void InitializeSounds(GameSounds *sounds) {
-    InitAudioDevice();
-    sounds->backgroundMusic = LoadMusicStream("assets/sfx/bgmusic.wav");
-    PlayMusicStream(sounds->backgroundMusic);  // Inicia a música
-
-    sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
-    sounds->selectSFX = LoadSound("assets/sfx/select.wav");
-    sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
-    sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
-    sounds->putSFX = LoadSound("assets/sfx/put.wav");
-    sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
-    sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
 }
 
 // Descarrega todas as texturas da memória.
@@ -67,19 +47,32 @@ void UnloadTextures(GameTextures *textures) {
     UnloadTexture(textures->projectile);
     UnloadTexture(textures->bomb);
 
-    // Descarrega as texturas de animação dos personagens.
-    for (int i = 0; i < 5; i++) {
+    for (int i = 1; i < CHAR_TYPE_COUNT; i++) {
         for (int t = 0; t < 8; t++) {
+            // Descarrega as texturas de animação dos personagens.
             UnloadTexture(textures->characterTextures[i][t]);
         }
-    }
-
-    // Descarrega as texturas dos ícones dos personagens.
-    for (int i = 0; i < 5; i++) {
+        // Descarrega as texturas dos ícones dos personagens.
         UnloadTexture(textures->characterFrames[i]);
     }
 }
-// Descarrega os sons do jogo
+
+// Carrega os sons do jogo.
+void InitializeSounds(GameSounds *sounds) {
+    InitAudioDevice();
+    sounds->backgroundMusic = LoadMusicStream("assets/sfx/bgmusic.wav");
+    PlayMusicStream(sounds->backgroundMusic);  // Inicia a música de fundo.
+
+    sounds->cancelSFX = LoadSound("assets/sfx/cancel.wav");
+    sounds->selectSFX = LoadSound("assets/sfx/select.wav");
+    sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
+    sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
+    sounds->putSFX = LoadSound("assets/sfx/put.wav");
+    sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
+}
+
+// Descarrega os sons do jogo.
 void UnloadSounds(GameSounds *sounds) {
     UnloadSound(sounds->cancelSFX);
     UnloadSound(sounds->selectSFX);
@@ -89,230 +82,219 @@ void UnloadSounds(GameSounds *sounds) {
     UnloadSound(sounds->putSFX);
     UnloadSound(sounds->projectileSFX);
     UnloadMusicStream(sounds->backgroundMusic);
+    CloseAudioDevice();
+}
+
+// Toca os sons do jogo.
+void PlaySounds(GameState *state, GameSounds *sounds) {
+    if (!state->shouldPlaySound) return;
+
+    switch (state->soundToPlay) {
+        case SOUND_PROJECTILE:
+            PlaySound(sounds->projectileSFX);
+            break;
+        case SOUND_SELECT:
+            PlaySound(sounds->selectSFX);
+            break;
+        case SOUND_COLLECT:
+            PlaySound(sounds->collectSFX);
+            break;
+        case SOUND_COLLECTBAG:
+            PlaySound(sounds->collectBagSFX);
+            break;
+        case SOUND_CANCEL:
+            PlaySound(sounds->cancelSFX);
+            break;
+        case SOUND_PUT:
+            PlaySound(sounds->putSFX);
+            break;
+        case SOUND_HIT:
+            PlaySound(sounds->hitSFX);
+            break;
+        default:
+            break;
+    }
+    state->shouldPlaySound = false;
+    state->soundToPlay = 0;
 }
 
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
-    // Posição e tamanho do botão "Play Game" para detecção de colisão.
-    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
-    Vector2 mouse = GetMousePosition();  // Pega a posição do mouse para highlight
-
     DrawText(GAME_TITLE, screenWidth / 3, screenHeight / 3, fontSize, BLACK);
     DrawText("Play Game", screenWidth / 2.5, screenHeight / 2, fontSize, BLACK);
 
+    // Posição e tamanho do botão "Play Game" para detecção de colisão.
+    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
+
     // Highlight visual do botão "Play Game" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, playDest)) {
+    if (CheckCollisionPointRec(GetMousePosition(), playDest)) {
         DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 }
 
-// Renderiza o HUD (Heads-Up Display) com dinheiro e botão de venda.
-void RenderHUD(GameState *state, int screenWidth, int screenHeight, int fontSize,
-               GameTextures *textures, Vector2 mouse, GameSounds *sounds) {
-    Vector2 Origin = {0, 0};  // Ponto de origem para DrawTexturePro
+// Renderiza o HUD com dinheiro e botão de venda.
+void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     char moneyText[10];
-    sprintf(moneyText, "%d", state->money);  // Converte a pontuação para string
-
-    PlaySounds(state, sounds);  // Chama a função que toca o som específico
-
-    UpdateMusicStream(sounds->backgroundMusic);
+    sprintf(moneyText, "%d", state->stats.money);  // Converte o money para string.
 
     // Posição do texto de dinheiro.
-    Vector2 textmoney = ScaleTo720p(110, 50, screenWidth, screenHeight);
-    float spacing = 10;
-    int textWidth = MeasureText(moneyText, fontSize);
-    float textHeight = fontSize;
+    Vector2 textmoney = ScaleTo720p(110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    int textWidth = MeasureText(moneyText, FONT_SIZE);
 
     // Retângulo de destino para o ícone de moeda.
     Rectangle moneyCountDest = {
-        textmoney.x + textWidth + spacing,
-        textmoney.y + (textHeight / 2.1f) - (35 * screenHeight / 720.0f) / 2.0f,
-        35 * screenWidth / 1280.0f,
-        35 * screenHeight / 720.0f};
-    Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone
+        textmoney.x + textWidth + 10,
+        textmoney.y + (FONT_SIZE / 2.1f) - (35 * BASE_HEIGHT_INT / 720.0f) / 2.0f, 35, 35};
+    Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone.
 
     // Renderiza o texto do número de dinheiro.
-    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, fontSize, BLACK);
+    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, FONT_SIZE, BLACK);
 
     // Renderiza o ícone de moeda.
-    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, (Vector2){0, 0}, 0.0f, WHITE);
 
     // Posição e tamanho do botão "SELL".
     // Usamos as constantes de config.h para a posição.
-    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, screenWidth, screenHeight);
+    Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    DrawText("SELL", SELL_POS_X, SELL_POS_Y, fontSize, BLACK);
+    DrawText("SELL", SELL_POS_X, SELL_POS_Y, FONT_SIZE, BLACK);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, sellDest) && !state->pause) {
+    if (CheckCollisionPointRec(mouse, sellDest) && !state->app.isPaused) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 
     // Highlight se o modo de venda estiver ativo.
-    if (state->mousePick == SELL_ID) {
+    if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
     }
 }
 
 // Renderiza o seletor de personagens na parte superior da tela.
-void RenderCharacterSelector(GameState *state, int screenWidth, int screenHeight,
-                             int fontSize, GameTextures *textures, Vector2 mouse) {
-    Vector2 Origin = {0, 0};
-    char costChar[10];  // Para exibir o custo do personagem
+void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse) {
+    char costText[10];  // Para exibir o custo do personagem.
 
-    for (int f = 0; f < 5; f++) {  // Itera sobre os 5 slots de personagem no seletor
-        Vector2 textValue = ScaleTo720p(310 + (f * 77), 117, screenWidth, screenHeight);
+    for (int f = CHAR_TYPE_CHIMPANZINI; f < CHAR_TYPE_COUNT; f++) {  // Itera sobre os 5 slots de personagem no seletor.
+        const CharacterInfo *charInfo = &CHARACTER_INFO[f];
 
-        Rectangle frameDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96, screenWidth, screenHeight);
-        Rectangle frameCDDest = ScaleRectTo720p(300 + (f * 77), 20, 78, 96 - state->frameCounterCD[f], screenWidth, screenHeight);
+        // Renderiza quadro base.
+        Rectangle frameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 20, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle frameSource = {0, 0, textures->frame.width, textures->frame.height};
+        DrawTexturePro(textures->frame, frameSource, frameDest, (Vector2){0, 0}, 0.0f, WHITE);
 
-        Rectangle charFrameDest = ScaleRectTo720p(300 + (f * 77), 29, 78, 82.75f, screenWidth, screenHeight);
+        // Renderiza ícone do personagem.
         // A fonte da textura do frame do personagem é a mesma para todos os ícones no seletor,
         // então podemos usar um índice fixo como 2 (Sahur) para pegar as dimensões.
+        Rectangle charFrameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 29, 78, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle charFrameSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
-
-        // Renderiza o quadro do seletor.
-        DrawTexturePro(textures->frame, frameSource, frameDest, Origin, 0.0f, WHITE);
-
-        // Renderiza o ícone do personagem dentro do quadro.
-        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, Origin, 0.0f, WHITE);
+        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, (Vector2){0, 0}, 0.0f, WHITE);
 
         // Renderiza o custo do personagem embaixo do quadro.
-        sprintf(costChar, "%d", state->characterCost[f]);
-        DrawText(costChar, 12 + (int)textValue.x, (int)textValue.y, fontSize / 1.5, BLACK);
+        sprintf(costText, "%d", charInfo->cost);
+        Vector2 costPos = ScaleTo720p(310 + ((f - 1) * 77), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, BLACK);
 
-        // Deixa personagem mais transparente caso o jogador não tenha dinheiro o suficiente.
-        if (state->characterCost[f] > state->money) {
+        if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
+            // Cinza, pois não consegue comprar por falta de dinheiro ou personagem está em cooldown.
             DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
-        }
-
-        // Highlight visual do personagem selecionado ao passar o mouse.
-        if (CheckCollisionPointRec(mouse, frameDest) && !state->pause) {
+        } else if (CheckCollisionPointRec(mouse, frameDest) && !state->app.isPaused) {
+            // Highlight visual do personagem selecionado ao passar o mouse.
             DrawRectangleRec(frameDest, ColorAlpha(YELLOW, 0.3f));
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         }
+
         // Highlight se este personagem estiver atualmente selecionado.
-        if (state->mousePick == state->frame[f]) {
+        if (state->app.characterInHand == charInfo->type) {
             DrawRectangleRec(frameDest, ColorAlpha(BLUE, 0.2f));  // Um highlight diferente para o selecionado
         }
-        // Highlight que desaparece de acordo com cooldown do personagem
-        if (state->inCooldown[f]) {
-            DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
 
-            DrawRectangleRec(frameCDDest, ColorAlpha(BLACK, 0.7f));
+        // Highlight que desaparece de acordo com cooldown do personagem.
+        if (state->characterCooldowns[f] > 0) {
+            float cooldownFraction = state->characterCooldowns[f] / charInfo->cooldown;
+            float overlayHeight = frameDest.height * cooldownFraction;
+            Rectangle cooldownOverlayRect = {frameDest.x, frameDest.y, frameDest.width, overlayHeight};
+
+            DrawRectangleRec(cooldownOverlayRect, ColorAlpha(BLACK, 0.7f));
         }
     }
 }
 
-// Renderiza o grid principal do jogo, incluindo as tiles e personagens.
-void RenderGameGrid(GameState *state, int screenWidth, int screenHeight,
-                    GameTextures *textures, Vector2 mouse, int fontSize) {
+// Renderiza o painel de estatísticas.
+void RenderStatsPanel(PlayerStats *stats, GameTextures *textures) {
     Vector2 Origin = {0, 0};
-    Vector2 textstats = ScaleTo720p(70, 280, screenWidth, screenHeight);  // Posicionamento das estatísticas gerais, ondas e pontos.
-    Vector2 textwave = ScaleTo720p(135, 220, screenWidth, screenHeight);
-    Vector2 textpoints = ScaleTo720p(70, 645, screenWidth, screenHeight);
 
-    Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, screenWidth - ((COLUMNS + 1) * 96) - (screenWidth - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, screenWidth, screenHeight);
-    Rectangle statsSource = {0, 0, textures->statsFrame.width, textures->statsFrame.height};
+    // Posicionamento das estatísticas gerais, ondas e pontos.
+    Vector2 textStatsPos = ScaleTo720p(70, 280, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Vector2 textWavePos = ScaleTo720p(135, 220, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Vector2 textPointsPos = ScaleTo720p(70, 645, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     // Renderiza o quadro de estatísticas, e os textos dentro dele.
-    DrawTexturePro(textures->statsFrame, statsSource, statsDest, Origin, 0.0f, WHITE);
-    char currentWaveText[50], currentPointsText[55], enemiesKilledText[50], charactersBoughtText[50], charactersSoldText[50], charactersLostText[50], moneyBagsCollectedText[50], moneyBagsMissedText[50];
+    // Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, BASE_WIDTH_INT - ((COLUMNS + 1) * 96) - (BASE_WIDTH_INT - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle statsFrameDest = ScaleRectTo720p(0, GRID_MARGIN_Y, GRID_MARGIN_X - 10, ROWS * 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle statsSource = {0, 0, textures->statsFrame.width, textures->statsFrame.height};
+    DrawTexturePro(textures->statsFrame, statsSource, statsFrameDest, Origin, 0.0f, WHITE);
 
-    sprintf(currentWaveText, "WAVE: %d", state->currentWave);  // Converte os valores em strings
-    sprintf(charactersBoughtText, "Characters Bought: %d", state->charactersBought);
-    sprintf(charactersSoldText, "Characters Sold: %d", state->charactersSold);
-    sprintf(charactersLostText, "Characters Lost: %d", state->charactersLost);
-    sprintf(moneyBagsCollectedText, "Bags Collected: %d", state->moneyBagsCollected);
-    sprintf(moneyBagsMissedText, "Bags Missed: %d", state->moneyBagsMissed);
+    char buffer[64];
 
-    sprintf(enemiesKilledText, "Enemies Killed: %d", state->enemiesKilled);
-    sprintf(currentPointsText, "Points: %d", state->currentPoints);
+    // Renderização de textos das estatísticas.
+    sprintf(buffer, "WAVE: %d", stats->currentWave);
+    DrawText(buffer, (int)textWavePos.x, (int)textWavePos.y, FONT_SIZE, RED);
 
-    DrawText(currentWaveText, (int)textwave.x, (int)textwave.y, fontSize, RED);
-    DrawText(charactersBoughtText, (int)textstats.x, (int)textstats.y, fontSize / 1.5, RED);
-    DrawText(charactersSoldText, (int)textstats.x, (int)textstats.y + 30, fontSize / 1.5, RED);
-    DrawText(charactersLostText, (int)textstats.x, (int)textstats.y + 60, fontSize / 1.5, RED);
-    DrawText(enemiesKilledText, (int)textstats.x, (int)textstats.y + 90, fontSize / 1.5, RED);
-    DrawText(moneyBagsCollectedText, (int)textstats.x, (int)textstats.y + 120, fontSize / 1.5, RED);
-    DrawText(moneyBagsMissedText, (int)textstats.x, (int)textstats.y + 150, fontSize / 1.5, RED);
-    DrawText(currentPointsText, (int)textpoints.x, (int)textpoints.y, fontSize / 2, RED);
+    sprintf(buffer, "Characters Bought: %d", stats->charactersBought);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y, FONT_SIZE / 1.5, RED);
+    sprintf(buffer, "Characters Sold: %d", stats->charactersSold);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 30, FONT_SIZE / 1.5, RED);
+    sprintf(buffer, "Characters Lost: %d", stats->charactersLost);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 60, FONT_SIZE / 1.5, RED);
+    sprintf(buffer, "Enemies Killed: %d", stats->enemiesKilled);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 90, FONT_SIZE / 1.5, RED);
+    sprintf(buffer, "Bags Collected: %d", stats->moneyBagsCollected);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 120, FONT_SIZE / 1.5, RED);
+    sprintf(buffer, "Bags Missed: %d", stats->moneyBagsMissed);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 150, FONT_SIZE / 1.5, RED);
 
-    // Regiões das spritesheets para os personagens no grid.
-    Rectangle sahurSource = {8, 20, 122, 244};
-    Rectangle chimpanziniSource = {32, 72, 323, 543};
-    Rectangle tralaleroSource = {13, 57, 186, 144};
-    Rectangle liriliSource = {35, 19, 190, 225};
-    Rectangle bombardiniSource = {200, 205, 620, 610};
+    sprintf(buffer, "Points: %d", stats->currentPoints);
+    DrawText(buffer, (int)textPointsPos.x, (int)textPointsPos.y, FONT_SIZE / 2, RED);
+}
 
+// Renderiza o grid principal do jogo, incluindo as tiles e personagens.
+void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
+    // Renderização do painel de estatísticas.
+    RenderStatsPanel(&state->stats, textures);
+
+    Vector2 Origin = {0, 0};
+
+    // Iteração sobre o grid para desenhar tiles e personagens.
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
-            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, screenWidth, screenHeight);
-            Rectangle tileSource = {0, 0, textures->buttonTile.width, textures->buttonTile.height};
+            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+            Texture2D tileTexture = (c == TILE_TYPE_BUTTON) ? textures->buttonTile : textures->metallicTile;
+            Rectangle tileSource = {0, 0, (float)tileTexture.width, (float)tileTexture.height};
+            DrawTexturePro(tileTexture, tileSource, tileDest, Origin, 0.0f, WHITE);
 
-            // Renderiza as Tiles e os personagens baseados no código da tile.
-            switch (state->tiles[r][c]) {
-                case 0:  // Tile de botão (coluna 0)
-                    DrawTexturePro(textures->buttonTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    break;
-                case 1:  // Tile de gramado padrão
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    break;
-                case CHIMPANZINI_ID: {
-                    // Renderiza a tile e o Chimpanzini se ele existir
-                    Rectangle chimpanziniDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 323 / 5, 543 / 5, screenWidth, screenHeight);
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    if (state->chimpanzini[r][c].exists) {
-                        DrawTexturePro(textures->characterTextures[CHIMPANZINI_FRAME_ID][state->chimpanzini[r][c].idle], chimpanziniSource, chimpanziniDest, Origin, 0.0f, WHITE);
-                    }
-                    break;
-                }
-                case TRALALERO_ID: {
-                    // Renderiza a tile e o Tralalero se ele existir
-                    Rectangle tralaleroDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96) - 20, GRID_MARGIN_Y + (r * 78), 186 / 2, 144 / 2, screenWidth, screenHeight);
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    if (state->tralalero[r][c].exists) {
-                        DrawTexturePro(textures->characterTextures[TRALALERO_FRAME_ID][state->tralalero[r][c].idle], tralaleroSource, tralaleroDest, Origin, 0.0f, WHITE);
-                    }
-                    break;
-                }
-                case SAHUR_ID: {
-                    // Renderiza a tile e o Sahur se ele existir
-                    Rectangle sahurDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 122 / 2.5, 244 / 2.5, screenWidth, screenHeight);
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    if (state->sahur[r][c].exists) {
-                        DrawTexturePro(textures->characterTextures[SAHUR_FRAME_ID][state->sahur[r][c].idle], sahurSource, sahurDest, Origin, 0.0f, WHITE);
-                    }
-                    break;
-                }
-                case LIRILI_ID: {
-                    // Renderiza a tile e o Lirili se ele existir
-                    Rectangle liriliDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96), GRID_MARGIN_Y + (r * 78) - 10, 190 / 2.5, 225 / 2.5, screenWidth, screenHeight);
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    if (state->lirili[r][c].exists) {
-                        DrawTexturePro(textures->characterTextures[LIRILI_FRAME_ID][state->lirili[r][c].idle], liriliSource, liriliDest, Origin, 0.0f, WHITE);
-                    }
-                    break;
-                }
-                case BOMBARDINI_ID: {
-                    // Renderiza a tile e o Bombardini se ele existir
-                    Rectangle bombardiniDest = ScaleRectTo720p((GRID_MARGIN_X + 20) + (c * 96) - 2, GRID_MARGIN_Y + (r * 78) + 9, 620 / 10, 610 / 10, screenWidth, screenHeight);
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    if (state->bombardini[r][c].exists) {
-                        DrawTexturePro(textures->characterTextures[BOMBARDINI_FRAME_ID][state->bombardini[r][c].idle], bombardiniSource, bombardiniDest, Origin, 0.0f, WHITE);
-                    }
-                    break;
-                }
-                default:  // Qualquer outro valor (ex: se uma tile for inválida, renderiza como padrão)
-                    DrawTexturePro(textures->metallicTile, tileSource, tileDest, Origin, 0.0f, WHITE);
-                    break;
+            Character *character = &state->entities.characters[r][c];
+            if (character->exists) {
+                const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+
+                // Pega a textura do frame de animação atual.
+                Texture2D charTexture = textures->characterTextures[character->type][character->currentFrame];
+
+                // Posição final do personagem com offsets do grid.
+                float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
+
+                // Retângulo de destino do personagem.
+                Rectangle charDest = ScaleRectTo720p(posX, posY, charInfo->destSize.x, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+                DrawTexturePro(charTexture, charInfo->sourceRec, charDest, Origin, 0.0f, WHITE);
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
-            if (state->tiles[r][c] != 0 && CheckCollisionPointRec(mouse, tileDest) && !state->pause) {
+            if (c != TILE_TYPE_BUTTON && CheckCollisionPointRec(mouse, tileDest) && !state->app.isPaused) {
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 DrawRectangleRec(tileDest, ColorAlpha(YELLOW, 0.3f));
             }
@@ -320,130 +302,157 @@ void RenderGameGrid(GameState *state, int screenWidth, int screenHeight,
     }
 }
 
-// Função que toca os sons
-void PlaySounds(GameState *state, GameSounds *sounds) {
-    if (state->shouldPlaySound == true) {  // Caso o boolean de tocar áudio esteja habilitado
-        switch (state->soundToPlay) {      // Seleciona o devido áudio que deve ser tocado
-
-            case SOUND_PROJECTILE:
-                PlaySound(sounds->projectileSFX);
-                break;
-            case SOUND_SELECT:
-                PlaySound(sounds->selectSFX);
-                break;
-            case SOUND_COLLECT:
-                PlaySound(sounds->collectSFX);
-                break;
-            case SOUND_COLLECTBAG:
-                PlaySound(sounds->collectBagSFX);
-                break;
-            case SOUND_HIT:
-                PlaySound(sounds->hitSFX);
-                break;
-            case SOUND_PUT:
-                PlaySound(sounds->putSFX);
-                break;
-            case SOUND_CANCEL:
-                PlaySound(sounds->cancelSFX);
-                break;
-        }
-        state->shouldPlaySound = false;  // Desabilita o boolean de tocar áudio
-    }
-}
-
 // Renderização dos projéteis ativos no jogo.
-void RenderProjectiles(GameState *state, int screenWidth, int screenHeight,
-                       GameTextures *textures, GameSounds *sounds) {
+void RenderProjectiles(GameState *state, GameTextures *textures) {
     Vector2 Origin = {0, 0};
-    Rectangle projectileSource = {5, 5, 71, 29};  // Região da spritesheet do projétil
+    // A região da spritesheet do projétil.
+    Rectangle projectileSource = {5, 5, 71, 29};
 
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLUMNS; c++) {
-            if (state->tralalero[r][c].projecB) {  // Se o projétil do Tralalero estiver ativo
-                Rectangle projectileDest = ScaleRectTo720p((int)state->tralalero[r][c].projecX,
-                                                           state->tralalero[r][c].projecY + BOMBARDINI_ID,  // BOMBARDINI_ID é um offset, talvez não seja o ideal aqui
-                                                           71, 29, screenWidth, screenHeight);
-                DrawTexturePro(textures->projectile, projectileSource, projectileDest, Origin, 0.0f, WHITE);
-            }
-            // Lógica para renderizar bombas do Bombardini, se existirem
-            // if (state->bombardini[r][c].bombB) { ... }
+    for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
+        // Se o projétil estiver ativo, desenha-o.
+        if (state->entities.projectiles[i].isActive) {
+            // Pega a posição do projétil e a escala para a resolução atual.
+            Rectangle projectileDest = ScaleRectTo720p(
+                state->entities.projectiles[i].position.x,
+                state->entities.projectiles[i].position.y,
+                71,  // Largura original da sprite.
+                29,  // Altura original da sprite.
+                BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+            DrawTexturePro(textures->projectile, projectileSource, projectileDest, Origin, 0.0f, WHITE);
         }
     }
 }
 
 // Renderização da bolsa de dinheiro aleatória.
-void RenderMoneyBag(GameState *state, int screenWidth, int screenHeight,
-                    GameTextures *textures, Vector2 mouse, GameSounds *sounds) {
-    if (!state->moneyBag) return;  // Só renderiza se a bolsa estiver ativa
+void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
+    if (!state->moneyBag.isActive) return;  // Só renderiza se a bolsa estiver ativa.
 
-    Vector2 Origin = {0, 0};
-    Rectangle moneyBagSource = {18, 11, 165, 210};  // Região da spritesheet da bolsa
+    Rectangle moneyBagSource = {18, 11, 165, 210};  // Região da spritesheet da bolsa.
+
+    float sizeMod = state->moneyBag.isPulsing ? 3.0f : 0.0f;
 
     // Usa a posição randomizada do GameState
-    Rectangle moneyBagDest = ScaleRectTo720p(state->randomNumX, state->randomNumY, 78 + state->pisc, 96 + state->pisc, screenWidth, screenHeight);
+    Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y,
+                                             78 + sizeMod, 96 + sizeMod, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, (Vector2){0, 0}, 0.0f, WHITE);
 
     // Highlight visual da bolsa ao passar o mouse.
-    if (CheckCollisionPointRec(mouse, moneyBagDest) && !state->pause) {
+    if (CheckCollisionPointRec(mouse, moneyBagDest) && !state->app.isPaused) {
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     }
 }
 
 // Renderiza o personagem selecionado ao lado do mouse de forma transparente.
-void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Vector2 mouse, int screenWidth, int screenHeight) {
+void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Vector2 mouse) {
+    CharacterType charInHand = state->app.characterInHand;
     // Só renderiza se um personagem estiver selecionado (não for 1 ou SELL_ID).
-    if (state->mousePick >= CHIMPANZINI_ID && state->mousePick <= BOMBARDINI_ID) {
+    if (charInHand > CHAR_TYPE_NONE && charInHand < CHAR_TYPE_COUNT) {
         Vector2 Origin = {0, 0};
-        int virtualMouseX = (int)(mouse.x * BASE_WIDTH_FLOAT / screenWidth);
-        int virtualMouseY = (int)(mouse.y * BASE_HEIGHT_FLOAT / screenHeight);
+        int virtualMouseX = (int)(mouse.x * BASE_WIDTH_FLOAT / BASE_WIDTH_INT);
+        int virtualMouseY = (int)(mouse.y * BASE_HEIGHT_FLOAT / BASE_HEIGHT_INT);
         int offsetX = 10, offsetY = 10;
 
-        Color Transparency = {255, 255, 255, 128};                                                                      // Transparência para o preview
-        Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};  // Mesma fonte do seletor
-        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, screenWidth, screenHeight);
+        Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};  // Mesma fonte do seletor.
+        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Color Transparency = {255, 255, 255, 128};  // Transparência para o preview.
 
         // Renderiza o ícone do personagem selecionado.
-        DrawTexturePro(textures->characterFrames[state->mousePick - CHIMPANZINI_ID], texMSource, texMDest, Origin, 0.0f, Transparency);
+        DrawTexturePro(textures->characterFrames[charInHand], texMSource, texMDest, Origin, 0.0f, Transparency);
     }
 }
 
-// Renderiza o botão de pause, e deixa o fundo escuro
-void RenderPause(GameState *state, GameTextures *textures, GameSounds *sounds, Vector2 mouse, int screenWidth, int screenHeight, int fontSize) {
-    Vector2 Origin = {0, 0};  // Ponto de origem para DrawTexturePro
-    Rectangle pauseDest = ScaleRectTo720p(0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
-    Rectangle optionSource = {0, 0, textures->optionFrame.width, textures->optionFrame.height};
-    Rectangle option1Dest = ScaleRectTo720p(480, screenHeight / 4, 360, 121, screenWidth, screenHeight);
-    Rectangle option2Dest = ScaleRectTo720p(480, screenHeight / 2, 360, 121, screenWidth, screenHeight);
-    Rectangle option1GlowDest = ScaleRectTo720p(504, (screenHeight / 4) + 24, 312, 121 - 48, screenWidth, screenHeight);
-    Rectangle option2GlowDest = ScaleRectTo720p(504, (screenHeight / 2) + 24, 312, 121 - 48, screenWidth, screenHeight);
+// Renderiza o botão de pause, e deixa o fundo escuro.
+void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
+    if (!state->app.isPaused) return;
 
-    if (state->pause) {
-        if (!state->musicPaused) {
-            PauseMusicStream(sounds->backgroundMusic);
-            state->musicPaused = true;
-        }
-        DrawRectangleRec(pauseDest, ColorAlpha(BLACK, 0.85f));
+    DrawRectangle(0, 0, BASE_WIDTH_INT, BASE_HEIGHT_INT, ColorAlpha(BLACK, 0.85f));
 
-        DrawTexturePro(textures->optionFrame, optionSource, option1Dest, Origin, 0.0f, WHITE);
+    Vector2 origin = {0, 0};
+    Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
-        DrawText("Resume", 585, screenHeight / 3.3, fontSize, RED);
-        DrawTexturePro(textures->optionFrame, optionSource, option2Dest, Origin, 0.0f, WHITE);
-        DrawText("Exit Game", 560, screenHeight / 1.8, fontSize, RED);
+    Rectangle resumeButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle resumeGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 4.0f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-        if (CheckCollisionPointRec(mouse, option1GlowDest)) {
-            DrawRectangleRec(option1GlowDest, ColorAlpha(RED, 0.3f));
-            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-        }
+    Rectangle exitButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.0f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-        if (CheckCollisionPointRec(mouse, option2GlowDest)) {
-            DrawRectangleRec(option2GlowDest, ColorAlpha(RED, 0.3f));
-            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-        }
+    // Desenha a moldura dos botões.
+    DrawTexturePro(textures->optionFrame, optionSource, resumeButtonDest, origin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, exitButtonDest, origin, 0.0f, WHITE);
+
+    // Calcula a posição do texto para centralizá-lo nos botões.
+    int resumeTextWidth = MeasureText("Resume", FONT_SIZE);
+    int exitTextWidth = MeasureText("Exit Game", FONT_SIZE);
+    Vector2 resumeTextPos = {resumeButtonDest.x + (resumeButtonDest.width - resumeTextWidth) / 2, resumeButtonDest.y + 35};
+    Vector2 exitTextPos = {exitButtonDest.x + (exitButtonDest.width - exitTextWidth) / 2, exitButtonDest.y + 35};
+
+    DrawText("Resume", (int)resumeTextPos.x, (int)resumeTextPos.y, FONT_SIZE, RED);
+    DrawText("Exit Game", (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, RED);
+
+    // Lógica de Highlight (brilho) com o mouse.
+    if (CheckCollisionPointRec(mouse, resumeGlowDest)) {
+        DrawRectangleRec(resumeGlowDest, ColorAlpha(RED, 0.3f));
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else if (CheckCollisionPointRec(mouse, exitGlowDest)) {
+        DrawRectangleRec(exitGlowDest, ColorAlpha(RED, 0.3f));
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
-        if (state->musicPaused) {
-            ResumeMusicStream(sounds->backgroundMusic);
-            state->musicPaused = false;
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
+void RenderZombies(GameState *state, GameTextures *textures) {
+    const float ZOMBIE_RENDER_WIDTH = 72.0f;
+    const float ZOMBIE_RENDER_HEIGHT = 90.0f;
+
+    // 2. Tamanho de UM ÚNICO frame DENTRO DA SUA IMAGEM 'zombie.png' (origem).
+    //    >>> IMPORTANTE: Você talvez precise ajustar estes valores! <<<
+    //    Abra seu arquivo 'zombie.png' em um editor de imagem e veja a largura e altura
+    //    de um dos 6 zumbis. Um bom chute inicial é 80x140.
+    const float ZOMBIE_SPRITE_FRAME_WIDTH = 340.0f;
+    const float ZOMBIE_SPRITE_FRAME_HEIGHT = 550.0f;
+
+    for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
+        const Zombie *zombie = &state->entities.zombies[i];
+        if (zombie->isActive) {
+            Rectangle sourceRec = {
+                zombie->currentFrame * ZOMBIE_SPRITE_FRAME_WIDTH,
+                0,
+                ZOMBIE_SPRITE_FRAME_WIDTH,
+                ZOMBIE_SPRITE_FRAME_HEIGHT
+            };
+            
+            Rectangle destRec = {
+                zombie->position.x,
+                zombie->position.y,
+                ZOMBIE_RENDER_WIDTH,
+                ZOMBIE_RENDER_HEIGHT
+            };
+
+            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0,0}, 0, WHITE);
         }
     }
+}
+
+void RenderHordeStatus(GameState *state) {
+    if (state->horde.state != HORDE_STATE_BETWEEN_WAVES) {
+        return;
+    }
+
+    char buffer[64];
+    int timeRemaining = (int)ceilf(state->horde.spawnTimer);
+    sprintf(buffer, "Next Wave in: %d", timeRemaining);
+
+    int fontSize = FONT_SIZE / 1.5;
+    int textWidth = MeasureText(buffer, fontSize);
+
+    int padding = 20;
+    Vector2 textPos = {
+        (float)BASE_WIDTH_FLOAT - textWidth - padding,
+        (float)padding
+    };
+    
+    DrawText(buffer, textPos.x, textPos.y, fontSize, BLACK);
 }
