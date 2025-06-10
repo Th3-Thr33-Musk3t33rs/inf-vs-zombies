@@ -3,6 +3,7 @@
 #include "graphics.h"
 
 #include <stdio.h>
+#include<math.h>
 
 #include "character_data.h"
 #include "config.h"
@@ -433,4 +434,25 @@ void RenderZombies(GameState *state, GameTextures *textures) {
             DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0,0}, 0, WHITE);
         }
     }
+}
+
+void RenderHordeStatus(GameState *state) {
+    if (state->horde.state != HORDE_STATE_BETWEEN_WAVES) {
+        return;
+    }
+
+    char buffer[64];
+    int timeRemaining = (int)ceilf(state->horde.spawnTimer);
+    sprintf(buffer, "Next Wave in: %d", timeRemaining);
+
+    int fontSize = FONT_SIZE / 1.5;
+    int textWidth = MeasureText(buffer, fontSize);
+
+    int padding = 20;
+    Vector2 textPos = {
+        (float)BASE_WIDTH_FLOAT - textWidth - padding,
+        (float)padding
+    };
+    
+    DrawText(buffer, textPos.x, textPos.y, fontSize, BLACK);
 }

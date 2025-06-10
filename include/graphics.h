@@ -48,4 +48,7 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse);
 
 // RenderZombies renderiza os zumbis no grid.
 void RenderZombies(GameState *state, GameTextures *textures);
+
+// RenderHordeStatus renderiza o timer para a próxima horda.
+void RenderHordeStatus(GameState *state);
 #endif

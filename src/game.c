@@ -98,7 +98,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             character->specific.chimpanzini.loop++;
                         }
 
-                        if (character->specific.chimpanzini.loop >= 40) {  // Após 40 loops, começa a brilhar.
+                        if (character->specific.chimpanzini.loop >= CHIMPANZINI_LOOPS_GENERATE) {  // Após X loops, começa a brilhar.
                             character->specific.chimpanzini.shining = true;
                             character->currentFrame = 4;               // Inicia animação de brilho.
                             character->specific.chimpanzini.loop = 0;  // Reseta loop.
@@ -240,12 +240,6 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
     if (state->moneyBag.shouldRandomizePos) {
         // Gera um número aleatório para decidir se a bolsa aparece.
         int randomChance = rand() % MONEY_BAG_RANDOMNESS;  // Ajuste este valor para mudar a frequência.
-
-        // --- Debugging ---
-        char RandomText[10];
-        sprintf(RandomText, "%d", randomChance);
-        DrawText(RandomText, 100, 80, FONT_SIZE, BLACK);
-        // --- Debugging ---
 
         if (randomChance == 0 && !state->moneyBag.isActive) {
             state->moneyBag.isActive = true;
@@ -477,22 +471,12 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     }
 }
 
-void UpdateHordeState(GameState *state) {
-    Horde *currentHorde = &state->horde;
-
-    // Todos os zumbis da horda foram mortos?
-    if (currentHorde->remainingZombies == 0) {
-        if (currentHorde->currentHorde < state->totalHordes) {
-            state->horde.currentHorde += 1;
-        } else {
-            state->app.isGameOver = true;
-        }
-    }
-}
-
 void SpawnZombie(GameState *state) {
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
         Zombie *zombie = &state->entities.zombies[i];
+        
+        if (zombie->isActive) continue;
+        
         *zombie = (Zombie){0};
 
         zombie->isActive = true;
@@ -503,7 +487,6 @@ void SpawnZombie(GameState *state) {
 
         zombie->position.y = GRID_MARGIN_Y + (zombie->row * 78) + (78 / 2.0f) - (96 / 2.0f);
 
-        state->horde.remainingZombies--;
         return;  // Sai da função depois de criar um zumbi.
     }
 }
@@ -525,23 +508,24 @@ void UpdateHordeLogic(GameState *state, float deltaTime) {
         case HORDE_STATE_BETWEEN_WAVES:
             horde->spawnTimer -= deltaTime;
             if (horde->spawnTimer <= 0) {
-                // Prepara a próxima horda
+                // Prepara a próxima horda.
                 horde->zombiesToSpawnInHorde = state->hordes[horde->currentHorde];
                 horde->state = HORDE_STATE_SPAWNING;
                 state->stats.currentWave = horde->currentHorde + 1;
+                horde->spawnTimer = 1.0f; 
             }
             break;
 
         case HORDE_STATE_SPAWNING:
-            horde->spawnTimer -= deltaTime;
-            if (horde->spawnTimer <= 0 && horde->zombiesToSpawnInHorde > 0) {
-                SpawnZombie(state);
-                horde->zombiesToSpawnInHorde--;
-                horde->spawnTimer = (float)(rand() % 3 + 2);  // Nasce um zumbi a cada 2-4 segundos.
-            }
-
-            // Se todos os zumbis da horda foram criados, espera o jogador limpá-los
-            if (horde->zombiesToSpawnInHorde == 0) {
+            if (horde->zombiesToSpawnInHorde > 0) {
+                horde->spawnTimer -= deltaTime;
+                if (horde->spawnTimer <= 0){
+                    SpawnZombie(state);
+                    horde->zombiesToSpawnInHorde--;
+                    horde->spawnTimer = (float)(rand() % 3 + 3); // Nasce um zumbi a cada 2-4 segundos.
+                }
+            } else {
+                // Se todos os zumbis da horda foram criados, espera o jogador limpá-los.
                 horde->state = HORDE_STATE_WAITING_CLEAR;
             }
             break;
@@ -558,16 +542,11 @@ void UpdateHordeLogic(GameState *state, float deltaTime) {
                 }
             }
             break;
+
         case HORDE_STATE_INACTIVE:
             break;
         default:
             break;
-    }
-
-    state->horde.spawnTimer += deltaTime;
-    if (state->horde.spawnTimer > HORDE_SPAWN_TIMER) {
-        SpawnZombie(state);
-        state->horde.spawnTimer = 0;  // Reinicia o timer.
     }
 }
 
@@ -597,14 +576,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
     }
 }
 
-// Atualiza a lógica principal do jogo por frame.
-void UpdateGame(GameState *state, float deltaTime) {
-    UpdateHordeLogic(state, deltaTime);   // Atualiza a lógica de spawn dos zumbis.
-    UpdateZombies(state, deltaTime);      // Atualiza os zumbis e suas animações.
-    UpdateCharacters(state, deltaTime);   // Atualiza os estados e animações dos personagens.
-    UpdateProjectiles(state, deltaTime);  // Atualiza a lógica dos projéteis.
-    UpdateMoneyBag(state, deltaTime);     // Atualiza a lógica da bolsa de dinheiro.
-
+void UpdateCooldowns(GameState *state, float deltaTime) {
     for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
         if (state->characterCooldowns[i] > 0) {
             state->characterCooldowns[i] -= deltaTime;
@@ -612,4 +584,14 @@ void UpdateGame(GameState *state, float deltaTime) {
             state->characterCooldowns[i] = 0;
         }
     }
+}
+
+// Atualiza a lógica principal do jogo por frame.
+void UpdateGame(GameState *state, float deltaTime) {
+    UpdateHordeLogic(state, deltaTime);   // Atualiza a lógica de spawn dos zumbis.
+    UpdateZombies(state, deltaTime);      // Atualiza os zumbis e suas animações.
+    UpdateCharacters(state, deltaTime);   // Atualiza os estados e animações dos personagens.
+    UpdateProjectiles(state, deltaTime);  // Atualiza a lógica dos projéteis.
+    UpdateMoneyBag(state, deltaTime);     // Atualiza a lógica da bolsa de dinheiro.
+    UpdateCooldowns(state, deltaTime);
 }

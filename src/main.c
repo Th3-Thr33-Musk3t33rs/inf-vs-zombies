@@ -62,6 +62,7 @@ int main(void) {
                 RenderZombies(&gameState, &gameTextures);
                 RenderHUD(&gameState, &gameTextures, mousePos);
                 RenderCharacterSelector(&gameState, &gameTextures, mousePos);
+                RenderHordeStatus(&gameState);
                 RenderMoneyBag(&gameState, &gameTextures, mousePos);
                 RenderSelectedCharacterPreview(&gameState, &gameTextures, mousePos);
 

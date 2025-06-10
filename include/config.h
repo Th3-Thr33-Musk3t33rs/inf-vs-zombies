@@ -4,7 +4,7 @@
 #define GAME_TITLE "Todos vs. Jacques"
 
 #define MAX_HORDES 10
-#define TIME_BETWEEN_HORDES 10
+#define TIME_BETWEEN_HORDES 30.0f
 
 #define TILE_TYPE_BUTTON 0
 #define TILE_TYPE_GRASS 1
@@ -29,13 +29,14 @@ extern const int FONT_SIZE;
 
 #define MAX_ZOMBIES_ON_SCREEN 50
 #define ZOMBIE_HP 100
-#define HORDE_SPAWN_TIMER 5.0f
-#define ZOMBIE_SPEED 40.0f
+#define HORDE_SPAWN_TIMER 12.0f
+#define ZOMBIE_SPEED 20.0f
 
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
 #define CHIMPANZINI_COST 50
 #define CHIMPANZINI_CD 7.5f
+#define CHIMPANZINI_LOOPS_GENERATE 20
 
 #define TRALALERO_ID 17
 #define TRALALERO_FRAME_ID 1
@@ -43,7 +44,7 @@ extern const int FONT_SIZE;
 #define TRALALERO_CD 7.5f
 #define TRALALERO_PROJECTILE_CD 3
 #define PROJECTILE_SPEED 400.0f
-#define PROJECTILE_DAMAGE 10
+#define PROJECTILE_DAMAGE 30
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
@@ -71,7 +72,7 @@ extern const int FONT_SIZE;
 #define BOMB_SPEED 1200.0f
 
 // Valores de jogo.
-#define INITIAL_MONEY 70
+#define INITIAL_MONEY 150
 
 // Valores dos sons
 #define SOUND_PROJECTILE 1
