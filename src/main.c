@@ -42,10 +42,10 @@ int main(void) {
         // A lógica do jogo só é atualizada se não estiver na tela de título ou pausado
         if (!gameState.app.onTitleScreen && !gameState.app.isPaused) {
             UpdateGame(&gameState, GetFrameTime());  // Aqui pegamos o tempo do frame.
+            
+            // Toca os sons que foram solicitados durante o ciclo de inputs/updates.
+            PlaySounds(&gameState, &gameSounds);
         }
-
-        // Toca os sons que foram solicitados durante o ciclo de inputs/updates.
-        PlaySounds(&gameState, &gameSounds);
 
         // 3. RENDERIZAÇÃO
         BeginDrawing();

@@ -70,6 +70,8 @@ void InitializeSounds(GameSounds *sounds) {
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
     sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
     sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
+    sounds->eatSFX = LoadSound("assets/sfx/eating.wav");
+    sounds->endGameSFX = LoadSound("assets/sfx/end.wav");
 }
 
 // Descarrega os sons do jogo.
@@ -110,6 +112,12 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
             break;
         case SOUND_HIT:
             PlaySound(sounds->hitSFX);
+            break;
+        case SOUND_EAT:
+            PlaySound(sounds->eatSFX);
+            break;
+        case SOUND_END_GAME:
+            PlaySound(sounds->endGameSFX);
             break;
         default:
             break;

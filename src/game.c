@@ -481,10 +481,9 @@ void SpawnZombie(GameState *state) {
 
         zombie->isActive = true;
         zombie->hp = ZOMBIE_HP;
+        zombie->state = ZOMBIE_WALKING;
         zombie->row = rand() % ROWS;  // Sorteia uma linha de 0 a 6 para spawnar o zumbi.
-
         zombie->position.x = BASE_WIDTH_INT;
-
         zombie->position.y = GRID_MARGIN_Y + (zombie->row * 78) + (78 / 2.0f) - (96 / 2.0f);
 
         return;  // Sai da função depois de criar um zumbi.
@@ -553,25 +552,75 @@ void UpdateHordeLogic(GameState *state, float deltaTime) {
 void UpdateZombies(GameState *state, float deltaTime) {
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
         Zombie *zombie = &state->entities.zombies[i];
+        if (!zombie->isActive) continue;
 
-        if (zombie->isActive) {
-            // Aqui decrementamos o x porque queremos ir da direita para a esquerda.
-            zombie->position.x -= ZOMBIE_SPEED * deltaTime;
+        // Calcula em qual coluna do grid a "boca" do zumbi está.
+        // O -20 é um ajuste para a colisão acontecer na frente do zumbi.
+        int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
+        if (zombieGridCol < 0) zombieGridCol = 0;
+        if (zombieGridCol >= COLUMNS) zombieGridCol = COLUMNS - 1;
 
-            zombie->animationCounter += deltaTime;
-            if (zombie->animationCounter > 0.25f) {
-                zombie->currentFrame++;
-                zombie->animationCounter = 0;
+        // Pega o character que está na mesma linha e coluna calculada.
+        Character *character = &state->entities.characters[zombie->row][zombieGridCol];
+        bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
 
-                if (zombie->currentFrame > 5) {
-                    zombie->currentFrame = 0;
+        // Se há uma character na frente do zumbi, ele para para comer.
+        if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {
+            zombie->state = ZOMBIE_EATING;
+            zombie->damageTimer = 0;  // Reinicia ambos os timers
+        } else if (zombie->state == ZOMBIE_EATING && !character->exists) {
+            zombie->state = ZOMBIE_WALKING;
+        }
+
+        switch (zombie->state) {
+            case ZOMBIE_WALKING:
+                zombie->animationCounter += deltaTime;
+                if (zombie->animationCounter > 0.25f) {
+                    zombie->currentFrame = (zombie->currentFrame + 1) % 6;
+                    zombie->animationCounter = 0;
                 }
 
-                if (zombie->position.x < GRID_MARGIN_X - 50) {
-                    state->app.isGameOver = true;
-                    // Adicionar som de derrota aqui.
+                // Aqui decrementamos o x porque queremos ir da direita para a esquerda.
+                zombie->position.x -= ZOMBIE_SPEED * deltaTime;
+                break;
+            case ZOMBIE_EATING:
+                zombie->animationCounter += deltaTime;
+                if (zombie->animationCounter > 0.1f) {
+                    zombie->currentFrame = (zombie->currentFrame + 1) % 6;
+                    zombie->animationCounter = 0;
                 }
-            }
+
+                // Causa dano na planta a cada 1 segundo.
+                zombie->damageTimer += deltaTime;
+                if (zombie->damageTimer > 1.0f) {
+                    character->hp -= ZOMBIE_DAMAGE;
+                    zombie->damageTimer = 0;
+                }
+
+                if (zombie->eatSoundTimer == 0.0f) {
+                    state->soundToPlay = SOUND_EAT;
+                    state->shouldPlaySound = true;
+                }
+
+                // Toca o som de comer a planta a cada 2s
+                zombie->eatSoundTimer += deltaTime;
+                if (zombie->eatSoundTimer > 2.0f) {
+                    zombie->eatSoundTimer = 0;
+                }
+
+                // Se a planta morreu, volta a andar.
+                if (!character->exists) {
+                    zombie->state = ZOMBIE_WALKING;
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (zombie->position.x < GRID_MARGIN_X - 50) {
+            state->app.isGameOver = true;
+            state->soundToPlay = SOUND_END_GAME;
+            state->shouldPlaySound = true;
         }
     }
 }

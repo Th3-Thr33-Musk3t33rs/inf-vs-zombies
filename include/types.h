@@ -38,14 +38,21 @@ typedef struct {
     } specific;
 } Character;
 
+typedef enum {
+    ZOMBIE_WALKING,
+    ZOMBIE_EATING
+} ZombieState;
+
 typedef struct {
     bool isActive;
     Vector2 position;
     int hp;
     int row;
     float animationCounter;
+    float damageTimer;
+    float eatSoundTimer;
     int currentFrame;
-    // Futuramente, podemos adicionar um estado (ex: WALKING, EATING)
+    ZombieState state;
 } Zombie;
 
 // PlayerStats é uma estrutura focada nas estatísticas do jogador.
@@ -151,6 +158,8 @@ typedef struct {
     Sound cancelSFX;
     Sound collectBagSFX;
     Sound hitSFX;
+    Sound eatSFX;
+    Sound endGameSFX;
     Music backgroundMusic;
 } GameSounds;
 

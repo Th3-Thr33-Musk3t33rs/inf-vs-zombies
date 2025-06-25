@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define GAME_TITLE "Todos vs. Jacques"
+#define GAME_TITLE "INF vs Zombies"
 
 #define MAX_HORDES 10
 #define TIME_BETWEEN_HORDES 30.0f
@@ -31,6 +31,7 @@ extern const int FONT_SIZE;
 #define ZOMBIE_HP 100
 #define HORDE_SPAWN_TIMER 12.0f
 #define ZOMBIE_SPEED 20.0f
+#define ZOMBIE_DAMAGE 15
 
 #define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
@@ -82,6 +83,8 @@ extern const int FONT_SIZE;
 #define SOUND_CANCEL 5
 #define SOUND_PUT 6
 #define SOUND_HIT 7
+#define SOUND_EAT 8
+#define SOUND_END_GAME 9
 #define SOUND_BGMUSIC 98
 
 // ReadHordesConfig lê o arquivo de configPath e retorna o array com a configuração de hordas e o número de hordas.
