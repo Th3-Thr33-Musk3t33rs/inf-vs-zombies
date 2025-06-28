@@ -191,6 +191,10 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                             character->specific.sahur.cooldown = true;
                                             if (zombie->hp <= 0) {  // Desativa o zumbi
                                                 zombie->isActive = false;
+                                                if (zombie->golden) {
+                                                    state->stats.money += MONEY_BAG_AMOUNT;
+                                                    
+                                                }
                                                 state->stats.enemiesKilled++;
                                                 state->stats.currentPoints += 100; // + 100 pontos
                                             }
@@ -308,6 +312,9 @@ void UpdateProjectiles(GameState *state, float deltaTime) {
 
                         if (zombie->hp <= 0) {
                             zombie->isActive = false;
+                            if (zombie->golden) {
+                                state->stats.money += MONEY_BAG_AMOUNT;
+                            }
                             state->stats.enemiesKilled++;
                             state->stats.currentPoints += 100;
                         }
@@ -351,6 +358,9 @@ void UpdateBombs(GameState *state, float deltaTime) {
 
                                 if (zombie->hp <= 0) {
                                     zombie->isActive = false;
+                                    if (zombie->golden) {
+                                        state->stats.money += MONEY_BAG_AMOUNT;
+                                    }
                                     state->stats.enemiesKilled++;
                                     state->stats.currentPoints += 100;
                                 }
@@ -621,6 +631,13 @@ void SpawnZombie(GameState *state) {
         zombie->hp = ZOMBIE_HP;
         zombie->state = ZOMBIE_WALKING;
         zombie->row = rand() % ROWS;  // Sorteia uma linha de 0 a 6 para spawnar o zumbi.
+        int goldenZombie = rand() % GOLDEN_ZOMBIE_CHANCE;
+        if (goldenZombie == 0) { // Todo zumbi tem uma chance de ser um zumbi dourado
+        
+         zombie->golden = true;
+        } 
+
+
         zombie->position.x = BASE_WIDTH_INT;
         zombie->position.y = GRID_MARGIN_Y + (zombie->row * 78) + (78 / 2.0f) - (96 / 2.0f);
 

@@ -64,6 +64,7 @@ typedef struct {
     float eatSoundTimer;
     int currentFrame;
     ZombieState state;
+    bool golden;
 } Zombie;
 
 // PlayerStats é uma estrutura focada nas estatísticas do jogador.
@@ -166,6 +167,7 @@ typedef struct {
     Texture2D projectile;
     Texture2D bomb;
     Texture2D zombie;
+    Texture2D goldZombie;
 } GameTextures;
 
 // GameSounds é uma estrutura com os efeitos sonoros do jogo.

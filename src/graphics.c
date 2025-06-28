@@ -22,6 +22,8 @@ void InitializeTextures(GameTextures *textures) {
     textures->projectile = LoadTexture("assets/elements/projectile.png");
     textures->bomb = LoadTexture("assets/elements/bomb.png");
     textures->zombie = LoadTexture("assets/characters/zombie.png");
+    textures->goldZombie = LoadTexture("assets/characters/goldzombie.png");
+
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
@@ -46,6 +48,8 @@ void UnloadTextures(GameTextures *textures) {
     UnloadTexture(textures->moneyIcon);
     UnloadTexture(textures->projectile);
     UnloadTexture(textures->bomb);
+    UnloadTexture(textures->zombie);
+    UnloadTexture(textures->goldZombie);
 
     for (int i = 1; i < CHAR_TYPE_COUNT; i++) {
         for (int t = 0; t < 8; t++) {
@@ -507,7 +511,12 @@ void RenderZombies(GameState *state, GameTextures *textures) {
                 ZOMBIE_RENDER_WIDTH,
                 ZOMBIE_RENDER_HEIGHT};
 
-            DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
+
+            if (zombie->golden) {
+                DrawTexturePro(textures->goldZombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
+            } else {
+                DrawTexturePro(textures->zombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);
+            }
         }
     }
 }
