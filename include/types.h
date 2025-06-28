@@ -4,6 +4,13 @@
 #include "character_data.h"
 #include "config.h"
 #include "raylib.h"
+#include "types.h"
+
+// PlayerLeaderboard é uma estrutura com a leaderboard do jogo
+typedef struct {
+    char playerName[4];
+    int points;
+} PlayerLeaderboard;
 
 // Character é uma struct genérica dos personagens existentes.
 typedef struct {
@@ -98,10 +105,17 @@ typedef struct {
     Vector2 position;
 } Projectile;
 
+typedef struct {
+    bool isActive;
+    Vector2 position;
+    float explosionY;
+} Bomb;
+
 // EntityManager é uma estrutura para gerenciar as entidades do jogo (personagens, zumbis...).
 typedef struct {
     Character characters[ROWS][COLUMNS];
     Projectile projectiles[MAX_PROJECTILES_ON_SCREEN];
+    Bomb bombs[MAX_PROJECTILES_ON_SCREEN];
     Zombie zombies[MAX_ZOMBIES_ON_SCREEN];
 } EntityManager;
 
@@ -122,6 +136,7 @@ typedef struct {
     EntityManager entities;
     MoneyBag moneyBag;
     Horde horde;
+    PlayerLeaderboard* leaderboard;
 
     int hordes[MAX_HORDES];
     int totalHordes;
@@ -154,6 +169,7 @@ typedef struct {
     Sound selectSFX;
     Sound collectSFX;
     Sound projectileSFX;
+    Sound explosionSFX;
     Sound putSFX;
     Sound cancelSFX;
     Sound collectBagSFX;

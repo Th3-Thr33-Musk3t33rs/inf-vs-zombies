@@ -178,11 +178,49 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             character->currentFrame = 0;
                             character->specific.bombardini.loop++;
                         }
-                        if (character->specific.bombardini.loop >= 300) {  // Após 300 loops, fica "pronto".
+                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS) {  // Após 300 loops, fica "pronto".
                             character->specific.bombardini.ready = true;
                             character->currentFrame = 4;  // Inicia animação de pronto.
                         }
                     }
+                    for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
+                    Zombie *zombie = &state->entities.zombies[j];
+
+                    if (character->specific.bombardini.ready && zombie->isActive) {
+                        const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+
+                           // Posição final do personagem com offsets do grid.
+                        float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                        float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
+                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
+                        Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
+                            Rectangle recBombardini = ScaleRectTo720p(posX, posY, charInfo->destSize.x/2.3, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+                            if (CheckCollisionRecs(recBombardini, recZombie)) {
+                                for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
+                                    if (!state->entities.bombs[i].isActive) {
+
+                                      state->entities.bombs[i].isActive = true;
+
+                                        // Define a posição inicial da bomba, caindo do céu.
+                                        state->entities.bombs[i].position.x = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                                        state->entities.bombs[i].position.y = 0;
+                                        state->entities.bombs[i].explosionY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y + 50;
+                                        character->exists = false;
+                                        state->tiles[r][c] = TILE_TYPE_GRASS;  // Tile volta ao estado padrão.
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+            
+
+
+
+
+            
+                      
                     break;
                 default:
                     break;
@@ -232,6 +270,46 @@ void UpdateProjectiles(GameState *state, float deltaTime) {
         }
     }
 }
+
+
+// Atualiza a lógica das bombas.
+void UpdateBombs(GameState *state, float deltaTime) {
+    for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
+        Bomb *bomb = &state->entities.bombs[i];
+        // Se a bomba estiver ativa, move-a.
+        if (state->entities.bombs[i].isActive) {
+            // Move o projétil para baixo.
+            state->entities.bombs[i].position.y += BOMB_SPEED * deltaTime;
+
+         
+
+            Rectangle recBomb = {bomb->position.x, bomb->position.y, 20, 20};
+
+            for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
+                Zombie *zombie = &state->entities.zombies[j];
+                if (zombie->isActive) {
+                    Rectangle recExplosion = {state->entities.bombs[i].position.x, state->entities.bombs[i].explosionY, 40, 80};
+
+                    if (CheckCollisionRecs(recBomb, recExplosion)) {
+                        bomb->isActive = false;
+                        zombie->hp -= ZOMBIE_HP;
+                        state->soundToPlay = SOUND_EXPLOSION;
+                        state->shouldPlaySound = true;
+
+                        if (zombie->hp <= 0) {
+                            zombie->isActive = false;
+                            state->stats.enemiesKilled++;
+                            state->stats.currentPoints += 100;
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 // Atualiza a lógica da bolsa de dinheiro aleatória.
 void UpdateMoneyBag(GameState *state, float deltaTime) {
@@ -323,14 +401,20 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica do seletor de personagens.
     for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
         Rectangle frameDest = {300 + ((i - 1) * 77), 20, 78, 96};
-        const CharacterInfo *info = &CHARACTER_INFO[i];
 
-        if (CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (state->stats.money >= info->cost && state->characterCooldowns[i] <= 0) {
-                if (state->app.characterInHand == info->type) {
-                    state->app.characterInHand = CHAR_TYPE_NONE;
+
+
+        for (int f = 0; f < CHAR_TYPE_COUNT; f++) {
+        const CharacterInfo *info = &CHARACTER_INFO[f];
+         
+            Rectangle frameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 20, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+            if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (f-1))) && state->stats.money >= info->cost && state->characterCooldowns[f] <= 0) {
+                state->shouldPlaySound = true;
+                state->soundToPlay = SOUND_SELECT;
+                if (state->app.characterInHand != info->type) {
+                    state->app.characterInHand = info->type;  // Seleciona o personagem
                 } else {
-                    state->app.characterInHand = info->type;
+                    state->app.characterInHand = CHAR_TYPE_NONE;
                 }
                 state->soundToPlay = SOUND_SELECT;
                 state->shouldPlaySound = true;
@@ -425,7 +509,7 @@ void HandleCharacterSelling(GameState *state, int row, int col) {
     const CharacterInfo *charInfo = &CHARACTER_INFO[charType];
 
     if (charType != CHAR_TYPE_BOMBARDINI) {
-        state->stats.money += (float)charInfo->cost / 1.5f;  // Reembolso padrão.
+        state->stats.money += (float)charInfo->cost * 0.5f;  // Reembolso padrão.
     } else {
         state->stats.money += 10;  // Reembolso do Bombardini, visto que ele é uma bomba que não faz nada até que pisem nele.
     }
@@ -562,7 +646,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
 
         // Pega o character que está na mesma linha e coluna calculada.
         Character *character = &state->entities.characters[zombie->row][zombieGridCol];
-        bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
+        bool isCollidingWithCharacter = (character->exists && !character->specific.bombardini.ready && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
 
         // Se há uma character na frente do zumbi, ele para para comer.
         if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {
@@ -641,6 +725,7 @@ void UpdateGame(GameState *state, float deltaTime) {
     UpdateZombies(state, deltaTime);      // Atualiza os zumbis e suas animações.
     UpdateCharacters(state, deltaTime);   // Atualiza os estados e animações dos personagens.
     UpdateProjectiles(state, deltaTime);  // Atualiza a lógica dos projéteis.
+    UpdateBombs(state, deltaTime);        // Atualiza a lógica das bombas.
     UpdateMoneyBag(state, deltaTime);     // Atualiza a lógica da bolsa de dinheiro.
     UpdateCooldowns(state, deltaTime);
 }

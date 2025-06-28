@@ -37,6 +37,9 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse);
 // RenderProjectiles renderiza os projéteis ativos no jogo.
 void RenderProjectiles(GameState *state, GameTextures *textures);
 
+// RenderBombs renderiza as bombas ativas no jogo.
+void RenderBombs(GameState *state, GameTextures *textures);
+
 // RenderMoneyBag renderiza a bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse);
 

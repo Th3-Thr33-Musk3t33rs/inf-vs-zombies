@@ -4,10 +4,14 @@
 #define GAME_TITLE "INF vs Zombies"
 
 #define MAX_HORDES 10
-#define TIME_BETWEEN_HORDES 30.0f
+#define TIME_BETWEEN_HORDES 15.0f
 
 #define TILE_TYPE_BUTTON 0
 #define TILE_TYPE_GRASS 1
+
+#define MAX_PLAYERS_LEADERBOARD 5
+
+#define LEADERBOARD_FILE "top_scores.bin"
 
 // Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f
@@ -61,6 +65,7 @@ extern const int FONT_SIZE;
 #define BOMBARDINI_FRAME_ID 4
 #define BOMBARDINI_COST 25
 #define BOMBARDINI_CD 30
+#define BOMBARDINI_LOOPS 300
 
 // Configurações de jogo.
 #define TARGET_FPS 60
@@ -70,13 +75,14 @@ extern const int FONT_SIZE;
 #define MAX_PROJECTILES_ON_SCREEN 100
 
 // Velocidades.
-#define BOMB_SPEED 1200.0f
+#define BOMB_SPEED 1800.0f
 
 // Valores de jogo.
 #define INITIAL_MONEY 150
 
 // Valores dos sons
 #define SOUND_PROJECTILE 1
+#define SOUND_EXPLOSION 17
 #define SOUND_SELECT 2
 #define SOUND_COLLECT 3
 #define SOUND_COLLECTBAG 4

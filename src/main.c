@@ -18,6 +18,11 @@ int main(void) {
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
+
+
+    //gameState.leaderboard = LoadLeaderboard(LEADERBOARD_FILE);
+
+
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
     InitGame(&gameState, &gameTextures, &gameSounds);
@@ -28,6 +33,7 @@ int main(void) {
     for (int i = 0; i < gameState.totalHordes; i++) {
         gameState.hordes[i] = hordes[i];
     }
+
 
     // Loop principal do jogo.
     while (!WindowShouldClose() && !gameState.app.shouldQuit) {
@@ -59,6 +65,7 @@ int main(void) {
                 // Desenha todos os elementos do jogo principal
                 RenderGameGrid(&gameState, &gameTextures, mousePos);
                 RenderProjectiles(&gameState, &gameTextures);
+                RenderBombs(&gameState, &gameTextures);
                 RenderZombies(&gameState, &gameTextures);
                 RenderHUD(&gameState, &gameTextures, mousePos);
                 RenderCharacterSelector(&gameState, &gameTextures, mousePos);

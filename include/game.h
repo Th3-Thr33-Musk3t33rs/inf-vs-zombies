@@ -21,6 +21,9 @@ void UpdateCharacters(GameState *state, float deltaTime);
 // UpdateProjectiles atualiza a lógica dos projéteis.
 void UpdateProjectiles(GameState *state, float deltaTime);
 
+// UpdateBombs atualiza a lógica das bombas.
+void UpdateBombs(GameState *state, float deltaTime);
+
 // UpdateMoneyBag atualiza a lógica da bolsa de dinheiro.
 void UpdateMoneyBag(GameState *state, float deltaTime);
 

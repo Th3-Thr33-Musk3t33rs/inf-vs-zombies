@@ -69,6 +69,7 @@ void InitializeSounds(GameSounds *sounds) {
     sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
     sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->explosionSFX = LoadSound("assets/sfx/explosion.wav");
     sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
     sounds->eatSFX = LoadSound("assets/sfx/eating.wav");
     sounds->endGameSFX = LoadSound("assets/sfx/end.wav");
@@ -94,6 +95,9 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
     switch (state->soundToPlay) {
         case SOUND_PROJECTILE:
             PlaySound(sounds->projectileSFX);
+            break;
+        case SOUND_EXPLOSION:
+            PlaySound(sounds->explosionSFX);
             break;
         case SOUND_SELECT:
             PlaySound(sounds->selectSFX);
@@ -331,6 +335,29 @@ void RenderProjectiles(GameState *state, GameTextures *textures) {
         }
     }
 }
+
+// Renderização das bombas ativas no jogo.
+void RenderBombs(GameState *state, GameTextures *textures) {
+    Vector2 Origin = {0, 0};
+    // A região da spritesheet do projétil.
+    Rectangle bombSource = {378, 93, 267, 839};
+
+    for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
+        // Se a bomba estiver ativa, desenha-a.
+        if (state->entities.bombs[i].isActive) {
+            // Pega a posição da bomba e a escala para a resolução atual.
+            Rectangle bombDest = ScaleRectTo720p(
+                state->entities.bombs[i].position.x,
+                state->entities.bombs[i].position.y,
+               37.8,  // Largura original da sprite.
+               83.9,  // Altura original da sprite.
+                BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+            DrawTexturePro(textures->bomb, bombSource, bombDest, Origin, 0.0f, WHITE);
+        }
+    }
+}
+
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
