@@ -26,6 +26,7 @@
         "limits": "c",
         "ratio": "c",
         "variant": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "character_data.h": "c"
     },
 }
