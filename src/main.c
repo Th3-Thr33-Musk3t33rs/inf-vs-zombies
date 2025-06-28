@@ -18,10 +18,7 @@ int main(void) {
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
-
-
-    //gameState.leaderboard = LoadLeaderboard(LEADERBOARD_FILE);
-
+    // gameState.leaderboard = LoadLeaderboard(LEADERBOARD_FILE);
 
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
@@ -33,7 +30,6 @@ int main(void) {
     for (int i = 0; i < gameState.totalHordes; i++) {
         gameState.hordes[i] = hordes[i];
     }
-
 
     // Loop principal do jogo.
     while (!WindowShouldClose() && !gameState.app.shouldQuit) {
@@ -48,7 +44,7 @@ int main(void) {
         // A lógica do jogo só é atualizada se não estiver na tela de título ou pausado
         if (!gameState.app.onTitleScreen && !gameState.app.isPaused) {
             UpdateGame(&gameState, GetFrameTime());  // Aqui pegamos o tempo do frame.
-            
+
             // Toca os sons que foram solicitados durante o ciclo de inputs/updates.
             PlaySounds(&gameState, &gameSounds);
         }

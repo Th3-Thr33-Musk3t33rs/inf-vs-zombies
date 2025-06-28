@@ -153,9 +153,9 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     }
                     break;
 
-                // Lógica de comportamento do Sahur 
-                case CHAR_TYPE_SAHUR: 
-                    if (character->currentFrame > 1 && character->currentFrame < 3) { // idle simples
+                // Lógica de comportamento do Sahur
+                case CHAR_TYPE_SAHUR:
+                    if (character->currentFrame > 1 && character->currentFrame < 3) {  // idle simples
                         character->currentFrame = 0;
                     }
                     if (character->specific.sahur.cooldown) {  // Inicia animação de cooldown
@@ -165,48 +165,45 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                         }
                     }
 
-                           for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
-                            Zombie *zombie = &state->entities.zombies[j];
+                    for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
+                        Zombie *zombie = &state->entities.zombies[j];
 
-                            if (!character->specific.sahur.cooldown && zombie->isActive) {
-                                const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+                        if (!character->specific.sahur.cooldown && zombie->isActive) {
+                            const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
 
-                                float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
-                                float posY = GRID_MARGIN_Y + (r * 78) + 20 + charInfo->destOffset.y;
-                                int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
-                                Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
-                                Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - 40, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                            float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                            float posY = GRID_MARGIN_Y + (r * 78) + 20 + charInfo->destOffset.y;
+                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
+                            Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
+                            Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - 40, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                                if (CheckCollisionRecs(recSahur, recZombie)) {  // Se chegar perto de Sahur, Sahur causa dano a ele
-                                   
-                                        if (character->currentFrame == 1 || character->currentFrame == 0) {
-                                            character->currentFrame = 2;
-                                        }
+                            if (CheckCollisionRecs(recSahur, recZombie)) {  // Se chegar perto de Sahur, Sahur causa dano a ele
 
-                                            if (character->currentFrame == 4){
-                                            
-                                            zombie->hp -= ZOMBIE_HP;
-                                            state->soundToPlay = SOUND_TUNG;
-                                            state->shouldPlaySound = true;
-                                            character->specific.sahur.cooldown = true;
-                                            if (zombie->hp <= 0) {
-                                                zombie->isActive = false;
-                                                state->stats.enemiesKilled++;
-                                                state->stats.currentPoints += 100;
-                                            }
-                                        
-                                        }
+                                if (character->currentFrame == 1 || character->currentFrame == 0) {
+                                    character->currentFrame = 2;
+                                }
+
+                                if (character->currentFrame == 4) {
+                                    zombie->hp -= ZOMBIE_HP;
+                                    state->soundToPlay = SOUND_TUNG;
+                                    state->shouldPlaySound = true;
+                                    character->specific.sahur.cooldown = true;
+                                    if (zombie->hp <= 0) {
+                                        zombie->isActive = false;
+                                        state->stats.enemiesKilled++;
+                                        state->stats.currentPoints += 100;
                                     }
                                 }
                             }
-                       
-
-                        if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
-                            character->specific.sahur.cooldown = false;
-                            character->currentFrame = 1;
-                            character->specific.sahur.loop = 0;
                         }
-                    
+                    }
+
+                    if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
+                        character->specific.sahur.cooldown = false;
+                        character->currentFrame = 1;
+                        character->specific.sahur.loop = 0;
+                    }
+
                     break;
                 // Lógica de comportamento do Lirili (mudança de sprite conforme HP).
                 case CHAR_TYPE_LIRILI:
@@ -242,7 +239,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
                             int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
-                            Rectangle recBombardini = ScaleRectTo720p(posX, posY +10, charInfo->destSize.x / 2.3, charInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                            Rectangle recBombardini = ScaleRectTo720p(posX, posY + 10, charInfo->destSize.x / 2.3, charInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
                             if (CheckCollisionRecs(recBombardini, recZombie)) {  // Se zumbi pisar no alvo, uma bomba cai do ceu
                                 for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
@@ -253,23 +250,15 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                         state->entities.bombs[i].position.x = posX;
                                         state->entities.bombs[i].position.y = 0;
                                         state->entities.bombs[i].explosionY = posY + 50;
-                                       
+
                                         character->exists = false;
                                         state->tiles[r][c] = TILE_TYPE_GRASS;  // Tile volta ao estado padrão.
-                                      
                                     }
                                 }
                             }
                         }
                     }
-            
-            
 
-
-
-
-            
-                      
                     break;
                 default:
                     break;
@@ -320,7 +309,6 @@ void UpdateProjectiles(GameState *state, float deltaTime) {
     }
 }
 
-
 // Atualiza a lógica das bombas.
 void UpdateBombs(GameState *state, float deltaTime) {
     for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
@@ -330,32 +318,26 @@ void UpdateBombs(GameState *state, float deltaTime) {
             // Move o projétil para baixo.
             state->entities.bombs[i].position.y += BOMB_SPEED * deltaTime;
 
-         
-
             Rectangle recBomb = {bomb->position.x, bomb->position.y, 40, 80};
 
             for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
                 Zombie *zombie = &state->entities.zombies[j];
                 if (zombie->isActive) {
-                    Rectangle recExplosion = {state->entities.bombs[i].position.x, state->entities.bombs[i].explosionY, 40, 80-40};
+                    Rectangle recExplosion = {state->entities.bombs[i].position.x, state->entities.bombs[i].explosionY, 40, 80 - 40};
                     Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
 
                     if (CheckCollisionRecs(recBomb, recExplosion)) {
-                       
-                        
-                            bomb->isActive = false;
-                            if (CheckCollisionRecs(recExplosion, recZombie)) {
-                                zombie->hp -= ZOMBIE_HP;
-                                state->soundToPlay = SOUND_EXPLOSION;
-                                state->shouldPlaySound = true;
+                        bomb->isActive = false;
+                        if (CheckCollisionRecs(recExplosion, recZombie)) {
+                            zombie->hp -= ZOMBIE_HP;
+                            state->soundToPlay = SOUND_EXPLOSION;
+                            state->shouldPlaySound = true;
 
-                                if (zombie->hp <= 0) {
-                                    zombie->isActive = false;
-                                    state->stats.enemiesKilled++;
-                                    state->stats.currentPoints += 100;
-                                }
-                            
-                      
+                            if (zombie->hp <= 0) {
+                                zombie->isActive = false;
+                                state->stats.enemiesKilled++;
+                                state->stats.currentPoints += 100;
+                            }
                         }
                     }
                 }
@@ -363,7 +345,6 @@ void UpdateBombs(GameState *state, float deltaTime) {
         }
     }
 }
-
 
 // Atualiza a lógica da bolsa de dinheiro aleatória.
 void UpdateMoneyBag(GameState *state, float deltaTime) {
@@ -456,13 +437,11 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
         Rectangle frameDest = {300 + ((i - 1) * 77), 20, 78, 96};
 
-
-
         for (int f = 0; f < CHAR_TYPE_COUNT; f++) {
-        const CharacterInfo *info = &CHARACTER_INFO[f];
-         
+            const CharacterInfo *info = &CHARACTER_INFO[f];
+
             Rectangle frameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 20, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-            if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (f-1))) && state->stats.money >= info->cost && state->characterCooldowns[f] <= 0) {
+            if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (f - 1))) && state->stats.money >= info->cost && state->characterCooldowns[f] <= 0) {
                 state->shouldPlaySound = true;
                 state->soundToPlay = SOUND_SELECT;
                 if (state->app.characterInHand != info->type) {
@@ -700,7 +679,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
 
         // Pega o character que está na mesma linha e coluna calculada.
         Character *character = &state->entities.characters[zombie->row][zombieGridCol];
-        bool isCollidingWithCharacter = (character->exists &&  zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
+        bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
 
         // Se há uma character na frente do zumbi, ele para para comer.
         if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {
@@ -709,9 +688,9 @@ void UpdateZombies(GameState *state, float deltaTime) {
                 zombie->damageTimer = 0;  // Reinicia ambos os timers
             }
         } else if (zombie->state == ZOMBIE_EATING && !character->exists) {
-                zombie->state = ZOMBIE_WALKING;
-            }
-        
+            zombie->state = ZOMBIE_WALKING;
+        }
+
         switch (zombie->state) {
             case ZOMBIE_WALKING:
                 zombie->animationCounter += deltaTime;

@@ -22,10 +22,7 @@ typedef struct {
     float animationCounter;  // Controla a animação.
     int currentFrame;        // Frame atual da animação.
 
-    // Union para dados específicos de cada tipo, economizando memória.
-    // Para saber mais sobre unions:
-    // https://pt.stackoverflow.com/questions/46668/o-que-s%C3%A3o-unions-por-que-utiliz%C3%A1-los-dentro-de-structs
-    union {
+    struct {
         struct {
             bool shining;
             int loop;

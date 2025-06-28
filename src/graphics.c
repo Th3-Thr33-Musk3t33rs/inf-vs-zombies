@@ -152,7 +152,7 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 
-      if (CheckCollisionPointRec(GetMousePosition(), leaderboardbuttonDest)) {
+    if (CheckCollisionPointRec(GetMousePosition(), leaderboardbuttonDest)) {
         DrawRectangleRec(leaderboardbuttonDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
@@ -362,15 +362,14 @@ void RenderBombs(GameState *state, GameTextures *textures) {
             Rectangle bombDest = ScaleRectTo720p(
                 state->entities.bombs[i].position.x,
                 state->entities.bombs[i].position.y,
-               37.8,  // Largura original da sprite.
-               83.9,  // Altura original da sprite.
+                37.8,  // Largura original da sprite.
+                83.9,  // Altura original da sprite.
                 BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
             DrawTexturePro(textures->bomb, bombSource, bombDest, Origin, 0.0f, WHITE);
         }
     }
 }
-
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
