@@ -135,29 +135,57 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
 }
 
 // Renderiza a tela de título do jogo.
-void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
-    DrawText(GAME_TITLE, screenWidth / 3, screenHeight / 3, fontSize, BLACK);
-    DrawText("Play Game", screenWidth / 2.5, screenHeight / 2, fontSize, BLACK);
-    DrawText("Leaderboard", screenWidth / 2.65, screenHeight / 1.5, fontSize, BLACK);
+void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse) {
 
+    Vector2 Origin = {0, 0};
+
+   
+  
+
+     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
+
+     Rectangle playButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.3f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+     Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+       
+     Rectangle gameTitleDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    
+     Rectangle leaderboardButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+     Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     // Posição e tamanho dos botões "Play Game" e "Leaderboard" para detecção de colisão.
-    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
-    Rectangle leaderboardbuttonDest = ScaleRectTo720p((int)1280 / 2.65 - 5, (int)720 / 1.5, 270, fontSize, screenWidth, screenHeight);
 
+     
+    // Calcula a posição do texto para centralizá-lo nos botões e também do titulo.
+    int playTextWidth = MeasureText("Play Game", FONT_SIZE);
+    int leaderboardTextWidth = MeasureText("Leaderboard", FONT_SIZE);
+
+    int gameTitleTextWidth = MeasureText(GAME_TITLE, FONT_SIZE * 2);
+    DrawText(GAME_TITLE, gameTitleDest.x + (gameTitleDest.width - gameTitleTextWidth) / 2, screenHeight / 4, fontSize * 2, BLACK);
+
+    Vector2 playTextPos = {playButtonDest.x + (playButtonDest.width - playTextWidth) / 2, playButtonDest.y + 35};
+    Vector2 leaderboardTextPos = {leaderboardButtonDest.x + (leaderboardButtonDest.width - leaderboardTextWidth) / 2, leaderboardButtonDest.y + 35};
+
+
+    // Desenha a moldura dos botões.
+       DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, Origin, 0.0f, WHITE);
+       DrawText("Play Game", (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
+       DrawText("Leaderboard", (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
     // Highlight visual dos botões "Play Game" e "Leaderboard" ao passar o mouse.
-    if (CheckCollisionPointRec(GetMousePosition(), playDest)) {
-        DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
+    if (CheckCollisionPointRec(GetMousePosition(), playGlowDest)) {
+        DrawRectangleRec(playGlowDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 
-      if (CheckCollisionPointRec(GetMousePosition(), leaderboardbuttonDest)) {
-        DrawRectangleRec(leaderboardbuttonDest, ColorAlpha(YELLOW, 0.3f));
+      if (CheckCollisionPointRec(GetMousePosition(), leaderboardGlowDest)) {
+        DrawRectangleRec(leaderboardGlowDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
+
+
 }
 
 // Renderiza o HUD com dinheiro e botão de venda.
@@ -419,6 +447,8 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     Vector2 origin = {0, 0};
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
+
+
 
     Rectangle resumeButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle resumeGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 4.0f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);

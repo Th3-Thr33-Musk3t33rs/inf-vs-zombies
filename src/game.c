@@ -177,22 +177,22 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                 Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
                                 Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - 40, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                                if (CheckCollisionRecs(recSahur, recZombie)) {  // Se chegar perto de Sahur, Sahur causa dano a ele
+                                if (CheckCollisionRecs(recSahur, recZombie)) {  // Se zumbi chegar perto de Sahur, Sahur causa dano a ele
                                    
                                         if (character->currentFrame == 1 || character->currentFrame == 0) {
-                                            character->currentFrame = 2;
+                                            character->currentFrame = 2;  // Inicia animação de Ataque
                                         }
 
-                                            if (character->currentFrame == 4){
+                                            if (character->currentFrame == 4){  // Mata o zumbi ao finalizar a animação de Ataque
                                             
                                             zombie->hp -= ZOMBIE_HP;
-                                            state->soundToPlay = SOUND_TUNG;
+                                            state->soundToPlay = SOUND_TUNG; // Toca som
                                             state->shouldPlaySound = true;
                                             character->specific.sahur.cooldown = true;
-                                            if (zombie->hp <= 0) {
+                                            if (zombie->hp <= 0) {  // Desativa o zumbi
                                                 zombie->isActive = false;
                                                 state->stats.enemiesKilled++;
-                                                state->stats.currentPoints += 100;
+                                                state->stats.currentPoints += 100; // + 100 pontos
                                             }
                                         
                                         }
@@ -201,7 +201,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             }
                        
 
-                        if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
+                        if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial ao cooldown acabar
                             character->specific.sahur.cooldown = false;
                             character->currentFrame = 1;
                             character->specific.sahur.loop = 0;
@@ -409,8 +409,8 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-        Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, BASE_FONT_SIZE, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-        if (CheckCollisionPointRec(mousePos, playDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+     Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        if (CheckCollisionPointRec(mousePos, playGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
         return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.

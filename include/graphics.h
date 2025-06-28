@@ -20,7 +20,7 @@ void UnloadSounds(GameSounds *sounds);
 void PlaySounds(GameState *state, GameSounds *sounds);
 
 // RenderTitleScreen renderiza a tela de título.
-void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize);
+void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse);
 
 // RenderHUD renderiza o HUD.
 void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse);

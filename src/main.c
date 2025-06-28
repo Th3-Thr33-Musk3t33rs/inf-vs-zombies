@@ -60,7 +60,7 @@ int main(void) {
         // Verifica se o jogo não está em estado de Game Over.
         if (!gameState.app.isGameOver) {
             if (gameState.app.onTitleScreen) {
-                RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
+                RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
             } else {
                 // Desenha todos os elementos do jogo principal
                 RenderGameGrid(&gameState, &gameTextures, mousePos);
@@ -81,7 +81,7 @@ int main(void) {
         } else {
             // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
             // RenderTitleScreen é só um placeholder aqui.
-            RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE);
+            RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
         }
 
         EndDrawing();  // Finaliza o desenho.
