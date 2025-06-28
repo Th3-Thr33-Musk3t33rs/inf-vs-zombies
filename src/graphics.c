@@ -10,6 +10,8 @@
 #include "raylib.h"
 #include "utils.h"
 
+Vector2 defaultOrigin = {0, 0};
+
 // Carrega todas as texturas necessárias para o jogo.
 void InitializeTextures(GameTextures *textures) {
     // Carrega texturas básicas do ambiente e elementos do jogo.
@@ -156,6 +158,8 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
      Rectangle leaderboardButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
      Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     // Posição e tamanho dos botões "Play Game" e "Leaderboard" para detecção de colisão.
+    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
+    Rectangle leaderboardbuttonDest = ScaleRectTo720p(screenWidth / 2.65 - 5, screenHeight / 1.5, 270, fontSize, screenWidth, screenHeight);
 
      
     // Calcula a posição do texto para centralizá-lo nos botões e também do titulo.
@@ -204,14 +208,14 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     // Retângulo de destino para o ícone de moeda.
     Rectangle moneyCountDest = {
         textmoney.x + textWidth + 10,
-        textmoney.y + (FONT_SIZE / 2.1f) - (35 * BASE_HEIGHT_INT / 720.0f) / 2.0f, 35, 35};
+        textmoney.y + (FONT_SIZE / 2.1f) - (35 * BASE_HEIGHT_INT / BASE_HEIGHT_FLOAT) / 2.0f, 35, 35};
     Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone.
 
     // Renderiza o texto do número de dinheiro.
     DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, FONT_SIZE, BLACK);
 
     // Renderiza o ícone de moeda.
-    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, defaultOrigin, 0.0f, WHITE);
 
     // Posição e tamanho do botão "SELL".
     // Usamos as constantes de config.h para a posição.
@@ -239,20 +243,21 @@ void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 m
         const CharacterInfo *charInfo = &CHARACTER_INFO[f];
 
         // Renderiza quadro base.
-        Rectangle frameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 20, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        int frameIndex = f - 1;
+        Rectangle frameDest = ScaleRectTo720p(300 + (frameIndex * Y_OFFSET), 20, Y_OFFSET, X_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle frameSource = {0, 0, textures->frame.width, textures->frame.height};
-        DrawTexturePro(textures->frame, frameSource, frameDest, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(textures->frame, frameSource, frameDest, defaultOrigin, 0.0f, WHITE);
 
         // Renderiza ícone do personagem.
         // A fonte da textura do frame do personagem é a mesma para todos os ícones no seletor,
         // então podemos usar um índice fixo como 2 (Sahur) para pegar as dimensões.
-        Rectangle charFrameDest = ScaleRectTo720p(300 + ((f - 1) * 77), 29, 78, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle charFrameDest = ScaleRectTo720p(300 + (frameIndex * Y_OFFSET), 29, Y_OFFSET, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle charFrameSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
-        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, defaultOrigin, 0.0f, WHITE);
 
         // Renderiza o custo do personagem embaixo do quadro.
         sprintf(costText, "%d", charInfo->cost);
-        Vector2 costPos = ScaleTo720p(310 + ((f - 1) * 77), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Vector2 costPos = ScaleTo720p(310 + (frameIndex * Y_OFFSET), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, BLACK);
 
         if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
@@ -290,8 +295,7 @@ void RenderStatsPanel(PlayerStats *stats, GameTextures *textures) {
     Vector2 textPointsPos = ScaleTo720p(70, 645, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     // Renderiza o quadro de estatísticas, e os textos dentro dele.
-    // Rectangle statsDest = ScaleRectTo720p(0, GRID_MARGIN_Y, BASE_WIDTH_INT - ((COLUMNS + 1) * 96) - (BASE_WIDTH_INT - (GRID_MARGIN_X + (COLUMNS + 1) * 96)), ROWS * 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle statsFrameDest = ScaleRectTo720p(0, GRID_MARGIN_Y, GRID_MARGIN_X - 10, ROWS * 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle statsFrameDest = ScaleRectTo720p(0, GRID_MARGIN_Y, GRID_MARGIN_X - 10, ROWS * Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle statsSource = {0, 0, textures->statsFrame.width, textures->statsFrame.height};
     DrawTexturePro(textures->statsFrame, statsSource, statsFrameDest, Origin, 0.0f, WHITE);
 
@@ -326,14 +330,16 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
     Vector2 Origin = {0, 0};
 
     // Iteração sobre o grid para desenhar tiles e personagens.
-    for (int r = 0; r < ROWS; r++) {
-        for (int c = 0; c < COLUMNS; c++) {
-            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (c * 96), GRID_MARGIN_Y + (r * 78), 96, 78, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-            Texture2D tileTexture = (c == TILE_TYPE_BUTTON) ? textures->buttonTile : textures->metallicTile;
+    for (int row = 0; row < ROWS; row++) {
+        for (int col = 0; col < COLUMNS; col++) {
+            float generalPosX = GRID_MARGIN_X + (col * X_OFFSET);
+            float generalPosY = GRID_MARGIN_Y + (row * Y_OFFSET);
+            Rectangle tileDest = ScaleRectTo720p(generalPosX, generalPosY, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+            Texture2D tileTexture = (col == TILE_TYPE_BUTTON) ? textures->buttonTile : textures->metallicTile;
             Rectangle tileSource = {0, 0, (float)tileTexture.width, (float)tileTexture.height};
             DrawTexturePro(tileTexture, tileSource, tileDest, Origin, 0.0f, WHITE);
 
-            Character *character = &state->entities.characters[r][c];
+            Character *character = &state->entities.characters[row][col];
             if (character->exists) {
                 const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
 
@@ -341,8 +347,8 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
                 Texture2D charTexture = textures->characterTextures[character->type][character->currentFrame];
 
                 // Posição final do personagem com offsets do grid.
-                float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
-                float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
+                float posX = generalPosX + charInfo->destOffset.x;
+                float posY = generalPosY + charInfo->destOffset.y;
 
                 // Retângulo de destino do personagem.
                 Rectangle charDest = ScaleRectTo720p(posX, posY, charInfo->destSize.x, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
@@ -351,7 +357,7 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
-            if (c != TILE_TYPE_BUTTON && CheckCollisionPointRec(mouse, tileDest) && !state->app.isPaused) {
+            if (col != TILE_TYPE_BUTTON && CheckCollisionPointRec(mouse, tileDest) && !state->app.isPaused) {
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
                 DrawRectangleRec(tileDest, ColorAlpha(YELLOW, 0.3f));
             }
@@ -394,15 +400,14 @@ void RenderBombs(GameState *state, GameTextures *textures) {
             Rectangle bombDest = ScaleRectTo720p(
                 state->entities.bombs[i].position.x,
                 state->entities.bombs[i].position.y,
-               37.8,  // Largura original da sprite.
-               83.9,  // Altura original da sprite.
+                37.8,  // Largura original da sprite.
+                83.9,  // Altura original da sprite.
                 BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
             DrawTexturePro(textures->bomb, bombSource, bombDest, Origin, 0.0f, WHITE);
         }
     }
 }
-
 
 // Renderização da bolsa de dinheiro aleatória.
 void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
@@ -414,9 +419,9 @@ void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     // Usa a posição randomizada do GameState
     Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y,
-                                             78 + sizeMod, 96 + sizeMod, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                                             Y_OFFSET + sizeMod, X_OFFSET + sizeMod, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, defaultOrigin, 0.0f, WHITE);
 
     // Highlight visual da bolsa ao passar o mouse.
     if (CheckCollisionPointRec(mouse, moneyBagDest) && !state->app.isPaused) {
@@ -435,7 +440,7 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
         int offsetX = 10, offsetY = 10;
 
         Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};  // Mesma fonte do seletor.
-        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, 78, 96, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Color Transparency = {255, 255, 255, 128};  // Transparência para o preview.
 
         // Renderiza o ícone do personagem selecionado.
@@ -449,20 +454,19 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     DrawRectangle(0, 0, BASE_WIDTH_INT, BASE_HEIGHT_INT, ColorAlpha(BLACK, 0.85f));
 
-    Vector2 origin = {0, 0};
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
 
 
     Rectangle resumeButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle resumeGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 4.0f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle resumeGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_FLOAT / 4.0f) + 24, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     Rectangle exitButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle exitGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.0f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_FLOAT / 2.0f) + 24, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     // Desenha a moldura dos botões.
-    DrawTexturePro(textures->optionFrame, optionSource, resumeButtonDest, origin, 0.0f, WHITE);
-    DrawTexturePro(textures->optionFrame, optionSource, exitButtonDest, origin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, resumeButtonDest, defaultOrigin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, exitButtonDest, defaultOrigin, 0.0f, WHITE);
 
     // Calcula a posição do texto para centralizá-lo nos botões.
     int resumeTextWidth = MeasureText("Resume", FONT_SIZE);
@@ -486,16 +490,6 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 }
 
 void RenderZombies(GameState *state, GameTextures *textures) {
-    const float ZOMBIE_RENDER_WIDTH = 72.0f;
-    const float ZOMBIE_RENDER_HEIGHT = 90.0f;
-
-    // 2. Tamanho de UM ÚNICO frame DENTRO DA SUA IMAGEM 'zombie.png' (origem).
-    //    >>> IMPORTANTE: Você talvez precise ajustar estes valores! <<<
-    //    Abra seu arquivo 'zombie.png' em um editor de imagem e veja a largura e altura
-    //    de um dos 6 zumbis. Um bom chute inicial é 80x140.
-    const float ZOMBIE_SPRITE_FRAME_WIDTH = 340.0f;
-    const float ZOMBIE_SPRITE_FRAME_HEIGHT = 550.0f;
-
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
         const Zombie *zombie = &state->entities.zombies[i];
         if (zombie->isActive) {

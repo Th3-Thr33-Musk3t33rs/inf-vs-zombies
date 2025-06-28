@@ -34,5 +34,4 @@ typedef struct {
 // 'extern' diz ao compilador: "Esta variável existe, mas sua definição
 // está em outro arquivo .c. Apenas saiba que ela está disponível."
 extern const CharacterInfo CHARACTER_INFO[];
-
 #endif

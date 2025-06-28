@@ -6,7 +6,7 @@
 #include "raylib.h"
 #include "types.h"
 
-// PlayerLeaderboard é uma estrutura com a leaderboard do jogo
+// PlayerLeaderboard é uma estrutura com a leaderboard do jogo.
 typedef struct {
     char playerName[4];
     int points;
@@ -22,10 +22,7 @@ typedef struct {
     float animationCounter;  // Controla a animação.
     int currentFrame;        // Frame atual da animação.
 
-    // Union para dados específicos de cada tipo, economizando memória.
-    // Para saber mais sobre unions:
-    // https://pt.stackoverflow.com/questions/46668/o-que-s%C3%A3o-unions-por-que-utiliz%C3%A1-los-dentro-de-structs
-    union {
+    struct {
         struct {
             bool shining;
             int loop;
@@ -49,11 +46,13 @@ typedef struct {
     } specific;
 } Character;
 
+// ZombieState é um enum que contém os possíveis estados de um zumbi.
 typedef enum {
     ZOMBIE_WALKING,
     ZOMBIE_EATING
 } ZombieState;
 
+// Zombie é a estrutura com os atributos de um zumbi.
 typedef struct {
     bool isActive;
     Vector2 position;
@@ -90,6 +89,7 @@ typedef struct {
     CharacterType characterInHand;
 } AppState;
 
+// HordeState é um enum com os possíveis estados de uma horda.
 typedef enum {
     HORDE_STATE_SPAWNING,
     HORDE_STATE_WAITING_CLEAR,
@@ -97,6 +97,7 @@ typedef enum {
     HORDE_STATE_INACTIVE
 } HordeState;
 
+// Horde é um estrutura que contém os atributos de uma horda.
 typedef struct {
     HordeState state;
     int currentHorde;
@@ -105,11 +106,13 @@ typedef struct {
     float spawnTimer;
 } Horde;
 
+// Projectile é uma estrutura que contém os atributos de um projétil.
 typedef struct {
     bool isActive;
     Vector2 position;
 } Projectile;
 
+// Bomb é uma estrutura que contém os atributos de uma bomba.
 typedef struct {
     bool isActive;
     Vector2 position;
@@ -149,7 +152,6 @@ typedef struct {
     int tiles[ROWS][COLUMNS];
     float characterCooldowns[CHAR_TYPE_COUNT];
 
-    // Controle de som
     int soundToPlay;
     bool shouldPlaySound;
 } GameState;
@@ -185,5 +187,4 @@ typedef struct {
     Sound endGameSFX;
     Music backgroundMusic;
 } GameSounds;
-
 #endif
