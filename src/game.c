@@ -234,7 +234,6 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             }
 
                         }
-                    
                     }
 
                     if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
@@ -481,8 +480,8 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica do seletor de personagens.
     for (int f = 0; f < CHAR_TYPE_COUNT; f++) {
         const CharacterInfo *info = &CHARACTER_INFO[f];
-                    state->app.characterInHand = CHAR_TYPE_NONE;
-                state->shouldPlaySound = true;
+        int charIndex = f - 1;
+        Rectangle frameDest = ScaleRectTo720p(300 + (charIndex * Y_OFFSET), 20, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if ((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (charIndex)) && state->stats.money >= info->cost && state->characterCooldowns[f] <= 0) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_SELECT;
@@ -736,7 +735,6 @@ void UpdateZombies(GameState *state, float deltaTime) {
                 zombie->damageTimer = 0;  // Reinicia ambos os timers
             }
         } else if (zombie->state == ZOMBIE_EATING && !character->exists) {
-                zombie->state = ZOMBIE_WALKING;
             zombie->state = ZOMBIE_WALKING;
         }
 
