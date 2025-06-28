@@ -18,8 +18,8 @@ const CharacterInfo CHARACTER_INFO[] = {
     [CHAR_TYPE_NONE] = {CHAR_TYPE_NONE, 0, 0, 0, ""},
     [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, 20, "chimpanzini", {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, {20, -10}},
     [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, 50, "tralalero", {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
-    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, 50, "sahur", {8, 20, 122, 244}, {122 / 2.5f, 244 / 2.5f}, {20, -10}},
-    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, 150, "lirili", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
+    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, 50, "sahur", {0, 0, 180, 264}, {180 / 2.5f, 244 / 2.5f}, {20, -10}},
+    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, 300, "lirili", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
     [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, 10, "bombardini", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
 };
 
@@ -153,17 +153,66 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     }
                     break;
 
-                // Lógica de comportamento do Sahur (idle simples).
-                case CHAR_TYPE_SAHUR:
-                    if (character->currentFrame > 2) {
+                // Lógica de comportamento do Sahur 
+                case CHAR_TYPE_SAHUR: 
+                    if (character->currentFrame > 1 && character->currentFrame < 3) { // idle simples
                         character->currentFrame = 0;
                     }
+                    if (character->specific.sahur.cooldown) {  // Inicia animação de cooldown
+                        if (character->currentFrame > 7) {
+                            character->currentFrame = 5;
+                            character->specific.sahur.loop++;
+                        }
+                    }
+
+                           for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
+                            Zombie *zombie = &state->entities.zombies[j];
+
+                            if (!character->specific.sahur.cooldown && zombie->isActive) {
+                                const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+
+                                float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                                float posY = GRID_MARGIN_Y + (r * 78) + 20 + charInfo->destOffset.y;
+                                int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
+                                Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
+                                Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - 40, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+                                if (CheckCollisionRecs(recSahur, recZombie)) {  // Se chegar perto de Sahur, Sahur causa dano a ele
+                                   
+                                        if (character->currentFrame == 1 || character->currentFrame == 0) {
+                                            character->currentFrame = 2;
+                                        }
+
+                                            if (character->currentFrame == 4){
+                                            
+                                            zombie->hp -= ZOMBIE_HP;
+                                            state->soundToPlay = SOUND_TUNG;
+                                            state->shouldPlaySound = true;
+                                            character->specific.sahur.cooldown = true;
+                                            if (zombie->hp <= 0) {
+                                                zombie->isActive = false;
+                                                state->stats.enemiesKilled++;
+                                                state->stats.currentPoints += 100;
+                                            }
+                                        
+                                        }
+                                    }
+                                }
+                            }
+                       
+
+                        if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
+                            character->specific.sahur.cooldown = false;
+                            character->currentFrame = 1;
+                            character->specific.sahur.loop = 0;
+                        }
+                    
                     break;
                 // Lógica de comportamento do Lirili (mudança de sprite conforme HP).
                 case CHAR_TYPE_LIRILI:
-                    if (character->hp < 100 && character->hp >= 75) {
+                    if (character->hp < 250 && character->hp >= 150) {
                         character->currentFrame = 1;
-                    } else if (character->hp < 75 && character->hp >= 50) {
+                    } else if (character->hp < 150 && character->hp >= 50) {
                         character->currentFrame = 2;
                     } else if (character->hp < 50) {
                         character->currentFrame = 3;
@@ -178,42 +227,42 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             character->currentFrame = 0;
                             character->specific.bombardini.loop++;
                         }
-                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS) {  // Após 300 loops, fica "pronto".
+                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS && !character->specific.bombardini.ready) {  // Após 300 loops, fica "pronto".
                             character->specific.bombardini.ready = true;
                             character->currentFrame = 4;  // Inicia animação de pronto.
                         }
                     }
                     for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
-                    Zombie *zombie = &state->entities.zombies[j];
+                        Zombie *zombie = &state->entities.zombies[j];
 
-                    if (character->specific.bombardini.ready && zombie->isActive) {
-                        const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+                        if (character->specific.bombardini.ready && zombie->isActive) {
+                            const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
 
-                           // Posição final do personagem com offsets do grid.
-                        float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
-                        float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
+                            float posX = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                            float posY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y;
                             int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / 96);
-                        Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
-                            Rectangle recBombardini = ScaleRectTo720p(posX, posY, charInfo->destSize.x/2.3, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                            Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
+                            Rectangle recBombardini = ScaleRectTo720p(posX, posY +10, charInfo->destSize.x / 2.3, charInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                            if (CheckCollisionRecs(recBombardini, recZombie)) {
+                            if (CheckCollisionRecs(recBombardini, recZombie)) {  // Se zumbi pisar no alvo, uma bomba cai do ceu
                                 for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
                                     if (!state->entities.bombs[i].isActive) {
-
-                                      state->entities.bombs[i].isActive = true;
+                                        state->entities.bombs[i].isActive = true;
 
                                         // Define a posição inicial da bomba, caindo do céu.
-                                        state->entities.bombs[i].position.x = GRID_MARGIN_X + (c * 96) + charInfo->destOffset.x;
+                                        state->entities.bombs[i].position.x = posX;
                                         state->entities.bombs[i].position.y = 0;
-                                        state->entities.bombs[i].explosionY = GRID_MARGIN_Y + (r * 78) + charInfo->destOffset.y + 50;
+                                        state->entities.bombs[i].explosionY = posY + 50;
+                                       
                                         character->exists = false;
                                         state->tiles[r][c] = TILE_TYPE_GRASS;  // Tile volta ao estado padrão.
-                                        break;
+                                      
                                     }
                                 }
                             }
                         }
                     }
+            
             
 
 
@@ -283,26 +332,31 @@ void UpdateBombs(GameState *state, float deltaTime) {
 
          
 
-            Rectangle recBomb = {bomb->position.x, bomb->position.y, 20, 20};
+            Rectangle recBomb = {bomb->position.x, bomb->position.y, 40, 80};
 
             for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
                 Zombie *zombie = &state->entities.zombies[j];
                 if (zombie->isActive) {
-                    Rectangle recExplosion = {state->entities.bombs[i].position.x, state->entities.bombs[i].explosionY, 40, 80};
+                    Rectangle recExplosion = {state->entities.bombs[i].position.x, state->entities.bombs[i].explosionY, 40, 80-40};
+                    Rectangle recZombie = {zombie->position.x, zombie->position.y, 40, 80};
 
                     if (CheckCollisionRecs(recBomb, recExplosion)) {
-                        bomb->isActive = false;
-                        zombie->hp -= ZOMBIE_HP;
-                        state->soundToPlay = SOUND_EXPLOSION;
-                        state->shouldPlaySound = true;
+                       
+                        
+                            bomb->isActive = false;
+                            if (CheckCollisionRecs(recExplosion, recZombie)) {
+                                zombie->hp -= ZOMBIE_HP;
+                                state->soundToPlay = SOUND_EXPLOSION;
+                                state->shouldPlaySound = true;
 
-                        if (zombie->hp <= 0) {
-                            zombie->isActive = false;
-                            state->stats.enemiesKilled++;
-                            state->stats.currentPoints += 100;
+                                if (zombie->hp <= 0) {
+                                    zombie->isActive = false;
+                                    state->stats.enemiesKilled++;
+                                    state->stats.currentPoints += 100;
+                                }
+                            
+                      
                         }
-
-                        break;
                     }
                 }
             }
@@ -646,16 +700,18 @@ void UpdateZombies(GameState *state, float deltaTime) {
 
         // Pega o character que está na mesma linha e coluna calculada.
         Character *character = &state->entities.characters[zombie->row][zombieGridCol];
-        bool isCollidingWithCharacter = (character->exists && !character->specific.bombardini.ready && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
+        bool isCollidingWithCharacter = (character->exists &&  zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * 96) + 70));
 
         // Se há uma character na frente do zumbi, ele para para comer.
         if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {
-            zombie->state = ZOMBIE_EATING;
-            zombie->damageTimer = 0;  // Reinicia ambos os timers
+            if (!(character->type == CHAR_TYPE_BOMBARDINI && character->specific.bombardini.ready)) {
+                zombie->state = ZOMBIE_EATING;
+                zombie->damageTimer = 0;  // Reinicia ambos os timers
+            }
         } else if (zombie->state == ZOMBIE_EATING && !character->exists) {
-            zombie->state = ZOMBIE_WALKING;
-        }
-
+                zombie->state = ZOMBIE_WALKING;
+            }
+        
         switch (zombie->state) {
             case ZOMBIE_WALKING:
                 zombie->animationCounter += deltaTime;

@@ -70,6 +70,7 @@ void InitializeSounds(GameSounds *sounds) {
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
     sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
     sounds->explosionSFX = LoadSound("assets/sfx/explosion.wav");
+    sounds->tungSFX = LoadSound("assets/sfx/tung.wav");
     sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
     sounds->eatSFX = LoadSound("assets/sfx/eating.wav");
     sounds->endGameSFX = LoadSound("assets/sfx/end.wav");
@@ -98,6 +99,9 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
             break;
         case SOUND_EXPLOSION:
             PlaySound(sounds->explosionSFX);
+            break;
+        case SOUND_TUNG:
+            PlaySound(sounds->tungSFX);
             break;
         case SOUND_SELECT:
             PlaySound(sounds->selectSFX);
@@ -134,13 +138,22 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize) {
     DrawText(GAME_TITLE, screenWidth / 3, screenHeight / 3, fontSize, BLACK);
     DrawText("Play Game", screenWidth / 2.5, screenHeight / 2, fontSize, BLACK);
+    DrawText("Leaderboard", screenWidth / 2.65, screenHeight / 1.5, fontSize, BLACK);
 
-    // Posição e tamanho do botão "Play Game" para detecção de colisão.
+    // Posição e tamanho dos botões "Play Game" e "Leaderboard" para detecção de colisão.
     Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
+    Rectangle leaderboardbuttonDest = ScaleRectTo720p((int)1280 / 2.65 - 5, (int)720 / 1.5, 270, fontSize, screenWidth, screenHeight);
 
-    // Highlight visual do botão "Play Game" ao passar o mouse.
+    // Highlight visual dos botões "Play Game" e "Leaderboard" ao passar o mouse.
     if (CheckCollisionPointRec(GetMousePosition(), playDest)) {
         DrawRectangleRec(playDest, ColorAlpha(YELLOW, 0.3f));
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+
+      if (CheckCollisionPointRec(GetMousePosition(), leaderboardbuttonDest)) {
+        DrawRectangleRec(leaderboardbuttonDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);

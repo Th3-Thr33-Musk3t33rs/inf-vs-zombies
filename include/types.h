@@ -41,6 +41,10 @@ typedef struct {
             bool ready;
             int loop;
         } bombardini;
+        struct {
+            bool cooldown;
+            int loop;
+        } sahur;
         // CASO HAJA MAIS PERSONAGENS COM CAMPOS ESPECÍFICOS, ADICIONAR AQUI.
     } specific;
 } Character;
@@ -170,6 +174,7 @@ typedef struct {
     Sound collectSFX;
     Sound projectileSFX;
     Sound explosionSFX;
+    Sound tungSFX;
     Sound putSFX;
     Sound cancelSFX;
     Sound collectBagSFX;
