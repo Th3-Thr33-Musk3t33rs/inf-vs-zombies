@@ -170,6 +170,7 @@ typedef struct {
     Texture2D bomb;
     Texture2D zombie;
     Texture2D goldZombie;
+    Texture2D backGround;
 } GameTextures;
 
 // GameSounds é uma estrutura com os efeitos sonoros do jogo.

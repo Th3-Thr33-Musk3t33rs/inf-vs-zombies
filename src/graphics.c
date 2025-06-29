@@ -25,6 +25,7 @@ void InitializeTextures(GameTextures *textures) {
     textures->bomb = LoadTexture("assets/elements/bomb.png");
     textures->zombie = LoadTexture("assets/characters/zombie.png");
     textures->goldZombie = LoadTexture("assets/characters/goldzombie.png");
+    textures->backGround = LoadTexture("assets/elements/background.jpg");
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
@@ -152,6 +153,8 @@ void highlightButton(Rectangle glowDest) {
 
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse) {
+    DrawTexture(textures->backGround, 0, 0, WHITE);
+
     int glowYOffset = 24;
     float playButtonY = BASE_HEIGHT_FLOAT / 2.45f;
     Rectangle playButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, playButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
@@ -176,7 +179,7 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
 
     int gameTitleTextWidth = MeasureText(GAME_TITLE, FONT_SIZE * 2);
     Rectangle gameTitleDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    DrawText(GAME_TITLE, gameTitleDest.x + (gameTitleDest.width - gameTitleTextWidth) / 2, screenHeight / 4, fontSize * 2, BLACK);
+    DrawText(GAME_TITLE, gameTitleDest.x + (gameTitleDest.width - gameTitleTextWidth) / 2, screenHeight / 4, fontSize * 2, WHITE);
 
     Vector2 playTextPos = {playButtonDest.x + (playButtonDest.width - playTextWidth) / 2, playButtonDest.y + 35};
     Vector2 leaderboardTextPos = {leaderboardButtonDest.x + (leaderboardButtonDest.width - leaderboardTextWidth) / 2, leaderboardButtonDest.y + 35};
@@ -188,9 +191,9 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
     DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, defaultOrigin, 0.0f, WHITE);
     DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, defaultOrigin, 0.0f, WHITE);
     DrawTexturePro(textures->optionFrame, optionSource, exitButtonDest, defaultOrigin, 0.0f, WHITE);
-    DrawText(playText, (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
-    DrawText(leaderboardText, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
-    DrawText(exitText, (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, RED);
+    DrawText(playText, (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, PURPLE);
+    DrawText(leaderboardText, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, PURPLE);
+    DrawText(exitText, (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, PURPLE);
 
     highlightButton(playGlowDest);
     highlightButton(leaderboardGlowDest);
@@ -213,7 +216,7 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     Rectangle moneyCountSource = {275, 26, 179, 179};  // Região da spritesheet do ícone.
 
     // Renderiza o texto do número de dinheiro.
-    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, FONT_SIZE, BLACK);
+    DrawText(moneyText, (int)textmoney.x, (int)textmoney.y, FONT_SIZE, WHITE);
 
     // Renderiza o ícone de moeda.
     DrawTexturePro(textures->moneyIcon, moneyCountSource, moneyCountDest, defaultOrigin, 0.0f, WHITE);
@@ -222,7 +225,7 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     // Usamos as constantes de config.h para a posição.
     Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    DrawText("SELL", SELL_POS_X, SELL_POS_Y, FONT_SIZE, BLACK);
+    DrawText("SELL", SELL_POS_X, SELL_POS_Y, FONT_SIZE, WHITE);
 
     // Highlight visual do botão "SELL" ao passar o mouse.
     if (CheckCollisionPointRec(mouse, sellDest) && !state->app.isPaused) {
@@ -259,7 +262,7 @@ void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 m
         // Renderiza o custo do personagem embaixo do quadro.
         sprintf(costText, "%d", charInfo->cost);
         Vector2 costPos = ScaleTo720p(310 + (frameIndex * Y_OFFSET), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-        DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, BLACK);
+        DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, WHITE);
 
         if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
             // Cinza, pois não consegue comprar por falta de dinheiro ou personagem está em cooldown.
@@ -304,31 +307,30 @@ void RenderStatsPanel(PlayerStats *stats, GameTextures *textures) {
 
     // Renderização de textos das estatísticas.
     sprintf(buffer, "WAVE: %d", stats->currentWave);
-    DrawText(buffer, (int)textWavePos.x, (int)textWavePos.y, FONT_SIZE, RED);
+    DrawText(buffer, (int)textWavePos.x, (int)textWavePos.y, FONT_SIZE, PURPLE);
 
     sprintf(buffer, "Characters Bought: %d", stats->charactersBought);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y, FONT_SIZE / 1.5, PURPLE);
     sprintf(buffer, "Characters Sold: %d", stats->charactersSold);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 30, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 30, FONT_SIZE / 1.5, PURPLE);
     sprintf(buffer, "Characters Lost: %d", stats->charactersLost);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 60, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 60, FONT_SIZE / 1.5, PURPLE);
     sprintf(buffer, "Enemies Killed: %d", stats->enemiesKilled);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 90, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 90, FONT_SIZE / 1.5, PURPLE);
     sprintf(buffer, "Bags Collected: %d", stats->moneyBagsCollected);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 120, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 120, FONT_SIZE / 1.5, PURPLE);
     sprintf(buffer, "Bags Missed: %d", stats->moneyBagsMissed);
-    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 150, FONT_SIZE / 1.5, RED);
+    DrawText(buffer, (int)textStatsPos.x, (int)textStatsPos.y + 150, FONT_SIZE / 1.5, PURPLE);
 
     sprintf(buffer, "Points: %d", stats->currentPoints);
-    DrawText(buffer, (int)textPointsPos.x, (int)textPointsPos.y, FONT_SIZE / 2, RED);
+    DrawText(buffer, (int)textPointsPos.x, (int)textPointsPos.y, FONT_SIZE / 2, PURPLE);
 }
 
 // Renderiza o grid principal do jogo, incluindo as tiles e personagens.
 void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
+    DrawTexture(textures->backGround, 0, 0, WHITE);
     // Renderização do painel de estatísticas.
     RenderStatsPanel(&state->stats, textures);
-
-    Vector2 Origin = {0, 0};
 
     // Iteração sobre o grid para desenhar tiles e personagens.
     for (int row = 0; row < ROWS; row++) {
@@ -338,7 +340,7 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
             Rectangle tileDest = ScaleRectTo720p(generalPosX, generalPosY, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             Texture2D tileTexture = (col == TILE_TYPE_BUTTON) ? textures->buttonTile : textures->metallicTile;
             Rectangle tileSource = {0, 0, (float)tileTexture.width, (float)tileTexture.height};
-            DrawTexturePro(tileTexture, tileSource, tileDest, Origin, 0.0f, WHITE);
+            DrawTexturePro(tileTexture, tileSource, tileDest, defaultOrigin, 0.0f, WHITE);
 
             Character *character = &state->entities.characters[row][col];
             if (character->exists) {
@@ -354,7 +356,7 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
                 // Retângulo de destino do personagem.
                 Rectangle charDest = ScaleRectTo720p(posX, posY, charInfo->destSize.x, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                DrawTexturePro(charTexture, charInfo->sourceRec, charDest, Origin, 0.0f, WHITE);
+                DrawTexturePro(charTexture, charInfo->sourceRec, charDest, defaultOrigin, 0.0f, WHITE);
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
@@ -473,15 +475,15 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
     Vector2 resumeTextPos = {resumeButtonDest.x + (resumeButtonDest.width - resumeTextWidth) / 2, resumeButtonDest.y + 35};
     Vector2 exitTextPos = {exitButtonDest.x + (exitButtonDest.width - exitTextWidth) / 2, exitButtonDest.y + 35};
 
-    DrawText("Resume", (int)resumeTextPos.x, (int)resumeTextPos.y, FONT_SIZE, RED);
-    DrawText("Exit Game", (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, RED);
+    DrawText("Resume", (int)resumeTextPos.x, (int)resumeTextPos.y, FONT_SIZE, PURPLE);
+    DrawText("Exit Game", (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, PURPLE);
 
     // Lógica de Highlight (brilho) com o mouse.
     if (CheckCollisionPointRec(mouse, resumeGlowDest)) {
-        DrawRectangleRec(resumeGlowDest, ColorAlpha(RED, 0.3f));
+        DrawRectangleRec(resumeGlowDest, ColorAlpha(PURPLE, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else if (CheckCollisionPointRec(mouse, exitGlowDest)) {
-        DrawRectangleRec(exitGlowDest, ColorAlpha(RED, 0.3f));
+        DrawRectangleRec(exitGlowDest, ColorAlpha(PURPLE, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
@@ -530,5 +532,5 @@ void RenderHordeStatus(GameState *state) {
         (float)BASE_WIDTH_FLOAT - textWidth - padding,
         (float)padding};
 
-    DrawText(buffer, textPos.x, textPos.y, fontSize, BLACK);
+    DrawText(buffer, textPos.x, textPos.y, fontSize, WHITE);
 }

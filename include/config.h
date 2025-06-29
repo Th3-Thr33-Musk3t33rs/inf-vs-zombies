@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define GAME_TITLE "INF vs Zombies"
+#define GAME_TITLE "Memes vs Zombies"
 
 #define BUTTONS_X 504
 #define BUTTONS_Y_OFFSET 24
