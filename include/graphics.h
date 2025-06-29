@@ -52,6 +52,9 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse);
 // RenderLeaderboard renderiza o leaderboard.
 void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse);
 
+// RenderGameOverScreen renderiza a tela de GameOver.
+void RenderGameOverScreen(GameState *state, GameTextures *textures, Vector2 mouse);
+
 // RenderZombies renderiza os zumbis no grid.
 void RenderZombies(GameState *state, GameTextures *textures);
 

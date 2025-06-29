@@ -14,6 +14,7 @@ int main(void) {
     GameState gameState;
     GameTextures gameTextures;
     GameSounds gameSounds;
+    char name[MAX_INPUT_NAME + 1] = "\0";
 
     srand(time(NULL));
 
@@ -36,7 +37,7 @@ int main(void) {
         // 2. ATUALIZAÇÕES
         UpdateMusicStream(gameSounds.backgroundMusic);
 
-        if (!gameState.app.onTitleScreen && !gameState.app.isPaused) {
+        if (!gameState.app.onTitleScreen && !gameState.app.isPaused && !gameState.app.onLeaderboard) {
             UpdateGame(&gameState, GetFrameTime());
             PlaySounds(&gameState, &gameSounds);
         }
