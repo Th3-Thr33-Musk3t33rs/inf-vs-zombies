@@ -39,6 +39,9 @@ void HandleCharacterInteractions(GameState *state, int row, int col);
 // HandlePauseMenu lida com a lógica do menu de pause.
 void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds);
 
+// HandlePauseMenu lida com a lógica dos botões do menu de leaderboard.
+void HandleLeaderboardMenu(GameState *state, Vector2 mousePos);
+
 // Coloca um zumbi no início do caminho.
 void SpawnZombie(GameState *state);
 

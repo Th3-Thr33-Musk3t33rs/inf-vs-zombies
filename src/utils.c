@@ -19,34 +19,48 @@ Rectangle ScaleRectTo720p(float x, float y, float width, float height, int scree
         pos.x, pos.y, size.x, size.y};
 }
 
-PlayerLeaderboard* LoadLeaderboard(char* fileName) {
-    PlayerLeaderboard leaderboard[MAX_PLAYERS_LEADERBOARD];
-    char vazio[4] = {"000"};
+void LoadLeaderboard(char* fileName, GameState* state) {
 
-    FILE* arq = fopen(fileName, "rb");
-
+     
+     FILE* arq = fopen(fileName, "rb");
+     
     if (arq == NULL) {
         for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
-            strcpy(leaderboard[i].playerName, vazio);
-            leaderboard[i].points = 0;
-            return leaderboard;
+            strcpy(state->leaderboard[i].playerName, "000");
+            state->leaderboard[i].points = 0;
+            
+        }
+    } else {
+        for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
+            fread(state->leaderboard[i].playerName, sizeof(char), 4, arq);
+            fread(&state->leaderboard[i].points, sizeof(int), 1, arq);
+        }
+
+        fclose(arq);
+
+        for (int i = 0; i < MAX_PLAYERS_LEADERBOARD - 1; i++) {
+            for (int s = 0; s < MAX_PLAYERS_LEADERBOARD - 1; s++) {
+                if (state->leaderboard[s].points < state->leaderboard[s + 1].points){
+                    PlayerLeaderboard bufferboard = state->leaderboard[s];
+                    state->leaderboard[s] = state->leaderboard[s + 1];
+                    state->leaderboard[s + 1] = bufferboard;
+
+                }
+            }
         }
     }
-    for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
-        fread(leaderboard, sizeof(PlayerLeaderboard), MAX_PLAYERS_LEADERBOARD, arq);
-        fclose(arq);
-    }
-    fclose(arq);
-
-    return leaderboard;
 }
 
-void SaveLeaderboard(char* fileName, PlayerLeaderboard* leaderboard) {
-    FILE* arq = fopen(&fileName, "rw");
+void SaveLeaderboard(char* fileName, GameState* state) {
+    FILE* arq = fopen(fileName, "wb");
+    if (arq == NULL) return;
 
     for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
-        fwrite(&leaderboard[i], sizeof(PlayerLeaderboard), MAX_PLAYERS_LEADERBOARD, arq);
+        fwrite(state->leaderboard[i].playerName, sizeof(char), 4, arq);
+        fwrite(&state->leaderboard[i].points, sizeof(int), 1, arq);
     }
+      
+    
     fclose(arq);
 }
 

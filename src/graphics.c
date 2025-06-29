@@ -9,6 +9,7 @@
 #include "config.h"
 #include "raylib.h"
 #include "utils.h"
+#include "types.h"
 
 Vector2 defaultOrigin = {0, 0};
 
@@ -177,6 +178,13 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
        DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, Origin, 0.0f, WHITE);
     DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, Origin, 0.0f, WHITE);
        DrawText("Play Game", (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
+
+         for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
+           int leaderboardTextWidth = MeasureText(state->leaderboard[i].playerName, FONT_SIZE);
+           Rectangle leaderboardTextDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+           Vector2 leaderboardTextPos = {leaderboardTextDest.x + (leaderboardTextDest.width - leaderboardTextWidth) / 2, leaderboardTextDest.y + 35};
+       }
        DrawText("Leaderboard", (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
     // Highlight visual dos botões "Play Game" e "Leaderboard" ao passar o mouse.
     if (CheckCollisionPointRec(GetMousePosition(), playGlowDest)) {
@@ -489,6 +497,97 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
     }
 }
 
+
+void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) {
+ 
+ 
+    int leaderboardTextWidth = MeasureText("ALC", FONT_SIZE); // Centralização
+    char points[18]; // String da pontuação
+    char position[5]; // String da posição
+
+    int backTextWidth = MeasureText("back", FONT_SIZE); // Centralização do botão de volta
+
+    Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
+
+    Rectangle backButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.3f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle backGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
+
+
+    Rectangle leaderboardTextDest = ScaleRectTo720p(520, BASE_HEIGHT_FLOAT / 9.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Vector2 leaderboardTextPos = {leaderboardTextDest.x + (leaderboardTextDest.width - leaderboardTextWidth) - (BASE_HEIGHT_FLOAT / 2), leaderboardTextDest.y + 35};
+
+    // Posição da ultima linha horizontal
+    Vector2 lastStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard)/sizeof(state->leaderboard[0])) * 60)};
+    Vector2 lastEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+  
+
+    int pointsColumnRightEdge = (int)(BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80); // Alinha os pontos na direita
+
+
+
+    for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
+        Vector2 startingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + (i * 60)};
+        Vector2 endPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + (i * 60)};
+
+        sprintf(points, "%015d", state->leaderboard[i].points);
+        switch (i + 1) {
+            case 1:
+                sprintf(position, "%dst", i + 1);
+                break;
+            case 2:
+                sprintf(position, "%dnd", i + 1);
+                break;
+            case 3:
+                sprintf(position, "%drd", i + 1);
+                break;
+            default:
+                sprintf(position, "%dth", i + 1);
+                break;
+    }
+
+    int pointsWidth = MeasureText(points, FONT_SIZE);  // Alinha os pontos na direita
+    int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+
+        ClearBackground(RED);
+        // Renderiza as linhas verticais da tabela de leaderboard
+        DrawLineEx(startingPoint, endPoint, 5, BLACK);
+        // Renderiza os nomes, pontos e posição da lista de leaderboard
+        DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
+        DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
+        DrawText(position, (int)leaderboardTextPos.x - 90, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
+
+
+       
+
+    }
+    // Renderiza as linhas da tabela de leaderboard
+    Vector2 leftStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10};
+    Vector2 leftEndPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+    DrawLineEx(leftStartingPoint, leftEndPoint, 5, BLACK);
+
+    Vector2 rightStartingPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10};
+    Vector2 rightEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+    DrawLineEx(rightStartingPoint, rightEndPoint, 5, BLACK);
+
+    Vector2 middleStartingPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10};
+    Vector2 middleEndPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+    DrawLineEx(middleStartingPoint, middleEndPoint, 5, BLACK);
+
+    DrawLineEx(lastStartingPoint, lastEndPoint, 5, BLACK);
+
+
+    DrawTexturePro(textures->optionFrame, optionSource, backButtonDest, defaultOrigin, 0.0f, WHITE);
+    DrawText("Back", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, RED);
+
+     if (CheckCollisionPointRec(mouse, backGlowDest)) {
+        DrawRectangleRec(backGlowDest, ColorAlpha(RED, 0.3f));
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
 void RenderZombies(GameState *state, GameTextures *textures) {
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
         const Zombie *zombie = &state->entities.zombies[i];
@@ -514,6 +613,8 @@ void RenderZombies(GameState *state, GameTextures *textures) {
         }
     }
 }
+
+
 
 void RenderHordeStatus(GameState *state) {
     if (state->horde.state != HORDE_STATE_BETWEEN_WAVES) {

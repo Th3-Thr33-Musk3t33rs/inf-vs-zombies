@@ -83,6 +83,7 @@ typedef struct {
 typedef struct {
     bool onTitleScreen;
     bool isPaused;
+    bool viewLeaderboard;
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
@@ -144,7 +145,7 @@ typedef struct {
     EntityManager entities;
     MoneyBag moneyBag;
     Horde horde;
-    PlayerLeaderboard* leaderboard;
+    PlayerLeaderboard leaderboard[MAX_PLAYERS_LEADERBOARD];
 
     int hordes[MAX_HORDES];
     int totalHordes;

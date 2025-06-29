@@ -410,12 +410,19 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-     Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, playGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
+       
+
+        Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        if (CheckCollisionPointRec(mousePos, leaderboardGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            state->app.viewLeaderboard = true; 
+        }
         return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
-    }
+    
+}
 
     // Pausa e despausa o jogo ao apertar ESC ou P
     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P)) {
@@ -602,6 +609,21 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
             state->app.shouldQuit = true;
         }
     }
+}
+
+// Lógica dos botões do menu de leaderboard.
+void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
+    Rectangle backGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    int i = 100;
+
+        if (CheckCollisionPointRec(mousePos, backGlowDest)) {
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                state->app.onTitleScreen = true;     // Volta a tela de inicio.
+                state->app.viewLeaderboard = false;  // Para de renderizar o leaderboard
+            }
+        }
+    
+  
 }
 
 void SpawnZombie(GameState *state) {

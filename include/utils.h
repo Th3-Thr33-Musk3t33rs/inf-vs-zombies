@@ -15,10 +15,10 @@ Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight);
 Rectangle ScaleRectTo720p(float x, float y, float width, float height, int screenWidth, int screenHeight);
 
 // SaveLeaderboard é uma função que escreve no arquivo que contém o ranking de jogadores.
-void SaveLeaderboard(char *fileName, PlayerLeaderboard *leaderboard);
+void SaveLeaderboard(char *fileName, GameState *gameState);
 
 // LoadLeaderboard é uma função que lê o arquivo que contém o ranking de jogadores.
-PlayerLeaderboard* LoadLeaderboard(char *fileName);
+void LoadLeaderboard(char *fileName, GameState* gameState);
 
 // TimeToFrames transforma um determinado tempo (em segundos) no número de quadros que o jogo exibe nesse intervalo.
 int TimeToFrames(float timeInSeconds);
