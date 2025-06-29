@@ -411,16 +411,16 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-        Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        int glowYOffset = 24;
+        Rectangle playGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 2.5f) + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, playGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
 
-        int glowYOffset = 24;
-        float playLeaderboardButtonY = BASE_HEIGHT_FLOAT / 1.7f;
-        Rectangle leaderboardGlowDest = ScaleRectTo720p(BUTTONS_X, playLeaderboardButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle leaderboardGlowDest = ScaleRectTo720p(BUTTONS_X, BASE_HEIGHT_FLOAT / 1.7f + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, leaderboardGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            state->app.viewLeaderboard = true;
+            state->app.onLeaderboard = true;
+            state->app.onTitleScreen = false;
         }
 
         Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
@@ -429,6 +429,12 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
                 state->app.shouldQuit = true;
             }
         }
+        return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
+    }
+    
+    if (state->app.onLeaderboard) {
+        HandleLeaderboardMenu(state, mousePos);
+        SaveLeaderboard(LEADERBOARD_FILE, state);
         return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
     }
 
@@ -621,13 +627,11 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 
 // Lógica dos botões do menu de leaderboard.
 void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
-    Rectangle backGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    int i = 100;
-
+    Rectangle backGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     if (CheckCollisionPointRec(mousePos, backGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            state->app.onTitleScreen = true;     // Volta a tela de inicio.
-            state->app.viewLeaderboard = false;  // Para de renderizar o leaderboard
+            state->app.onTitleScreen = true;   // Volta a tela de inicio.
+            state->app.onLeaderboard = false;  // Para de renderizar o leaderboard.
         }
     }
 }

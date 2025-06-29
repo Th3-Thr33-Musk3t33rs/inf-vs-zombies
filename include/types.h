@@ -83,7 +83,7 @@ typedef struct {
 typedef struct {
     bool onTitleScreen;
     bool isPaused;
-    bool viewLeaderboard;
+    bool onLeaderboard;
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
@@ -172,6 +172,7 @@ typedef struct {
     Texture2D zombie;
     Texture2D goldZombie;
     Texture2D backGround;
+    Texture2D leaderboardback;
 } GameTextures;
 
 // GameSounds é uma estrutura com os efeitos sonoros do jogo.

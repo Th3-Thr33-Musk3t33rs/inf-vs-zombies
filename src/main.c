@@ -58,14 +58,10 @@ int main(void) {
 
         // Verifica se o jogo não está em estado de Game Over.
         if (!gameState.app.isGameOver) {
-            if (gameState.app.onTitleScreen && !gameState.app.viewLeaderboard) {
+            if (gameState.app.onTitleScreen) {
                 RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
-
-            } else if (gameState.app.viewLeaderboard) {
-                HandleLeaderboardMenu(&gameState, mousePos);
-                SaveLeaderboard(LEADERBOARD_FILE, &gameState);
+            } else if (gameState.app.onLeaderboard) {
                 RenderLeaderboard(&gameState, &gameTextures, mousePos);
-
             } else {
                 // Desenha todos os elementos do jogo principal
                 RenderGameGrid(&gameState, &gameTextures, mousePos);
