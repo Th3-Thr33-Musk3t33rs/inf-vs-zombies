@@ -145,9 +145,11 @@ typedef struct {
     MoneyBag moneyBag;
     Horde horde;
     PlayerLeaderboard leaderboard[MAX_PLAYERS_LEADERBOARD];
+    PlayerLeaderboard player;
 
     int hordes[MAX_HORDES];
     int totalHordes;
+    int insertions;
 
     int tiles[ROWS][COLUMNS];
     float characterCooldowns[CHAR_TYPE_COUNT];

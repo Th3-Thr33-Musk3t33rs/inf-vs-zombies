@@ -68,7 +68,8 @@ int main(void) {
         } else {
             // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
             // RenderTitleScreen é só um placeholder aqui.
-            RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
+            RenderLeaderboard(&gameState, &gameTextures, mousePos);
+
         }
 
         EndDrawing();

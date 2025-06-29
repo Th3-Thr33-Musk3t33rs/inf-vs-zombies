@@ -49,11 +49,35 @@ void LoadLeaderboard(char* fileName, GameState* state) {
 
 void SaveLeaderboard(char* fileName, GameState* state) {
     FILE* arq = fopen(fileName, "wb");
+    bool isPlayerScoreEnough = false;
+
     if (arq == NULL) return;
 
+
+
+
     for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
-        fwrite(state->leaderboard[i].playerName, sizeof(char), 4, arq);
-        fwrite(&state->leaderboard[i].points, sizeof(int), 1, arq);
+
+        if (isPlayerScoreEnough && i > 0) {
+
+            fwrite(state->leaderboard[i - 1].playerName, sizeof(char), 4, arq);
+            fwrite(&state->leaderboard[i - 1].points, sizeof(int), 1, arq);
+           
+        }
+
+        else if (state->player.points > state->leaderboard[i].points && !isPlayerScoreEnough) {
+            fwrite(state->player.playerName, sizeof(char), 4, arq);
+            fwrite(&state->player.points, sizeof(int), 1, arq);
+
+            isPlayerScoreEnough = true;
+        } else {
+
+           fwrite(state->leaderboard[i].playerName, sizeof(char), 4, arq);
+            fwrite(&state->leaderboard[i].points, sizeof(int), 1, arq);
+        }
+
+
+
     }
 
     fclose(arq);

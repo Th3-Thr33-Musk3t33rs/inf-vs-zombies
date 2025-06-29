@@ -478,22 +478,28 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 
 void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) {
     DrawTexture(textures->leaderboardback, 0, 0, WHITE);
-    int leaderboardTextWidth = MeasureText("ALC", FONT_SIZE);
+    int leaderboardTextWidth = MeasureText("VTR", FONT_SIZE);
     char points[18];
     char position[5];
-
-    int backTextWidth = MeasureText("back", FONT_SIZE);
+    bool isPlayerScoreEnough = false;
+    
+    state->player.points = state->stats.currentPoints;
 
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
     Rectangle backButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.3f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle backGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
+
+    Rectangle saveButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.7f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle saveGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.7f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+    int saveTextWidth = MeasureText("Save", FONT_SIZE);
+    Vector2 saveTextPos = {saveButtonDest.x + (saveButtonDest.width - saveTextWidth) / 2, saveButtonDest.y + 35};
 
     Rectangle leaderboardTextDest = ScaleRectTo720p(520, BASE_HEIGHT_FLOAT / 9.0f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Vector2 leaderboardTextPos = {leaderboardTextDest.x + (leaderboardTextDest.width - leaderboardTextWidth) - (BASE_HEIGHT_FLOAT / 2), leaderboardTextDest.y + 35};
 
-    // Posição da ultima linha horizontal.
+    // Posicao da ultima linha horizontal.
     Vector2 lastStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
     Vector2 lastEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
 
@@ -503,7 +509,6 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         Vector2 startingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + (i * 60)};
         Vector2 endPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + (i * 60)};
 
-        sprintf(points, "%015d", state->leaderboard[i].points);
         switch (i + 1) {
             case 1:
                 sprintf(position, "%dst", i + 1);
@@ -519,42 +524,115 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
                 break;
         }
 
-        int pointsWidth = MeasureText(points, FONT_SIZE);
-        int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
-
         // Renderiza as linhas verticais da tabela de leaderboard.
         DrawLineEx(startingPoint, endPoint, 5, VIOLET);
-        
-        // Renderiza os nomes, pontos e posição da lista de leaderboard.
-        DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
-        DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
-        DrawText(position, (int)leaderboardTextPos.x - 90, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+
+        // Renderiza os nomes, pontos e posicao da lista de leaderboard.
+        if (isPlayerScoreEnough && i > 0 && state->app.isGameOver) {
+            sprintf(points, "%015d", state->leaderboard[i - 1].points);
+            int pointsWidth = MeasureText(points, FONT_SIZE);
+            int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+
+            DrawText(state->leaderboard[i - 1].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+            DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+        }
+
+        else if (state->player.points > state->leaderboard[i].points && !isPlayerScoreEnough && state->app.isGameOver) {
+            sprintf(points, "%015d", state->player.points);
+            int pointsWidth = MeasureText(points, FONT_SIZE);
+            int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+
+
+                
+                int key = GetCharPressed();
+                while (key > 0) {
+                    if ((key > 32) && (key <= 125) && (state->insertions < 3)) {
+                        state->player.playerName[ state->insertions] = toupper((unsigned char)key);
+                        state->player.playerName[state->insertions + 1] = '\0';
+                        state->insertions++;
+                    }
+                    key = GetCharPressed();
+                }
+
+                if (IsKeyPressed(KEY_BACKSPACE) && state->insertions != 0) {
+                    state->insertions--;
+                    if (state->insertions < 0) {
+                        state->insertions = 0;
+                    }
+                    state->player.playerName[state->insertions] = '\0';
+                }
+            
+
+            DrawText(state->player.playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, YELLOW);
+            DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, YELLOW);
+
+            isPlayerScoreEnough = true;
+        } else {
+            sprintf(points, "%015d", state->leaderboard[i].points);
+            int pointsWidth = MeasureText(points, FONT_SIZE);
+            int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+
+            DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+            DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+        }
+            DrawText(position, (int)leaderboardTextPos.x - 90, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
+
+       
+        }
+
+        // Renderiza as linhas da tabela de leaderboard.
+        Vector2 leftStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10};
+        Vector2 leftEndPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+        DrawLineEx(leftStartingPoint, leftEndPoint, 5, VIOLET);
+
+        Vector2 rightStartingPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10};
+        Vector2 rightEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+        DrawLineEx(rightStartingPoint, rightEndPoint, 5, VIOLET);
+
+        Vector2 middleStartingPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10};
+        Vector2 middleEndPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
+        DrawLineEx(middleStartingPoint, middleEndPoint, 5, VIOLET);
+        DrawLineEx(lastStartingPoint, lastEndPoint, 5, VIOLET);
+
+        DrawTexturePro(textures->optionFrame, optionSource, backButtonDest, defaultOrigin, 0.0f, WHITE);
+
+        if (!state->app.isGameOver) {
+            int backTextWidth = MeasureText("Back", FONT_SIZE);
+            Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
+            DrawText("Back", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, PURPLE);
+        } else {
+            int backTextWidth = MeasureText("Title Screen", FONT_SIZE);
+            Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
+            DrawText("Title Screen", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, PURPLE);
+
+            if (state->insertions == 3) {
+            
+            DrawTexturePro(textures->optionFrame, optionSource, saveButtonDest, defaultOrigin, 0.0f, WHITE);
+            } else {
+                Color semiTransparentWHITE = ColorAlpha(WHITE, 0.5f);
+                DrawTexturePro(textures->optionFrame, optionSource, saveButtonDest, defaultOrigin, 0.0f, semiTransparentWHITE);
+
+            }
+            
+            DrawText("Save", (int)saveTextPos.x, (int)saveTextPos.y, FONT_SIZE, PURPLE);
+
+            if (CheckCollisionPointRec(mouse, saveGlowDest) && state->insertions == 3) {
+                DrawRectangleRec(saveGlowDest, ColorAlpha(PURPLE, 0.3f));
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            } else {
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            }
+        }
+
+        if (CheckCollisionPointRec(mouse, backGlowDest)) {
+            DrawRectangleRec(backGlowDest, ColorAlpha(PURPLE, 0.3f));
+            SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        } else {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        }
     }
 
-    // Renderiza as linhas da tabela de leaderboard.
-    Vector2 leftStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10};
-    Vector2 leftEndPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
-    DrawLineEx(leftStartingPoint, leftEndPoint, 5, VIOLET);
 
-    Vector2 rightStartingPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10};
-    Vector2 rightEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
-    DrawLineEx(rightStartingPoint, rightEndPoint, 5, VIOLET);
-
-    Vector2 middleStartingPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10};
-    Vector2 middleEndPoint = {(int)leaderboardTextPos.x + (int)leaderboardTextWidth + 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
-    DrawLineEx(middleStartingPoint, middleEndPoint, 5, VIOLET);
-    DrawLineEx(lastStartingPoint, lastEndPoint, 5, VIOLET);
-
-    DrawTexturePro(textures->optionFrame, optionSource, backButtonDest, defaultOrigin, 0.0f, WHITE);
-    DrawText("Back", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, PURPLE);
-
-    if (CheckCollisionPointRec(mouse, backGlowDest)) {
-        DrawRectangleRec(backGlowDest, ColorAlpha(PURPLE, 0.3f));
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    } else {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
-}
 
 void RenderZombies(GameState *state, GameTextures *textures) {
     for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
