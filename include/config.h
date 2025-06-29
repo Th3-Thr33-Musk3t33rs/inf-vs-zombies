@@ -23,7 +23,6 @@
 
 #define LEADERBOARD_FILE "top_scores.bin"
 
-// Configurações de tela.
 #define BASE_WIDTH_FLOAT 1280.0f
 #define BASE_HEIGHT_FLOAT 720.0f
 #define BASE_WIDTH_INT 1280
@@ -33,13 +32,10 @@
 
 #define FRAME_CHANGE_RATE 0.2f
 
-// 'extern' diz ao compilador: "Esta variável existe, mas sua definição
-// está em outro arquivo .c. Apenas saiba que ela está disponível."
 extern const int SELL_POS_X;
 extern const int SELL_POS_Y;
 extern const int FONT_SIZE;
 
-// Configurações do grid.
 #define ROWS 7
 #define COLUMNS 9
 #define GRID_MARGIN_X 418
@@ -76,7 +72,7 @@ extern const int FONT_SIZE;
 #define TRALALERO_TEXTURE "tralalero"
 #define TRALALERO_PROJECTILE_CD 3
 #define PROJECTILE_SPEED 400.0f
-#define PROJECTILE_DAMAGE 30
+#define PROJECTILE_DAMAGE 20
 
 #define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
@@ -101,8 +97,8 @@ extern const int FONT_SIZE;
 #define BOMBARDINI_REIMBURSEMENT 10
 #define BOMBARDINI_INITIAL_HP 10
 #define BOMBARDINI_LOOPS 3
+#define BOMB_SPEED 1800.0f
 
-// Configurações de jogo.
 #define TARGET_FPS 60
 #define BASE_FONT_SIZE 40
 #define MONEY_BAG_RANDOMNESS 800
@@ -111,14 +107,9 @@ extern const int FONT_SIZE;
 #define REC_PROJ_WIDHT 20
 #define REC_PROJ_HEIGHT 20
 
-// Velocidades.
-#define BOMB_SPEED 1800.0f
-
-// Valores de jogo.
 #define INITIAL_MONEY 10000
 #define DEFAULT_REIMBURSEMENT_RATE 0.5f
 
-// Valores dos sons.
 #define SOUND_PROJECTILE 1
 #define SOUND_EXPLOSION 17
 #define SOUND_TUNG 18

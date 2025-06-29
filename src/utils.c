@@ -20,15 +20,12 @@ Rectangle ScaleRectTo720p(float x, float y, float width, float height, int scree
 }
 
 void LoadLeaderboard(char* fileName, GameState* state) {
+    FILE* arq = fopen(fileName, "rb");
 
-     
-     FILE* arq = fopen(fileName, "rb");
-     
     if (arq == NULL) {
         for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
             strcpy(state->leaderboard[i].playerName, "000");
             state->leaderboard[i].points = 0;
-            
         }
     } else {
         for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
@@ -40,11 +37,10 @@ void LoadLeaderboard(char* fileName, GameState* state) {
 
         for (int i = 0; i < MAX_PLAYERS_LEADERBOARD - 1; i++) {
             for (int s = 0; s < MAX_PLAYERS_LEADERBOARD - 1; s++) {
-                if (state->leaderboard[s].points < state->leaderboard[s + 1].points){
+                if (state->leaderboard[s].points < state->leaderboard[s + 1].points) {
                     PlayerLeaderboard bufferboard = state->leaderboard[s];
                     state->leaderboard[s] = state->leaderboard[s + 1];
                     state->leaderboard[s + 1] = bufferboard;
-
                 }
             }
         }
@@ -59,12 +55,10 @@ void SaveLeaderboard(char* fileName, GameState* state) {
         fwrite(state->leaderboard[i].playerName, sizeof(char), 4, arq);
         fwrite(&state->leaderboard[i].points, sizeof(int), 1, arq);
     }
-      
-    
+
     fclose(arq);
 }
 
 int TimeToFrames(float timeInSeconds) {
-    // Multiplica o tempo em segundos pela taxa de quadros por segundo.
     return (int)(timeInSeconds * TARGET_FPS);
 }

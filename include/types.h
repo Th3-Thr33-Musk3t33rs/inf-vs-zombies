@@ -19,8 +19,8 @@ typedef struct {
     int hp;
     int row;
     int col;
-    float animationCounter;  // Controla a animação.
-    int currentFrame;        // Frame atual da animação.
+    float animationCounter;
+    int currentFrame;
 
     struct {
         struct {
@@ -42,7 +42,6 @@ typedef struct {
             bool cooldown;
             int loop;
         } sahur;
-        // CASO HAJA MAIS PERSONAGENS COM CAMPOS ESPECÍFICOS, ADICIONAR AQUI.
     } specific;
 } Character;
 
@@ -83,7 +82,7 @@ typedef struct {
 typedef struct {
     bool onTitleScreen;
     bool isPaused;
-    bool viewLeaderboard;
+    bool onLeaderboard;
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
@@ -134,7 +133,7 @@ typedef struct {
     bool shouldRandomizePos;
     bool isPulsing;
     int timeRemainingInFrames;
-    int pulseCounter;  // Para o efeito de piscar.
+    int pulseCounter;
     Vector2 position;
 } MoneyBag;
 
@@ -172,6 +171,7 @@ typedef struct {
     Texture2D zombie;
     Texture2D goldZombie;
     Texture2D backGround;
+    Texture2D leaderboardback;
 } GameTextures;
 
 // GameSounds é uma estrutura com os efeitos sonoros do jogo.
