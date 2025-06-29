@@ -85,6 +85,7 @@ typedef struct {
     bool onTitleScreen;
     bool isPaused;
     bool onLeaderboard;
+    bool leavingLeaderboard;
     bool onGameOverScreen;
     bool isMusicPaused;
     bool isGameOver;

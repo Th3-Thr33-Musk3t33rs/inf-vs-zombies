@@ -16,6 +16,7 @@ int ReadHordesConfig(char *configPath, int hordes[MAX_HORDES], int maxHordes) {
         return -1;
     }
 
+    rewind(configFile);
     int read_val;
     int count = 0;
 

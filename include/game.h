@@ -7,7 +7,7 @@
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds);
 
 // InitializeGameState inicializa o estado do jogo com valores padrão.
-void InitializeGameState(GameState *state);
+void InitializeGameState(GameState *state, bool reset);
 
 // UpdateGame atualiza a lógica principal do jogo (chamada por frame).
 void UpdateGame(GameState *state, float deltaTime);

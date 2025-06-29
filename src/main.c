@@ -69,7 +69,23 @@ int main(void) {
         } else {
             // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
             // RenderTitleScreen é só um placeholder aqui.
+
             RenderLeaderboard(&gameState, &gameTextures, mousePos);
+            gameState.app.onLeaderboard = true;
+            if (gameState.app.leavingLeaderboard) {
+                ResetGameState(&gameState);
+                InitializeGameState(&gameState, true);
+                int hordes[MAX_HORDES] = {0};
+                gameState.totalHordes = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
+                for (int i = 0; i < gameState.totalHordes; i++) {
+                    gameState.hordes[i] = hordes[i];
+                }
+                LoadLeaderboard(LEADERBOARD_FILE, &gameState);
+                gameState.app.leavingLeaderboard = false;
+                gameState.app.onLeaderboard = false;
+                gameState.app.onTitleScreen = true;
+
+            }
 
         }
 

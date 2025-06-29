@@ -28,16 +28,22 @@ void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     InitWindow(BASE_WIDTH_INT, BASE_HEIGHT_INT, GAME_TITLE);
     InitializeTextures(textures);
     InitializeSounds(sounds);
-    InitializeGameState(state);
+    InitializeGameState(state, false);
     SetExitKey(0); // Para não sair do jogo com ESC.
 }
 
 // Inicializa o estado do jogo com valores padrão.
-void InitializeGameState(GameState *state) {
+void InitializeGameState(GameState *state, bool reset) {
     *state = (GameState){0};
 
-    state->app.onTitleScreen = true;
+   if (!reset) {
+        state->app.onTitleScreen = true;
+   } else {
+       state->app.onLeaderboard = true;
+   }
+    
     state->stats.money = INITIAL_MONEY;
+
 
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
@@ -211,7 +217,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     }
 
                     break;
-                // Lógica de comportamento do Lirili (mudança de sprite conforme HP).
+                // Lógica de comportamento do Lirili (mudança de sprite conforme HP) (batata).
                 case CHAR_TYPE_LIRILI:
                     if (character->hp < 250 && character->hp >= 150) {
                         character->currentFrame = 1;
@@ -601,6 +607,9 @@ void HandleGameOverMenu(GameState *state, Vector2 mousePos) {
 
 // Lógica dos botões do menu de leaderboard.
 void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
+    state->app.onLeaderboard = true;
+
+    state->app.leavingLeaderboard = false;
     Rectangle backGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle saveGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.7f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
@@ -608,6 +617,8 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = true;
             state->app.onLeaderboard = false;
+            state->app.leavingLeaderboard = true;
+
         }
     }
 
@@ -616,6 +627,7 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
             SaveLeaderboard(LEADERBOARD_FILE, state);
             state->app.onTitleScreen = true;
             state->app.onLeaderboard = false;
+            state->app.leavingLeaderboard = true;
             LoadLeaderboard(LEADERBOARD_FILE, state);
         }
 
