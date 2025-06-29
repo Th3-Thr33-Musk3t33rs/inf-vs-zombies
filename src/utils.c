@@ -60,6 +60,5 @@ void SaveLeaderboard(char* fileName, GameState* state) {
 }
 
 int TimeToFrames(float timeInSeconds) {
-    // Multiplica o tempo em segundos pela taxa de quadros por segundo.
     return (int)(timeInSeconds * TARGET_FPS);
 }

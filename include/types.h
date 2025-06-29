@@ -19,8 +19,8 @@ typedef struct {
     int hp;
     int row;
     int col;
-    float animationCounter;  // Controla a animação.
-    int currentFrame;        // Frame atual da animação.
+    float animationCounter;
+    int currentFrame;
 
     struct {
         struct {
@@ -42,7 +42,6 @@ typedef struct {
             bool cooldown;
             int loop;
         } sahur;
-        // CASO HAJA MAIS PERSONAGENS COM CAMPOS ESPECÍFICOS, ADICIONAR AQUI.
     } specific;
 } Character;
 
@@ -134,7 +133,7 @@ typedef struct {
     bool shouldRandomizePos;
     bool isPulsing;
     int timeRemainingInFrames;
-    int pulseCounter;  // Para o efeito de piscar.
+    int pulseCounter;
     Vector2 position;
 } MoneyBag;
 

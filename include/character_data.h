@@ -23,13 +23,13 @@ typedef struct {
     int cost;
     float cooldown;
     int initialHp;
-    const char *textureName;  // Usado para carregar as texturas corretas.
+    const char *textureName;
     Rectangle sourceRec;      // Área a ser usada da sprite de animação.
     Vector2 destSize;         // O tamanho que o personagem terá na tela.
-    Vector2 destOffset;       // Ajuste fino da posição do personagem na tile.
+    Vector2 destOffset;
 } CharacterInfo;
 
-// CHARACTER_INFO é um array global e constante que serve como "banco de dados" dos personagens.
+// CHARACTER_INFO é um array global e constante que serve como "banco de dados" das características dos personagens.
 // Ele agrega todas as informações dos personagens do jogo.
 // 'extern' diz ao compilador: "Esta variável existe, mas sua definição
 // está em outro arquivo .c. Apenas saiba que ela está disponível."
