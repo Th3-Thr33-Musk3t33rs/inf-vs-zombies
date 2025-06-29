@@ -13,8 +13,6 @@
 #include "types.h"
 #include "utils.h"
 
-
-
 const Vector2 defaultOffset = {20, -10};
 const CharacterInfo CHARACTER_INFO[] = {
     // A ordem aqui deve corresponder ao enum CharacterType em types.h.
@@ -420,17 +418,14 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 
         int glowYOffset = 24;
         float playLeaderboardButtonY = BASE_HEIGHT_FLOAT / 1.7f;
-
         Rectangle leaderboardGlowDest = ScaleRectTo720p(BUTTONS_X, playLeaderboardButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, leaderboardGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.viewLeaderboard = true;
         }
-     
 
         Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, exitGlowDest)) {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                
                 state->app.shouldQuit = true;
             }
         }
@@ -629,14 +624,12 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
     Rectangle backGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     int i = 100;
 
-        if (CheckCollisionPointRec(mousePos, backGlowDest)) {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                state->app.onTitleScreen = true;     // Volta a tela de inicio.
-                state->app.viewLeaderboard = false;  // Para de renderizar o leaderboard
-            }
+    if (CheckCollisionPointRec(mousePos, backGlowDest)) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            state->app.onTitleScreen = true;     // Volta a tela de inicio.
+            state->app.viewLeaderboard = false;  // Para de renderizar o leaderboard
         }
-    
-  
+    }
 }
 
 void SpawnZombie(GameState *state) {

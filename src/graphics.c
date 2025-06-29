@@ -8,8 +8,8 @@
 #include "character_data.h"
 #include "config.h"
 #include "raylib.h"
-#include "utils.h"
 #include "types.h"
+#include "utils.h"
 
 Vector2 defaultOrigin = {0, 0};
 
@@ -151,7 +151,6 @@ void highlightButton(Rectangle glowDest) {
     }
 }
 
-
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse) {
     DrawTexture(textures->backGround, 0, 0, WHITE);
@@ -164,15 +163,15 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
     float playLeaderboardButtonY = BASE_HEIGHT_FLOAT / 1.7f;
     Rectangle leaderboardButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, playLeaderboardButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle leaderboardGlowDest = ScaleRectTo720p(BUTTONS_X, playLeaderboardButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    
+
     float exitButtonY = BASE_HEIGHT_FLOAT / 1.3f;
     Rectangle exitButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, exitButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, exitButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    
+
     // Calcula a posição do texto para centralizá-lo nos botões e também do título.
     const char *playText = "Play Game";
     const char *leaderboardText = "Leaderboard";
-    const char *exitText = "Exit"; 
+    const char *exitText = "Exit";
 
     int playTextWidth = MeasureText(playText, FONT_SIZE);
     int leaderboardTextWidth = MeasureText(leaderboardText, FONT_SIZE);
@@ -491,15 +490,12 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
     }
 }
 
-
 void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) {
- 
- 
-    int leaderboardTextWidth = MeasureText("ALC", FONT_SIZE); // Centralização
-    char points[18]; // String da pontuação
-    char position[5]; // String da posição
+    int leaderboardTextWidth = MeasureText("ALC", FONT_SIZE);  // Centralização
+    char points[18];                                           // String da pontuação
+    char position[5];                                          // String da posição
 
-    int backTextWidth = MeasureText("back", FONT_SIZE); // Centralização do botão de volta
+    int backTextWidth = MeasureText("back", FONT_SIZE);  // Centralização do botão de volta
 
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
@@ -507,18 +503,14 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
     Rectangle backGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
 
-
     Rectangle leaderboardTextDest = ScaleRectTo720p(520, BASE_HEIGHT_FLOAT / 9.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Vector2 leaderboardTextPos = {leaderboardTextDest.x + (leaderboardTextDest.width - leaderboardTextWidth) - (BASE_HEIGHT_FLOAT / 2), leaderboardTextDest.y + 35};
 
     // Posição da ultima linha horizontal
-    Vector2 lastStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard)/sizeof(state->leaderboard[0])) * 60)};
+    Vector2 lastStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
     Vector2 lastEndPoint = {BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80, leaderboardTextPos.y - 10 + ((sizeof(state->leaderboard) / sizeof(state->leaderboard[0])) * 60)};
-  
 
-    int pointsColumnRightEdge = (int)(BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80); // Alinha os pontos na direita
-
-
+    int pointsColumnRightEdge = (int)(BASE_WIDTH_FLOAT - ((int)leaderboardTextPos.x - 10) + 80);  // Alinha os pontos na direita
 
     for (int i = 0; i < MAX_PLAYERS_LEADERBOARD; i++) {
         Vector2 startingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10 + (i * 60)};
@@ -538,10 +530,10 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
             default:
                 sprintf(position, "%dth", i + 1);
                 break;
-    }
+        }
 
-    int pointsWidth = MeasureText(points, FONT_SIZE);  // Alinha os pontos na direita
-    int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+        int pointsWidth = MeasureText(points, FONT_SIZE);               // Alinha os pontos na direita
+        int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
 
         ClearBackground(RED);
         // Renderiza as linhas verticais da tabela de leaderboard
@@ -550,10 +542,6 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
         DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
         DrawText(position, (int)leaderboardTextPos.x - 90, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, BLACK);
-
-
-       
-
     }
     // Renderiza as linhas da tabela de leaderboard
     Vector2 leftStartingPoint = {(int)leaderboardTextPos.x - 10, leaderboardTextPos.y - 10};
@@ -570,11 +558,10 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
 
     DrawLineEx(lastStartingPoint, lastEndPoint, 5, BLACK);
 
-
     DrawTexturePro(textures->optionFrame, optionSource, backButtonDest, defaultOrigin, 0.0f, WHITE);
     DrawText("Back", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, RED);
 
-     if (CheckCollisionPointRec(mouse, backGlowDest)) {
+    if (CheckCollisionPointRec(mouse, backGlowDest)) {
         DrawRectangleRec(backGlowDest, ColorAlpha(RED, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
@@ -606,8 +593,6 @@ void RenderZombies(GameState *state, GameTextures *textures) {
         }
     }
 }
-
-
 
 void RenderHordeStatus(GameState *state) {
     if (state->horde.state != HORDE_STATE_BETWEEN_WAVES) {

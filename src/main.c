@@ -7,8 +7,8 @@
 #include "game.h"
 #include "graphics.h"
 #include "raylib.h"
-#include "utils.h"
 #include "types.h"
+#include "utils.h"
 
 int main(void) {
     // Declaração das estruturas principais do jogo: estado, texturas e sons.
@@ -19,15 +19,12 @@ int main(void) {
     // Inicializa o gerador de números aleatórios.
     srand(time(NULL));
 
-
-
     // Inicializa a janela do jogo e define as configurações básicas.
     // também carrega as texturas e estado inicial do jogo.
     InitGame(&gameState, &gameTextures, &gameSounds);
 
     // Chama a função LoadLeaderboard, que pega os valores do arquivo binário e insere no array leaderboard
     LoadLeaderboard(LEADERBOARD_FILE, &gameState);
-
 
     // Lê e aplica a configuração de hordas.
     int hordes[MAX_HORDES] = {0};
@@ -64,14 +61,12 @@ int main(void) {
             if (gameState.app.onTitleScreen && !gameState.app.viewLeaderboard) {
                 RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
 
-            } else 
-            if (gameState.app.viewLeaderboard) {
+            } else if (gameState.app.viewLeaderboard) {
                 HandleLeaderboardMenu(&gameState, mousePos);
                 SaveLeaderboard(LEADERBOARD_FILE, &gameState);
                 RenderLeaderboard(&gameState, &gameTextures, mousePos);
 
-            }else
-            {
+            } else {
                 // Desenha todos os elementos do jogo principal
                 RenderGameGrid(&gameState, &gameTextures, mousePos);
                 RenderProjectiles(&gameState, &gameTextures);
@@ -87,9 +82,6 @@ int main(void) {
                 if (gameState.app.isPaused) {
                     RenderPause(&gameState, &gameTextures, mousePos);
                 }
-              
-                
-
             }
         } else {
             // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
