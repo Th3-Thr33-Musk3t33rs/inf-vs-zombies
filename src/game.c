@@ -17,12 +17,13 @@ const Vector2 defaultOffset = {20, -10};
 const CharacterInfo CHARACTER_INFO[] = {
     // A ordem aqui deve corresponder ao enum CharacterType em types.h.
     [CHAR_TYPE_NONE] = {CHAR_TYPE_NONE, 0, 0, 0, ""},
-    [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, CHIMPAZINI_INITIAL_HP, CHIMPAZINI_TEXTURE, (Rectangle){32, 72, 323, 543}, (Vector2){323 / 5.0f, 543 / 5.0f}, defaultOffset},
-    [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, TRALALERO_INITIAL_HP, TRALALERO_TEXTURE, (Rectangle){13, 57, 186, 144}, (Vector2){186 / 2.0f, 144 / 2.0f}, (Vector2){0, 0}},
-    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, SAHUR_INITIAL_HP, SAHUR_TEXTURE, (Rectangle){0, 0, 180, 264}, (Vector2){180 / 2.5f, 244 / 2.5f}, defaultOffset},
-    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, LIRILI_INITIAL_HP, LIRILI_TEXTURE, (Rectangle){35, 19, 190, 225}, (Vector2){190 / 2.5f, 225 / 2.5f}, defaultOffset},
-    [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, BOMBARDINI_INITIAL_HP, BOMBARDINI_TEXTURE, (Rectangle){200, 205, 620, 610}, (Vector2){620 / 10.0f, 610 / 10.0f}, (Vector2){18, 9}},
+    [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, 20, "chimpanzini", {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, {20, -10}},
+    [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, 50, "tralalero", {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
+    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, 50, "sahur", {0, 0, 180, 264}, {180 / 2.5f, 244 / 2.5f}, {20, -10}},
+    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, 300, "lirili", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
+    [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, 10, "bombardini", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
 };
+
 
 // InitGame inicializa o jogo.
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
@@ -209,32 +210,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             }
                        
 
-                        if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial ao cooldown acabar
-                            character->specific.sahur.cooldown = false;
-                            character->currentFrame = 1;
-                            character->specific.sahur.loop = 0;
-
-                            if (CheckCollisionRecs(recSahur, recZombie)) {  // Se chegar perto de Sahur, Sahur causa dano a ele
-
-                                if (character->currentFrame == 1 || character->currentFrame == 0) {
-                                    character->currentFrame = 2;
-                                }
-
-                                if (character->currentFrame == 4) {
-                                    zombie->hp -= ZOMBIE_HP;
-                                    state->soundToPlay = SOUND_TUNG;
-                                    state->shouldPlaySound = true;
-                                    character->specific.sahur.cooldown = true;
-                                    if (zombie->hp <= 0) {
-                                        zombie->isActive = false;
-                                        state->stats.enemiesKilled++;
-                                        state->stats.currentPoints += ZOMBIE_KILL_SCORE;
-                                    }
-                                }
-                            }
-
-                        }
-                    }
+                      
 
                     if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
                         character->specific.sahur.cooldown = false;
