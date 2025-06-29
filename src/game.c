@@ -478,7 +478,8 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
         const CharacterInfo *info = &CHARACTER_INFO[f];
         int charIndex = f - 1;
         Rectangle frameDest = ScaleRectTo720p(300 + (charIndex * Y_OFFSET), 20, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-        if ((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (charIndex)) && state->stats.money >= info->cost && state->characterCooldowns[f] <= 0) {
+        bool canPick = state->stats.money >= info->cost && state->characterCooldowns[f] <= 0;
+        if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (charIndex))) && canPick) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_SELECT;
             if (state->app.characterInHand != info->type) {
