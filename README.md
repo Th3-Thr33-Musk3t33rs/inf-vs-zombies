@@ -24,15 +24,16 @@ make run
 
 ## Regras do Jogo
 
-* **Plantas:** TBD
-
-  * TBD
+* **Plantas:**
+  * Peashooter: Dispara contra zumbis em cadência constante.
+  * Girassol: Gera dinheiro em um intervalo de tempo constante.
+  * Batata: Tem mais vida e serve para atrasar os zumbis, como um muro.
+  * Mina: Mata o zumbi que pisar na tile em que ela for plantada.
+  * Carnívora: Devora o zumbi que estiver no quadrado a frente e entra em cooldown.
 * **Zumbis:**
-
   * Entram pelo lado direito da tela em hordas
   * Pontos de vida: 100
 * **Cenário:**
-
   * Grid 5x9 (blocos de 72x96 pixels)
   * Cada zumbi morto vale 100 pontos
 
@@ -40,18 +41,20 @@ make run
 
 ```
 inf-vs-zombies/
+├── .vscode/          # Configurações da IDE
 ├── assets/           # Sprites e recursos visuais
-├── src/              # Arquivos fonte .c
 ├── include/          # Arquivos de cabeçalho .h
+├── src/              # Arquivos fonte .c
+├── .clan-format      # Formatter com convenções de estilo
 ├── config.txt        # Configuração de hordas
 ├── top_scores.bin    # Ranking de jogadores
-├── Makefile
+├── Makefile          # Automação de scripts (make run, make clean)
 └── README.md
 ```
 
 ## Funcionalidades Implementadas
 
-* [ ] Menu inicial com três opções: Jogar, LeaderBoard e Sair
+* [X] Menu inicial com três opções: Jogar, LeaderBoard e Sair
 * [X] Leitura do arquivo `config.txt` para definir as hordas
 * [X] Controle de plantas, zumbis e colisões
 * [ ] Atualização e exibição do ranking (`top_scores.bin`)
@@ -60,7 +63,7 @@ inf-vs-zombies/
 ## Possíveis Expansões (Tarefas Extras)
 
 * [X] Novos tipos de plantas
-* [ ] Novos tipos de zumbis (chefões, especiais, etc.)
+* [X] Novos tipos de zumbis
 * [X] Menu de pause
 * [X] Novas formas de gerar sóis
 

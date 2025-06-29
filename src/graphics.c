@@ -139,52 +139,62 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
     state->soundToPlay = 0;
 }
 
+// Helper para highlight visual dos botões ao passar o mouse.
+void highlightButton(Rectangle glowDest) {
+    if (CheckCollisionPointRec(GetMousePosition(), glowDest)) {
+        DrawRectangleRec(glowDest, ColorAlpha(YELLOW, 0.3f));
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+    } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
+
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse) {
-    Vector2 Origin = {0, 0};
+    int glowYOffset = 24;
+    float playButtonY = BASE_HEIGHT_FLOAT / 2.45f;
+    Rectangle playButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, playButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle playGlowDest = ScaleRectTo720p(BUTTONS_X, playButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-    Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
+    float playLeaderboardButtonY = BASE_HEIGHT_FLOAT / 1.7f;
+    Rectangle leaderboardButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, playLeaderboardButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle leaderboardGlowDest = ScaleRectTo720p(BUTTONS_X, playLeaderboardButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    
+    float exitButtonY = BASE_HEIGHT_FLOAT / 1.3f;
+    Rectangle exitButtonDest = ScaleRectTo720p(BUTTONS_X_GLOW, exitButtonY, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, exitButtonY + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    
+    // Calcula a posição do texto para centralizá-lo nos botões e também do título.
+    const char *playText = "Play Game";
+    const char *leaderboardText = "Leaderboard";
+    const char *exitText = "Exit"; 
 
-    Rectangle playButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.3f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-
-    Rectangle gameTitleDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-
-    Rectangle leaderboardButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    // Posição e tamanho dos botões "Play Game" e "Leaderboard" para detecção de colisão.
-    Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
-    Rectangle leaderboardbuttonDest = ScaleRectTo720p(screenWidth / 2.65 - 5, screenHeight / 1.5, 270, fontSize, screenWidth, screenHeight);
-
-    // Calcula a posição do texto para centralizá-lo nos botões e também do titulo.
-    int playTextWidth = MeasureText("Play Game", FONT_SIZE);
-    int leaderboardTextWidth = MeasureText("Leaderboard", FONT_SIZE);
+    int playTextWidth = MeasureText(playText, FONT_SIZE);
+    int leaderboardTextWidth = MeasureText(leaderboardText, FONT_SIZE);
+    int exitTextWidth = MeasureText(exitText, FONT_SIZE);
 
     int gameTitleTextWidth = MeasureText(GAME_TITLE, FONT_SIZE * 2);
+    Rectangle gameTitleDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     DrawText(GAME_TITLE, gameTitleDest.x + (gameTitleDest.width - gameTitleTextWidth) / 2, screenHeight / 4, fontSize * 2, BLACK);
 
     Vector2 playTextPos = {playButtonDest.x + (playButtonDest.width - playTextWidth) / 2, playButtonDest.y + 35};
     Vector2 leaderboardTextPos = {leaderboardButtonDest.x + (leaderboardButtonDest.width - leaderboardTextWidth) / 2, leaderboardButtonDest.y + 35};
+    Vector2 exitTextPos = {exitButtonDest.x + (exitButtonDest.width - exitTextWidth) / 2, exitButtonDest.y + 35};
+
+    Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
     // Desenha a moldura dos botões.
-    DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, Origin, 0.0f, WHITE);
-    DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, Origin, 0.0f, WHITE);
-    DrawText("Play Game", (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
-    DrawText("Leaderboard", (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
-    // Highlight visual dos botões "Play Game" e "Leaderboard" ao passar o mouse.
-    if (CheckCollisionPointRec(GetMousePosition(), playGlowDest)) {
-        DrawRectangleRec(playGlowDest, ColorAlpha(YELLOW, 0.3f));
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    } else {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
+    DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, defaultOrigin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, defaultOrigin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, exitButtonDest, defaultOrigin, 0.0f, WHITE);
+    DrawText(playText, (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
+    DrawText(leaderboardText, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
+    DrawText(exitText, (int)exitTextPos.x, (int)exitTextPos.y, FONT_SIZE, RED);
 
-    if (CheckCollisionPointRec(GetMousePosition(), leaderboardGlowDest)) {
-        DrawRectangleRec(leaderboardGlowDest, ColorAlpha(YELLOW, 0.3f));
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-    } else {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
+    highlightButton(playGlowDest);
+    highlightButton(leaderboardGlowDest);
+    highlightButton(exitGlowDest);
 }
 
 // Renderiza o HUD com dinheiro e botão de venda.
@@ -448,10 +458,10 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
     Rectangle resumeButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle resumeGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_FLOAT / 4.0f) + 24, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle resumeGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 4.0f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     Rectangle exitButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle exitGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_FLOAT / 2.0f) + 24, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 2.0f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     // Desenha a moldura dos botões.
     DrawTexturePro(textures->optionFrame, optionSource, resumeButtonDest, defaultOrigin, 0.0f, WHITE);

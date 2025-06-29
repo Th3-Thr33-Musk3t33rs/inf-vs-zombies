@@ -122,8 +122,19 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             character->currentFrame = 0;  // Reinicia a animação de idle
                             character->specific.tralalero.loop++;
                         }
+
+                        bool zombieDetectedInRow = false;
+                        for (int i = 0; i < MAX_ZOMBIES_ON_SCREEN; i++) {
+                            Zombie *zombie = &state->entities.zombies[i];
+                            // Se ao menos um zumbi estiver ativo na row, ele deve disparar.
+                            if (zombie->isActive && zombie->row == row) {
+                                zombieDetectedInRow = true;
+                                break;
+                            }
+                        }
+
                         // Após um número de ciclos de idle, inicia o ataque.
-                        if (character->specific.tralalero.loop >= TRALALERO_PROJECTILE_CD) {
+                        if (character->specific.tralalero.loop >= TRALALERO_PROJECTILE_CD && zombieDetectedInRow) {
                             character->specific.tralalero.attacking = true;
                             character->specific.tralalero.loop = 0;  // Reseta o contador de ciclos
                             character->currentFrame = 4;             // Inicia a animação de ataque (frame 4 a 7)
@@ -188,7 +199,6 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                 }
 
                                 if (character->currentFrame == 4) {  // Mata o zumbi ao finalizar a animação de Ataque
-
                                     zombie->hp -= ZOMBIE_HP;
                                     state->soundToPlay = SOUND_TUNG;  // Toca som
                                     state->shouldPlaySound = true;
@@ -402,10 +412,19 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-        Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        int glowYOffset = 24;
+        Rectangle playGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 2.45f) + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, playGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
+
+        Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + glowYOffset, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        if (CheckCollisionPointRec(mousePos, exitGlowDest)) {
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                state->app.shouldQuit = true;
+            }
+        }
+
         return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
     }
 
@@ -579,8 +598,8 @@ void HandleCharacterInteractions(GameState *state, int row, int col) {
 
 // Lógica dos botões do menu de pause.
 void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
-    Rectangle resumeGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_INT / 4) + PAUSE_BUTTONS_Y_OFFSET, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle exitGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_INT / 2) + PAUSE_BUTTONS_Y_OFFSET, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle resumeGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 4) + BUTTONS_Y_OFFSET, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 2) + BUTTONS_Y_OFFSET, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     if (CheckCollisionPointRec(mousePos, resumeGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
