@@ -18,7 +18,7 @@ Rectangle ScaleRectTo720p(float x, float y, float width, float height, int scree
 void SaveLeaderboard(char *fileName, GameState *gameState);
 
 // LoadLeaderboard é uma função que lê o arquivo que contém o ranking de jogadores.
-void LoadLeaderboard(char *fileName, GameState* gameState);
+void LoadLeaderboard(char *fileName, GameState *gamestate);
 
 // TimeToFrames transforma um determinado tempo (em segundos) no número de quadros que o jogo exibe nesse intervalo.
 int TimeToFrames(float timeInSeconds);

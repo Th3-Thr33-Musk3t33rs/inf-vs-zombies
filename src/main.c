@@ -40,6 +40,7 @@ int main(void) {
     while (!WindowShouldClose() && !gameState.app.shouldQuit) {
         // 1. ENTRADAS
         Vector2 mousePos = GetMousePosition();
+
         // Processa a entrada do usuário (cliques, etc.) que afeta o estado do jogo.
         ProcessGameInput(&gameState, mousePos, &gameSounds);
 
