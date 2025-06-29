@@ -440,7 +440,7 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
         int offsetX = 10, offsetY = 10;
 
         Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};  // Mesma fonte do seletor.
-        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, Y_OFFSET, X_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Color Transparency = {255, 255, 255, 128};  // Transparência para o preview.
 
         // Renderiza o ícone do personagem selecionado.
