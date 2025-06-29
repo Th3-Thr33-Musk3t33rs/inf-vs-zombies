@@ -56,6 +56,10 @@ void InitializeGameState(GameState *state) {
     state->horde.currentHorde = 0;
 }
 
+void ResetGameState(GameState *state) {
+    *state = (GameState){0};
+}
+
 // Atualiza os estados e animações dos personagens.
 void UpdateCharacters(GameState *state, float deltaTime) {
     for (int row = 0; row < ROWS; row++) {
@@ -592,6 +596,10 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     }
 }
 
+void HandleGameOverMenu(GameState *state, Vector2 mousePos) {
+    
+}
+
 // Lógica dos botões do menu de leaderboard.
 void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
     Rectangle backGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_FLOAT / 1.3f) + 24, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
@@ -747,7 +755,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
                 break;
         }
 
-        if (zombie->position.x < GRID_MARGIN_X - 50) {
+        if (zombie->position.x < GRID_MARGIN_X) {
             state->app.isGameOver = true;
             state->soundToPlay = SOUND_END_GAME;
             state->shouldPlaySound = true;

@@ -81,7 +81,7 @@ void InitializeSounds(GameSounds *sounds) {
     sounds->tungSFX = LoadSound("assets/sfx/tung.wav");
     sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
     sounds->eatSFX = LoadSound("assets/sfx/eating.wav");
-    sounds->endGameSFX = LoadSound("assets/sfx/end.wav");
+    sounds->endGameSFX = LoadSound("assets/sfx/end.mp3");
 }
 
 // Descarrega os sons do jogo.
@@ -429,7 +429,7 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
         int virtualMouseY = (int)(mouse.y * BASE_HEIGHT_FLOAT / BASE_HEIGHT_INT);
         int offsetX = 10, offsetY = 10;
 
-        Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f}; 
+        Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
         Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, Y_OFFSET, X_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Color Transparency = {255, 255, 255, 128};
 
@@ -524,7 +524,7 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
 
         // Renderiza as linhas verticais da tabela de leaderboard.
         DrawLineEx(startingPoint, endPoint, 5, VIOLET);
-        
+
         // Renderiza os nomes, pontos e posição da lista de leaderboard.
         DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
         DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
@@ -553,6 +553,50 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+}
+
+void RenderGameOverScreen(GameState *state, GameTextures *textures, Vector2 mouse) {
+    DrawTexture(textures->leaderboardback, 0, 0, WHITE);
+    int gameTitleTextWidth = MeasureText("GAME OVER", FONT_SIZE * 2);
+    Rectangle gameOverDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    DrawText("GAME OVER", gameOverDest.x + (gameOverDest.width - gameTitleTextWidth) / 2, BASE_HEIGHT_INT / 4, FONT_SIZE * 2, WHITE);
+    DrawText(TextFormat("You got %d points!", state->stats.currentPoints), gameOverDest.x + (gameOverDest.width - gameTitleTextWidth) / 2, BASE_HEIGHT_INT / 2, FONT_SIZE, WHITE);
+
+    Rectangle inputRect = {BUTTONS_X, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH, BUTTONS_HEIGHT};
+    DrawRectangleRec(inputRect, LIGHTGRAY);
+    bool isInputSelected = CheckCollisionPointRec(mouse, inputRect);
+    bool writing = false;
+    if (isInputSelected) {
+        DrawRectangleLines((int)inputRect.x, (int)inputRect.y, (int)inputRect.width, (int)inputRect.height, RED);
+        writing = true;
+    }
+
+    if (writing) {
+        SetMouseCursor(MOUSE_CURSOR_IBEAM);
+        int key = GetCharPressed();
+        while (key > 0) {
+            if ((key >= ' ') && (key <= 'z') && (state->stats.nameLetterCount < MAX_INPUT_NAME)) {
+                state->stats.name[state->stats.nameLetterCount] = (char)key;
+                state->stats.name[state->stats.nameLetterCount + 1] = '\0';
+                state->stats.nameLetterCount++;
+            }
+            key = GetCharPressed();
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            state->stats.nameLetterCount--;
+            if (state->stats.nameLetterCount < 0) state->stats.nameLetterCount = 0;
+            state->stats.name[state->stats.nameLetterCount] = '\0';
+        }
+    } else
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+
+    if (writing) {
+        DrawText(state->stats.name, (int)inputRect.x + 5, (int)inputRect.y + 8, 40, MAROON);
+        if (state->stats.nameLetterCount >= MAX_INPUT_NAME) {
+            DrawText("Press BACKSPACE to delete chars...", (int)inputRect.x -40, (int)inputRect.y -32, 20, RED);
+        }
     }
 }
 
@@ -597,6 +641,5 @@ void RenderHordeStatus(GameState *state) {
     Vector2 textPos = {
         (float)BASE_WIDTH_FLOAT - textWidth - padding,
         (float)padding};
-
     DrawText(buffer, textPos.x, textPos.y, fontSize, WHITE);
 }

@@ -14,6 +14,7 @@ int main(void) {
     GameState gameState;
     GameTextures gameTextures;
     GameSounds gameSounds;
+    char name[MAX_INPUT_NAME + 1] = "\0";
 
     srand(time(NULL));
 
@@ -68,7 +69,7 @@ int main(void) {
         } else {
             // TODO: Fazer uma Endscreen, com o ranking e opções para jogar denovo ou voltar ao menu inicial.
             // RenderTitleScreen é só um placeholder aqui.
-            RenderTitleScreen(BASE_WIDTH_INT, BASE_HEIGHT_INT, FONT_SIZE, &gameState, &gameTextures, mousePos);
+            RenderGameOverScreen(&gameState, &gameTextures, mousePos);
         }
 
         EndDrawing();

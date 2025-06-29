@@ -67,6 +67,8 @@ typedef struct {
 
 // PlayerStats é uma estrutura focada nas estatísticas do jogador.
 typedef struct {
+    char name[MAX_INPUT_NAME + 1];
+    int nameLetterCount;
     int money;
     int currentPoints;
     int currentWave;
@@ -83,6 +85,7 @@ typedef struct {
     bool onTitleScreen;
     bool isPaused;
     bool onLeaderboard;
+    bool onGameOverScreen;
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
