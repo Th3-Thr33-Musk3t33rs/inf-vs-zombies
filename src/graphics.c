@@ -26,7 +26,6 @@ void InitializeTextures(GameTextures *textures) {
     textures->zombie = LoadTexture("assets/characters/zombie.png");
     textures->goldZombie = LoadTexture("assets/characters/goldzombie.png");
 
-
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
     for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {  // Itera sobre os tipos de personagem
@@ -142,26 +141,21 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
 
 // Renderiza a tela de título do jogo.
 void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameState *state, GameTextures *textures, Vector2 mouse) {
-
     Vector2 Origin = {0, 0};
 
-   
-  
+    Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
-     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
+    Rectangle playButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.3f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-     Rectangle playButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 2.3f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-     Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.3f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-       
-     Rectangle gameTitleDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    
-     Rectangle leaderboardButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-     Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle gameTitleDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+
+    Rectangle leaderboardButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 1.5f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle leaderboardGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 1.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     // Posição e tamanho dos botões "Play Game" e "Leaderboard" para detecção de colisão.
     Rectangle playDest = ScaleRectTo720p((int)1280 / 2.5 - 5, (int)720 / 2, 210, fontSize, screenWidth, screenHeight);
     Rectangle leaderboardbuttonDest = ScaleRectTo720p(screenWidth / 2.65 - 5, screenHeight / 1.5, 270, fontSize, screenWidth, screenHeight);
 
-     
     // Calcula a posição do texto para centralizá-lo nos botões e também do titulo.
     int playTextWidth = MeasureText("Play Game", FONT_SIZE);
     int leaderboardTextWidth = MeasureText("Leaderboard", FONT_SIZE);
@@ -172,12 +166,11 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
     Vector2 playTextPos = {playButtonDest.x + (playButtonDest.width - playTextWidth) / 2, playButtonDest.y + 35};
     Vector2 leaderboardTextPos = {leaderboardButtonDest.x + (leaderboardButtonDest.width - leaderboardTextWidth) / 2, leaderboardButtonDest.y + 35};
 
-
     // Desenha a moldura dos botões.
-       DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, Origin, 0.0f, WHITE);
+    DrawTexturePro(textures->optionFrame, optionSource, playButtonDest, Origin, 0.0f, WHITE);
     DrawTexturePro(textures->optionFrame, optionSource, leaderboardButtonDest, Origin, 0.0f, WHITE);
-       DrawText("Play Game", (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
-       DrawText("Leaderboard", (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
+    DrawText("Play Game", (int)playTextPos.x, (int)playTextPos.y, FONT_SIZE, RED);
+    DrawText("Leaderboard", (int)leaderboardTextPos.x, (int)leaderboardTextPos.y, FONT_SIZE, RED);
     // Highlight visual dos botões "Play Game" e "Leaderboard" ao passar o mouse.
     if (CheckCollisionPointRec(GetMousePosition(), playGlowDest)) {
         DrawRectangleRec(playGlowDest, ColorAlpha(YELLOW, 0.3f));
@@ -186,14 +179,12 @@ void RenderTitleScreen(int screenWidth, int screenHeight, int fontSize, GameStat
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
 
-      if (CheckCollisionPointRec(GetMousePosition(), leaderboardGlowDest)) {
+    if (CheckCollisionPointRec(GetMousePosition(), leaderboardGlowDest)) {
         DrawRectangleRec(leaderboardGlowDest, ColorAlpha(YELLOW, 0.3f));
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     }
-
-
 }
 
 // Renderiza o HUD com dinheiro e botão de venda.
@@ -456,8 +447,6 @@ void RenderPause(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     Rectangle optionSource = {0, 0, (float)textures->optionFrame.width, (float)textures->optionFrame.height};
 
-
-
     Rectangle resumeButtonDest = ScaleRectTo720p(480, BASE_HEIGHT_FLOAT / 4.0f, 360, 121, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle resumeGlowDest = ScaleRectTo720p(PAUSE_BUTTONS_X, (BASE_HEIGHT_FLOAT / 4.0f) + 24, PAUSE_BUTTONS_WIDTH, PAUSE_BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
@@ -504,7 +493,6 @@ void RenderZombies(GameState *state, GameTextures *textures) {
                 zombie->position.y,
                 ZOMBIE_RENDER_WIDTH,
                 ZOMBIE_RENDER_HEIGHT};
-
 
             if (zombie->golden) {
                 DrawTexturePro(textures->goldZombie, sourceRec, destRec, (Vector2){0, 0}, 0, WHITE);

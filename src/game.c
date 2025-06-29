@@ -24,7 +24,6 @@ const CharacterInfo CHARACTER_INFO[] = {
     [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, 10, "bombardini", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
 };
 
-
 // InitGame inicializa o jogo.
 void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     SetTargetFPS(TARGET_FPS);
@@ -182,35 +181,30 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, REC_ZOMBIE_WIDTH, REC_ZOMBIE_HEIGHT};
                             Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - REC_ZOMBIE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                                if (CheckCollisionRecs(recSahur, recZombie)) {  // Se zumbi chegar perto de Sahur, Sahur causa dano a ele
-                                   
-                                        if (character->currentFrame == 1 || character->currentFrame == 0) {
-                                            character->currentFrame = 2;  // Inicia animação de Ataque
-                                        }
+                            if (CheckCollisionRecs(recSahur, recZombie)) {  // Se zumbi chegar perto de Sahur, Sahur causa dano a ele
 
-                                            if (character->currentFrame == 4){  // Mata o zumbi ao finalizar a animação de Ataque
-                                            
-                                            zombie->hp -= ZOMBIE_HP;
-                                            state->soundToPlay = SOUND_TUNG; // Toca som
-                                            state->shouldPlaySound = true;
-                                            character->specific.sahur.cooldown = true;
-                                            if (zombie->hp <= 0) {  // Desativa o zumbi
-                                                zombie->isActive = false;
-                                                if (zombie->golden) {
-                                                    state->stats.money += MONEY_BAG_AMOUNT;
-                                                    
-                                                }
-                                                state->stats.enemiesKilled++;
-                                                state->stats.currentPoints += 100; // + 100 pontos
-                                            }
-                                        
+                                if (character->currentFrame == 1 || character->currentFrame == 0) {
+                                    character->currentFrame = 2;  // Inicia animação de Ataque
+                                }
+
+                                if (character->currentFrame == 4) {  // Mata o zumbi ao finalizar a animação de Ataque
+
+                                    zombie->hp -= ZOMBIE_HP;
+                                    state->soundToPlay = SOUND_TUNG;  // Toca som
+                                    state->shouldPlaySound = true;
+                                    character->specific.sahur.cooldown = true;
+                                    if (zombie->hp <= 0) {  // Desativa o zumbi
+                                        zombie->isActive = false;
+                                        if (zombie->golden) {
+                                            state->stats.money += MONEY_BAG_AMOUNT;
                                         }
+                                        state->stats.enemiesKilled++;
+                                        state->stats.currentPoints += 100;  // + 100 pontos
                                     }
                                 }
                             }
-                       
-
-                      
+                        }
+                    }
 
                     if (character->specific.sahur.loop == SAHUR_LOOPS) {  // Volta ao estado inicial
                         character->specific.sahur.cooldown = false;
@@ -348,16 +342,14 @@ void UpdateBombs(GameState *state, float deltaTime) {
                             state->soundToPlay = SOUND_EXPLOSION;
                             state->shouldPlaySound = true;
 
-                                if (zombie->hp <= 0) {
-                                    zombie->isActive = false;
-                                    if (zombie->golden) {
-                                        state->stats.money += MONEY_BAG_AMOUNT;
-                                    }
-                                    state->stats.enemiesKilled++;
-                                    state->stats.currentPoints += 100;
+                            if (zombie->hp <= 0) {
+                                zombie->isActive = false;
+                                if (zombie->golden) {
+                                    state->stats.money += MONEY_BAG_AMOUNT;
                                 }
-                            
-                      
+                                state->stats.enemiesKilled++;
+                                state->stats.currentPoints += 100;
+                            }
                         }
                     }
                 }
@@ -410,7 +402,7 @@ void UpdateMoneyBag(GameState *state, float deltaTime) {
 void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica da tela de título.
     if (state->app.onTitleScreen) {
-     Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle playGlowDest = ScaleRectTo720p(504, (BASE_HEIGHT_FLOAT / 2.5f) + 24, 312, 121 - 48, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, playGlowDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->app.onTitleScreen = false;  // Sai da tela de título.
         }
@@ -617,11 +609,10 @@ void SpawnZombie(GameState *state) {
         zombie->state = ZOMBIE_WALKING;
         zombie->row = rand() % ROWS;  // Sorteia uma linha de 0 a 6 para spawnar o zumbi.
         int goldenZombie = rand() % GOLDEN_ZOMBIE_CHANCE;
-        if (goldenZombie == 0) { // Todo zumbi tem uma chance de ser um zumbi dourado
-        
-         zombie->golden = true;
-        } 
+        if (goldenZombie == 0) {  // Todo zumbi tem uma chance de ser um zumbi dourado
 
+            zombie->golden = true;
+        }
 
         zombie->position.x = BASE_WIDTH_INT;
         zombie->position.y = GRID_MARGIN_Y + (Y_OFFSET * (zombie->row + (1 / 2.0f))) - (X_OFFSET / 2.0f);
