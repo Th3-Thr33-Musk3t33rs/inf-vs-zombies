@@ -29,21 +29,20 @@ void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
     InitializeTextures(textures);
     InitializeSounds(sounds);
     InitializeGameState(state, false);
-    SetExitKey(0); // Para não sair do jogo com ESC.
+    SetExitKey(0);  // Para não sair do jogo com ESC.
 }
 
 // Inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState *state, bool reset) {
     *state = (GameState){0};
 
-   if (!reset) {
+    if (!reset) {
         state->app.onTitleScreen = true;
-   } else {
-       state->app.onLeaderboard = true;
-   }
-    
-    state->stats.money = INITIAL_MONEY;
+    } else {
+        state->app.onLeaderboard = true;
+    }
 
+    state->stats.money = INITIAL_MONEY;
 
     for (int r = 0; r < ROWS; r++) {
         for (int c = 0; c < COLUMNS; c++) {
@@ -415,7 +414,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
         }
         return;  // Não processa mais nada se estiver na tela de título e o usuário não começou a jogar.
     }
-    
+
     if (state->app.onLeaderboard) {
         HandleLeaderboardMenu(state, mousePos);
         return;  // Não processa mais nada se estiver na leaderboard.
@@ -602,7 +601,6 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 }
 
 void HandleGameOverMenu(GameState *state, Vector2 mousePos) {
-    
 }
 
 // Lógica dos botões do menu de leaderboard.
@@ -618,11 +616,10 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
             state->app.onTitleScreen = true;
             state->app.onLeaderboard = false;
             state->app.leavingLeaderboard = true;
-
         }
     }
 
-    if (state->app.isGameOver && CheckCollisionPointRec(mousePos,saveGlowDest) && state->insertions == 3) {
+    if (state->app.isGameOver && CheckCollisionPointRec(mousePos, saveGlowDest) && state->insertions == 3) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             SaveLeaderboard(LEADERBOARD_FILE, state);
             state->app.onTitleScreen = true;
@@ -630,7 +627,6 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
             state->app.leavingLeaderboard = true;
             LoadLeaderboard(LEADERBOARD_FILE, state);
         }
-
     }
 }
 
