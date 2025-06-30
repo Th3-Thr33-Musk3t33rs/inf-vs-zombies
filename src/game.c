@@ -61,10 +61,6 @@ void InitializeGameState(GameState *state, bool reset) {
     state->horde.currentHorde = 0;
 }
 
-void ResetGameState(GameState *state) {
-    *state = (GameState){0};
-}
-
 // Atualiza os estados e animações dos personagens.
 void UpdateCharacters(GameState *state, float deltaTime) {
     for (int row = 0; row < ROWS; row++) {
@@ -167,6 +163,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     if (character->currentFrame > 1 && character->currentFrame < 3) {
                         character->currentFrame = 0;
                     }
+
                     if (character->specific.sahur.cooldown) {
                         if (character->currentFrame > 7) {
                             character->currentFrame = 5;
@@ -530,9 +527,18 @@ void HandleCharacterPlacement(GameState *state, int row, int col) {
         newChar->row = row;
         newChar->col = col;
 
-        if (charType == TRALALERO_ID) {
-            newChar->specific.tralalero.projecX = GRID_MARGIN_X + (col * X_OFFSET) + 55;
-            newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * Y_OFFSET);
+        switch (charType) {
+            case CHAR_TYPE_TRALALERO:
+                newChar->specific.tralalero.projecX = GRID_MARGIN_X + (col * X_OFFSET) + 55;
+                newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * Y_OFFSET);
+                break;
+            case CHAR_TYPE_SAHUR:
+                newChar->specific.sahur.cooldown = false;
+                newChar->currentFrame = 0;
+                newChar->specific.sahur.loop = 0;
+                break;
+            default:
+                break;
         }
 
         state->app.characterInHand = CHAR_TYPE_NONE;
@@ -598,9 +604,6 @@ void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
             state->app.shouldQuit = true;
         }
     }
-}
-
-void HandleGameOverMenu(GameState *state, Vector2 mousePos) {
 }
 
 // Lógica dos botões do menu de leaderboard.

@@ -47,7 +47,4 @@ void SpawnZombie(GameState *state);
 
 // UpdateHordeLogic controla o spawn de zumbis.
 void UpdateHordeLogic(GameState *state, float deltaTime);
-
-// ResetGameState reseta a estrutura de estado do jogo.
-void ResetGameState(GameState *state);
 #endif

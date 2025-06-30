@@ -70,7 +70,6 @@ int main(void) {
             RenderLeaderboard(&gameState, &gameTextures, mousePos);
             gameState.app.onLeaderboard = true;
             if (gameState.app.leavingLeaderboard) {
-                ResetGameState(&gameState);
                 InitializeGameState(&gameState, true);
                 int hordes[MAX_HORDES] = {0};
                 gameState.totalHordes = ReadHordesConfig("config.txt", hordes, MAX_HORDES);
