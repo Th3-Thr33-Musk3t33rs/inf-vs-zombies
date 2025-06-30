@@ -536,16 +536,14 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
 
             DrawText(state->leaderboard[i - 1].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
             DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
-        }
-
-        else if (state->player.points > state->leaderboard[i].points && !isPlayerScoreEnough && state->app.isGameOver) {
+        } else if (state->player.points > state->leaderboard[i].points && !isPlayerScoreEnough && state->app.isGameOver) {
             sprintf(points, "%015d", state->player.points);
             int pointsWidth = MeasureText(points, FONT_SIZE);
             int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
 
             int key = GetCharPressed();
             while (key > 0) {
-                if ((key > 32) && (key <= 125) && (state->insertions < 3)) {
+                if ((key > ' ') && (key <= 'z') && (state->insertions < 3)) {
                     state->player.playerName[state->insertions] = toupper((unsigned char)key);
                     state->player.playerName[state->insertions + 1] = '\0';
                     state->insertions++;
@@ -568,7 +566,7 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         } else {
             sprintf(points, "%015d", state->leaderboard[i].points);
             int pointsWidth = MeasureText(points, FONT_SIZE);
-            int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;  // Alinha os pontos na direita
+            int pointsAlignedX = pointsColumnRightEdge - pointsWidth - 10;
 
             DrawText(state->leaderboard[i].playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
             DrawText(points, pointsAlignedX, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, WHITE);
