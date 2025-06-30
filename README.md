@@ -34,7 +34,7 @@ make run
   * Entram pelo lado direito da tela em hordas
   * Pontos de vida: 100
 * **Cenário:**
-  * Grid 5x9 (blocos de 72x96 pixels)
+  * Grid 7x9 (blocos de 78x96 pixels)
   * Cada zumbi morto vale 100 pontos
 
 ## Estrutura do Projeto
@@ -57,7 +57,7 @@ inf-vs-zombies/
 * [X] Menu inicial com três opções: Jogar, LeaderBoard e Sair
 * [X] Leitura do arquivo `config.txt` para definir as hordas
 * [X] Controle de plantas, zumbis e colisões
-* [ ] Atualização e exibição do ranking (`top_scores.bin`)
+* [X] Atualização e exibição do ranking (`top_scores.bin`)
 * [X] Interface gráfica com Raylib
 
 ## Possíveis Expansões (Tarefas Extras)
