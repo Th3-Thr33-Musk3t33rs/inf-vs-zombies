@@ -6,7 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "character_data.h"
+#include "plant_data.h"
 #include "config.h"
 #include "raylib.h"
 #include "types.h"
@@ -23,7 +23,7 @@ void InitializeTextures(GameTextures *textures) {
     textures->optionFrame = LoadTexture("assets/elements/option.png");
     textures->frame = LoadTexture("assets/elements/frame2.png");
     textures->moneyIcon = LoadTexture("assets/elements/money.png");
-    textures->projectile = LoadTexture("assets/elements/projectile.png");
+    textures->projectile = LoadTexture("assets/elements/pea.png");
     textures->bomb = LoadTexture("assets/elements/bomb.png");
     textures->zombie = LoadTexture("assets/characters/zombie.png");
     textures->goldZombie = LoadTexture("assets/characters/goldzombie.png");
@@ -32,13 +32,13 @@ void InitializeTextures(GameTextures *textures) {
 
     // Carrega todas as texturas de animação dos personagens automaticamente.
     char path[100];
-    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {  // Itera sobre os tipos de personagem
+    for (int i = PLANT_TYPE_SUNFLOWER; i < PLANT_TYPE_COUNT; i++) {  // Itera sobre os tipos de personagem
         for (int t = 0; t < 8; t++) {                                // Itera sobre os frames de animação
-            sprintf(path, "assets/characters/%s%d.png", CHARACTER_INFO[i].textureName, t);
+            sprintf(path, "assets/plants/%s%d.png", PLANT_INFO[i].textureName, t);
             textures->characterTextures[i][t] = LoadTexture(path);
         }
         // Carrega as texturas dos ícones dos personagens para o seletor.
-        sprintf(path, "assets/characters/%sframe.png", CHARACTER_INFO[i].textureName);
+        sprintf(path, "assets/plants/%sframe.png", PLANT_INFO[i].textureName);
         textures->characterFrames[i] = LoadTexture(path);
     }
 }
@@ -56,7 +56,7 @@ void UnloadTextures(GameTextures *textures) {
     UnloadTexture(textures->zombie);
     UnloadTexture(textures->goldZombie);
 
-    for (int i = 1; i < CHAR_TYPE_COUNT; i++) {
+    for (int i = 1; i < PLANT_TYPE_COUNT; i++) {
         for (int t = 0; t < 8; t++) {
             // Descarrega as texturas de animação dos personagens.
             UnloadTexture(textures->characterTextures[i][t]);
@@ -77,10 +77,10 @@ void InitializeSounds(GameSounds *sounds) {
     sounds->collectSFX = LoadSound("assets/sfx/collect.wav");
     sounds->collectBagSFX = LoadSound("assets/sfx/collectbag.mp3");
     sounds->putSFX = LoadSound("assets/sfx/put.wav");
-    sounds->projectileSFX = LoadSound("assets/sfx/projectile.wav");
+    sounds->projectileSFX = LoadSound("assets/sfx/projectile.mp3");
     sounds->explosionSFX = LoadSound("assets/sfx/explosion.wav");
-    sounds->tungSFX = LoadSound("assets/sfx/tung.wav");
-    sounds->hitSFX = LoadSound("assets/sfx/hit.wav");
+    sounds->chomperSFX = LoadSound("assets/sfx/chomper.mp3");
+    sounds->hitSFX = LoadSound("assets/sfx/hit.mp3");
     sounds->eatSFX = LoadSound("assets/sfx/eating.wav");
     sounds->endGameSFX = LoadSound("assets/sfx/end.mp3");
 }
@@ -109,8 +109,8 @@ void PlaySounds(GameState *state, GameSounds *sounds) {
         case SOUND_EXPLOSION:
             PlaySound(sounds->explosionSFX);
             break;
-        case SOUND_TUNG:
-            PlaySound(sounds->tungSFX);
+        case SOUND_CHOMPER:
+            PlaySound(sounds->chomperSFX);
             break;
         case SOUND_SELECT:
             PlaySound(sounds->selectSFX);
@@ -232,7 +232,7 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
     }
 
     // Highlight se o modo de venda estiver ativo.
-    if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
+    if (state->app.plantInHand == PLANT_TYPE_SELL_MODE) {
         DrawRectangleRec(sellDest, ColorAlpha(YELLOW, 0.3f));
     }
 }
@@ -241,8 +241,8 @@ void RenderHUD(GameState *state, GameTextures *textures, Vector2 mouse) {
 void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 mouse) {
     char costText[10];
 
-    for (int f = CHAR_TYPE_CHIMPANZINI; f < CHAR_TYPE_COUNT; f++) {
-        const CharacterInfo *charInfo = &CHARACTER_INFO[f];
+    for (int f = PLANT_TYPE_SUNFLOWER; f < PLANT_TYPE_COUNT; f++) {
+        const PlantInfo *plantInfo = &PLANT_INFO[f];
 
         // Renderiza quadro base.
         int frameIndex = f - 1;
@@ -256,11 +256,11 @@ void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 m
         DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, defaultOrigin, 0.0f, WHITE);
 
         // Renderiza o custo do personagem embaixo do quadro.
-        sprintf(costText, "%d", charInfo->cost);
+        sprintf(costText, "%d", plantInfo->cost);
         Vector2 costPos = ScaleTo720p(310 + (frameIndex * Y_OFFSET), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, WHITE);
 
-        if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
+        if (state->stats.money < plantInfo->cost || state->characterCooldowns[f] > 0) {
             // Cinza, pois não consegue comprar por falta de dinheiro ou personagem está em cooldown.
             DrawRectangleRec(frameDest, ColorAlpha(DARKGRAY, 0.6f));
         } else if (CheckCollisionPointRec(mouse, frameDest) && !state->app.isPaused) {
@@ -270,13 +270,13 @@ void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 m
         }
 
         // Highlight se este personagem estiver atualmente selecionado.
-        if (state->app.characterInHand == charInfo->type) {
+        if (state->app.plantInHand == plantInfo->type) {
             DrawRectangleRec(frameDest, ColorAlpha(BLUE, 0.2f));
         }
 
         // Highlight que desaparece de acordo com cooldown do personagem.
         if (state->characterCooldowns[f] > 0) {
-            float cooldownFraction = state->characterCooldowns[f] / charInfo->cooldown;
+            float cooldownFraction = state->characterCooldowns[f] / plantInfo->cooldown;
             float overlayHeight = frameDest.height * cooldownFraction;
             Rectangle cooldownOverlayRect = {frameDest.x, frameDest.y, frameDest.width, overlayHeight};
 
@@ -336,20 +336,20 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
             Rectangle tileSource = {0, 0, (float)tileTexture.width, (float)tileTexture.height};
             DrawTexturePro(tileTexture, tileSource, tileDest, defaultOrigin, 0.0f, WHITE);
 
-            Character *character = &state->entities.characters[row][col];
+            Plant *character = &state->entities.characters[row][col];
             if (character->exists) {
-                const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+                const PlantInfo *plantInfo = &PLANT_INFO[character->type];
 
                 Texture2D charTexture = textures->characterTextures[character->type][character->currentFrame];
 
                 // Posição final do personagem com offsets do grid.
-                float posX = generalPosX + charInfo->destOffset.x;
-                float posY = generalPosY + charInfo->destOffset.y;
+                float posX = generalPosX + plantInfo->destOffset.x;
+                float posY = generalPosY + plantInfo->destOffset.y;
 
                 // Retângulo de destino do personagem.
-                Rectangle charDest = ScaleRectTo720p(posX, posY, charInfo->destSize.x, charInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                Rectangle charDest = ScaleRectTo720p(posX, posY, plantInfo->destSize.x, plantInfo->destSize.y, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                DrawTexturePro(charTexture, charInfo->sourceRec, charDest, defaultOrigin, 0.0f, WHITE);
+                DrawTexturePro(charTexture, plantInfo->sourceRec, charDest, defaultOrigin, 0.0f, WHITE);
             }
 
             // Highlight visual das tiles ao passar o mouse (exceto coluna 0).
@@ -422,9 +422,9 @@ void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
 
 // Renderiza o personagem selecionado ao lado do mouse de forma transparente.
 void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Vector2 mouse) {
-    CharacterType charInHand = state->app.characterInHand;
+    PlantType charInHand = state->app.plantInHand;
     // Só renderiza se um personagem estiver selecionado (não for 1 ou SELL_ID).
-    if (charInHand > CHAR_TYPE_NONE && charInHand < CHAR_TYPE_COUNT) {
+    if (charInHand > PLANT_TYPE_NONE && charInHand < PLANT_TYPE_COUNT) {
         Vector2 Origin = {0, 0};
         int virtualMouseX = (int)(mouse.x * BASE_WIDTH_FLOAT / BASE_WIDTH_INT);
         int virtualMouseY = (int)(mouse.y * BASE_HEIGHT_FLOAT / BASE_HEIGHT_INT);

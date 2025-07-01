@@ -7,19 +7,19 @@
 #include <string.h>
 #include <time.h>
 
-#include "character_data.h"
+#include "plant_data.h"
 #include "config.h"
 #include "graphics.h"
 #include "types.h"
 #include "utils.h"
 
 const Vector2 defaultOffset = {20, -10};
-const CharacterInfo CHARACTER_INFO[] = {
-    [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, 20, "chimpanzini", {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, {20, -10}},
-    [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, 50, "tralalero", {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
-    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, 50, "sahur", {0, 0, 180, 264}, {180 / 2.5f, 244 / 2.5f}, {20, -10}},
-    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, 300, "lirili", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
-    [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, 10, "bombardini", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
+const PlantInfo PLANT_INFO[] = {
+    [PLANT_TYPE_SUNFLOWER] = {PLANT_TYPE_SUNFLOWER, SUNFLOWER_COST, SUNFLOWER_CD, 20, "sunflower", {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, {20, -10}},
+    [PLANT_TYPE_PEASHOOTER] = {PLANT_TYPE_PEASHOOTER, PEASHOOTER_COST, PEASHOOTER_CD, 50, "peashooter", {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
+    [PLANT_TYPE_CHOMPER] = {PLANT_TYPE_CHOMPER, CHOMPER_COST, CHOMPER_CD, 50, "chomper", {0, 0, 200, 264}, {180 / 2.5f, 244 / 2.5f}, {20, -10}},
+    [PLANT_TYPE_WALLNUT] = {PLANT_TYPE_WALLNUT, WALLNUT_COST, WALLNUT_CD, 300, "wallnut", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
+    [PLANT_TYPE_TACTICAL_CUKE] = {PLANT_TYPE_TACTICAL_CUKE, TACTICAL_CUKE_COST, TACTICAL_CUKE_CD, 10, "tacticalcuke", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
 };
 
 // InitGame inicializa o jogo.
@@ -65,12 +65,12 @@ void InitializeGameState(GameState *state, bool reset) {
 void UpdateCharacters(GameState *state, float deltaTime) {
     for (int row = 0; row < ROWS; row++) {
         for (int col = 0; col < COLUMNS; col++) {
-            Character *character = &state->entities.characters[row][col];
+            Plant *character = &state->entities.characters[row][col];
             if (!character->exists) continue;
 
             bool canAnimate = true;
 
-            if (character->type == CHAR_TYPE_BOMBARDINI && character->specific.bombardini.ready) {
+            if (character->type == PLANT_TYPE_TACTICAL_CUKE && character->specific.tactical_cuke.ready) {
                 canAnimate = false;
             }
 
@@ -93,18 +93,18 @@ void UpdateCharacters(GameState *state, float deltaTime) {
             float generalPosY = GRID_MARGIN_Y + (row * Y_OFFSET);
 
             switch (character->type) {
-                // Lógica de comportamento do Chimpanzini(gerassóis).
-                case CHAR_TYPE_CHIMPANZINI:
-                    if (!character->specific.chimpanzini.shining) {
+                // Lógica de comportamento do Sunflower(gerassóis).
+                case PLANT_TYPE_SUNFLOWER:
+                    if (!character->specific.sunflower.shining) {
                         if (character->currentFrame > 3) {
                             character->currentFrame = 0;
-                            character->specific.chimpanzini.loop++;
+                            character->specific.sunflower.loop++;
                         }
 
-                        if (character->specific.chimpanzini.loop >= CHIMPANZINI_LOOPS_GENERATE) {
-                            character->specific.chimpanzini.shining = true;
+                        if (character->specific.sunflower.loop >= SUNFLOWER_LOOPS_GENERATE) {
+                            character->specific.sunflower.shining = true;
                             character->currentFrame = 4;
-                            character->specific.chimpanzini.loop = 0;
+                            character->specific.sunflower.loop = 0;
                         }
                     } else {
                         if (character->currentFrame > 7) {
@@ -113,12 +113,12 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     }
                     break;
 
-                // Lógica de comportamento do Tralalero(peashooter).
-                case CHAR_TYPE_TRALALERO:
-                    if (!character->specific.tralalero.attacking) {
+                // Lógica de comportamento do Peashooter.
+                case PLANT_TYPE_PEASHOOTER:
+                    if (!character->specific.peashooter.attacking) {
                         if (character->currentFrame > 3) {
                             character->currentFrame = 0;
-                            character->specific.tralalero.loop++;
+                            character->specific.peashooter.loop++;
                         }
 
                         bool zombieDetectedInRow = false;
@@ -130,14 +130,14 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             }
                         }
 
-                        if (character->specific.tralalero.loop >= TRALALERO_PROJECTILE_CD && zombieDetectedInRow) {
-                            character->specific.tralalero.attacking = true;
-                            character->specific.tralalero.loop = 0;
+                        if (character->specific.peashooter.loop >= PEASHOOTER_PROJECTILE_CD && zombieDetectedInRow) {
+                            character->specific.peashooter.attacking = true;
+                            character->specific.peashooter.loop = 0;
                             character->currentFrame = 4;
                         }
                     } else {
                         if (character->currentFrame > 7) {
-                            character->specific.tralalero.attacking = false;
+                            character->specific.peashooter.attacking = false;
                             character->currentFrame = 0;
 
                             state->soundToPlay = SOUND_PROJECTILE;
@@ -147,9 +147,9 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                 if (!state->entities.projectiles[i].isActive) {
                                     state->entities.projectiles[i].isActive = true;
 
-                                    // (+80, +40) são para o projétil sair do meio da tile.
-                                    state->entities.projectiles[i].position.x = generalPosX + 80;
-                                    state->entities.projectiles[i].position.y = generalPosY + 40;
+                                    // Ajustes para o projétil sair do meio da tile.
+                                    state->entities.projectiles[i].position.x = generalPosX + 20;
+                                    state->entities.projectiles[i].position.y = generalPosY + 10;
 
                                     break;
                                 }
@@ -158,41 +158,41 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     }
                     break;
 
-                // Lógica de comportamento do Sahur(carnívora).
-                case CHAR_TYPE_SAHUR:
+                // Lógica de comportamento do Chomper(carnívora).
+                case PLANT_TYPE_CHOMPER:
                     if (character->currentFrame > 1 && character->currentFrame < 3) {
                         character->currentFrame = 0;
                     }
 
-                    if (character->specific.sahur.cooldown) {
+                    if (character->specific.chomper.cooldown) {
                         if (character->currentFrame > 7) {
                             character->currentFrame = 5;
-                            character->specific.sahur.loop++;
+                            character->specific.chomper.loop++;
                         }
                     }
 
                     for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
                         Zombie *zombie = &state->entities.zombies[j];
 
-                        if (!character->specific.sahur.cooldown && zombie->isActive) {
-                            const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+                        if (!character->specific.chomper.cooldown && zombie->isActive) {
+                            const PlantInfo *plantInfo = &PLANT_INFO[character->type];
 
-                            float posX = generalPosX + charInfo->destOffset.x;
-                            float posY = generalPosY + 20 + charInfo->destOffset.y;
+                            float posX = generalPosX + plantInfo->destOffset.x;
+                            float posY = generalPosY + 20 + plantInfo->destOffset.y;
                             int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / X_OFFSET);
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, REC_ZOMBIE_WIDTH, REC_ZOMBIE_HEIGHT};
-                            Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - REC_ZOMBIE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                            Rectangle recChomper = ScaleRectTo720p(posX, posY, plantInfo->destSize.x + 20, plantInfo->destSize.y - REC_ZOMBIE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                            if (CheckCollisionRecs(recSahur, recZombie)) {
+                            if (CheckCollisionRecs(recChomper, recZombie)) {
                                 if (character->currentFrame == 1 || character->currentFrame == 0) {
                                     character->currentFrame = 2;
                                 }
 
                                 if (character->currentFrame == 4) {
                                     zombie->hp -= ZOMBIE_HP;
-                                    state->soundToPlay = SOUND_TUNG;
+                                    state->soundToPlay = SOUND_CHOMPER;
                                     state->shouldPlaySound = true;
-                                    character->specific.sahur.cooldown = true;
+                                    character->specific.chomper.cooldown = true;
                                     if (zombie->hp <= 0) {
                                         zombie->isActive = false;
                                         if (zombie->golden) {
@@ -206,15 +206,15 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                         }
                     }
 
-                    if (character->specific.sahur.loop == SAHUR_LOOPS) {
-                        character->specific.sahur.cooldown = false;
+                    if (character->specific.chomper.loop == CHOMPER_LOOPS) {
+                        character->specific.chomper.cooldown = false;
                         character->currentFrame = 1;
-                        character->specific.sahur.loop = 0;
+                        character->specific.chomper.loop = 0;
                     }
 
                     break;
                 // Lógica de comportamento do Lirili (mudança de sprite conforme HP) (batata).
-                case CHAR_TYPE_LIRILI:
+                case PLANT_TYPE_WALLNUT:
                     if (character->hp < 250 && character->hp >= 150) {
                         character->currentFrame = 1;
                     } else if (character->hp < 150 && character->hp >= 50) {
@@ -225,31 +225,31 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                         character->currentFrame = 0;
                     }
                     break;
-                // Lógica de comportamento do Bombardini (carregamento da bomba).
-                case CHAR_TYPE_BOMBARDINI:
-                    if (!character->specific.bombardini.ready) {
+                // Lógica de comportamento do TacticalCuke (carregamento da bomba).
+                case PLANT_TYPE_TACTICAL_CUKE:
+                    if (!character->specific.tactical_cuke.ready) {
                         if (character->currentFrame > 2) {
                             character->currentFrame = 0;
-                            character->specific.bombardini.loop++;
+                            character->specific.tactical_cuke.loop++;
                         }
-                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS && !character->specific.bombardini.ready) {  // Após 3 loops, fica "pronto".
-                            character->specific.bombardini.ready = true;
+                        if (character->specific.tactical_cuke.loop >= TACTICAL_CUKE_LOOPS && !character->specific.tactical_cuke.ready) {  // Após 3 loops, fica "pronto".
+                            character->specific.tactical_cuke.ready = true;
                             character->currentFrame = 4;
                         }
                     }
                     for (int j = 0; j < MAX_ZOMBIES_ON_SCREEN; j++) {
                         Zombie *zombie = &state->entities.zombies[j];
 
-                        if (character->specific.bombardini.ready && zombie->isActive) {
-                            const CharacterInfo *charInfo = &CHARACTER_INFO[character->type];
+                        if (character->specific.tactical_cuke.ready && zombie->isActive) {
+                            const PlantInfo *plantInfo = &PLANT_INFO[character->type];
 
-                            float posX = generalPosX + charInfo->destOffset.x;
-                            float posY = generalPosY + charInfo->destOffset.y;
+                            float posX = generalPosX + plantInfo->destOffset.x;
+                            float posY = generalPosY + plantInfo->destOffset.y;
                             int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / X_OFFSET);
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, REC_ZOMBIE_WIDTH, REC_ZOMBIE_HEIGHT};
-                            Rectangle recBombardini = ScaleRectTo720p(posX, posY + 10, charInfo->destSize.x / 2.3, charInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                            Rectangle recTacticalCuke = ScaleRectTo720p(posX, posY + 10, plantInfo->destSize.x / 2.3, plantInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
-                            if (CheckCollisionRecs(recBombardini, recZombie)) {  // Se zumbi pisar no alvo, uma bomba cai do céu.
+                            if (CheckCollisionRecs(recTacticalCuke, recZombie)) {  // Se zumbi pisar no alvo, uma bomba cai do céu.
                                 for (int i = 0; i < MAX_PROJECTILES_ON_SCREEN; i++) {
                                     if (!state->entities.bombs[i].isActive) {
                                         state->entities.bombs[i].isActive = true;
@@ -420,7 +420,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Pausa e despausa o jogo ao apertar ESC ou P
     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_P)) {
         state->app.isPaused = !state->app.isPaused;
-        state->app.characterInHand = CHAR_TYPE_NONE;  // Solta o personagem segurado ao pausar.
+        state->app.plantInHand = PLANT_TYPE_NONE;  // Solta o personagem segurado ao pausar.
 
         if (state->app.isPaused) {
             PauseMusicStream(sounds->backgroundMusic);
@@ -437,14 +437,14 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     // Lógica do toggle de modo venda.
     Rectangle sellDest = ScaleRectTo720p(SELL_POS_X - 5, SELL_POS_Y, 110, 50, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     if ((CheckCollisionPointRec(mousePos, sellDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_S)) {
-        if (state->app.characterInHand != CHAR_TYPE_SELL_MODE) {
-            state->app.characterInHand = CHAR_TYPE_SELL_MODE;
+        if (state->app.plantInHand != PLANT_TYPE_SELL_MODE) {
+            state->app.plantInHand = PLANT_TYPE_SELL_MODE;
         } else {
-            state->app.characterInHand = CHAR_TYPE_NONE;
+            state->app.plantInHand = PLANT_TYPE_NONE;
         }
     }
 
-    // Coleta dinheiro de TODOS os Chimpanzinis brilhantes com a tecla C.
+    // Coleta dinheiro de TODOS os Sunflowers brilhantes com a tecla C.
     if (IsKeyPressed(KEY_C)) {
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLUMNS; c++) {
@@ -454,18 +454,18 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     }
 
     // Lógica do seletor de personagens.
-    for (int f = 0; f < CHAR_TYPE_COUNT; f++) {
-        const CharacterInfo *info = &CHARACTER_INFO[f];
+    for (int f = 0; f < PLANT_TYPE_COUNT; f++) {
+        const PlantInfo *info = &PLANT_INFO[f];
         int charIndex = f - 1;
         Rectangle frameDest = ScaleRectTo720p(300 + (charIndex * Y_OFFSET), 20, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         bool canPick = state->stats.money >= info->cost && state->characterCooldowns[f] <= 0;
         if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (charIndex))) && canPick) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_SELECT;
-            if (state->app.characterInHand != info->type) {
-                state->app.characterInHand = info->type;
+            if (state->app.plantInHand != info->type) {
+                state->app.plantInHand = info->type;
             } else {
-                state->app.characterInHand = CHAR_TYPE_NONE;
+                state->app.plantInHand = PLANT_TYPE_NONE;
             }
             state->soundToPlay = SOUND_SELECT;
             state->shouldPlaySound = true;
@@ -491,9 +491,9 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
             if (state->tiles[row][col] == TILE_TYPE_BUTTON) continue;
             Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * X_OFFSET), GRID_MARGIN_Y + (row * Y_OFFSET), X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             if (CheckCollisionPointRec(mousePos, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
+                if (state->app.plantInHand == PLANT_TYPE_SELL_MODE) {
                     HandleCharacterSelling(state, row, col);
-                } else if (state->app.characterInHand > CHAR_TYPE_NONE && state->app.characterInHand < CHAR_TYPE_COUNT) {
+                } else if (state->app.plantInHand > PLANT_TYPE_NONE && state->app.plantInHand < PLANT_TYPE_COUNT) {
                     HandleCharacterPlacement(state, row, col);
                 } else {
                     HandleCharacterInteractions(state, row, col);
@@ -504,65 +504,65 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 }
 
 void HandleCharacterPlacement(GameState *state, int row, int col) {
-    CharacterType charType = state->app.characterInHand;
+    PlantType charType = state->app.plantInHand;
 
     // Se já existe um personagem naquela tile, não podemos sobrescrever outro por cima.
-    if (charType == CHAR_TYPE_NONE || state->entities.characters[row][col].exists) {
+    if (charType == PLANT_TYPE_NONE || state->entities.characters[row][col].exists) {
         return;
     }
 
-    const CharacterInfo *charInfo = &CHARACTER_INFO[charType];
+    const PlantInfo *plantInfo = &PLANT_INFO[charType];
 
-    if (state->stats.money >= charInfo->cost) {
-        state->stats.money -= charInfo->cost;
+    if (state->stats.money >= plantInfo->cost) {
+        state->stats.money -= plantInfo->cost;
         state->stats.charactersBought++;
 
-        state->characterCooldowns[charType] = charInfo->cooldown;
+        state->characterCooldowns[charType] = plantInfo->cooldown;
 
         // Criação do personagem no grid.
-        Character *newChar = &state->entities.characters[row][col];
+        Plant *newChar = &state->entities.characters[row][col];
         newChar->exists = true;
         newChar->type = charType;
-        newChar->hp = charInfo->initialHp;
+        newChar->hp = plantInfo->initialHp;
         newChar->row = row;
         newChar->col = col;
 
         switch (charType) {
-            case CHAR_TYPE_TRALALERO:
-                newChar->specific.tralalero.projecX = GRID_MARGIN_X + (col * X_OFFSET) + 55;
-                newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * Y_OFFSET);
+            case PLANT_TYPE_PEASHOOTER:
+                newChar->specific.peashooter.projecX = GRID_MARGIN_X + (col * X_OFFSET) + 55;
+                newChar->specific.peashooter.projecY = GRID_MARGIN_Y + (row * Y_OFFSET);
                 break;
-            case CHAR_TYPE_SAHUR:
-                newChar->specific.sahur.cooldown = false;
+            case PLANT_TYPE_CHOMPER:
+                newChar->specific.chomper.cooldown = false;
                 newChar->currentFrame = 0;
-                newChar->specific.sahur.loop = 0;
+                newChar->specific.chomper.loop = 0;
                 break;
             default:
                 break;
         }
 
-        state->app.characterInHand = CHAR_TYPE_NONE;
+        state->app.plantInHand = PLANT_TYPE_NONE;
         state->soundToPlay = SOUND_PUT;
         state->shouldPlaySound = true;
     }
 }
 
 void HandleCharacterSelling(GameState *state, int row, int col) {
-    Character *character = &state->entities.characters[row][col];
+    Plant *character = &state->entities.characters[row][col];
 
     // Só vende se houver um personagem na tile.
     if (!character->exists) {
         return;
     }
 
-    CharacterType charType = character->type;
+    PlantType charType = character->type;
 
-    const CharacterInfo *charInfo = &CHARACTER_INFO[charType];
+    const PlantInfo *plantInfo = &PLANT_INFO[charType];
 
-    if (charType != CHAR_TYPE_BOMBARDINI) {
-        state->stats.money += (float)charInfo->cost * DEFAULT_REIMBURSEMENT_RATE;  // Reembolso padrão.
+    if (charType != PLANT_TYPE_TACTICAL_CUKE) {
+        state->stats.money += (float)plantInfo->cost * DEFAULT_REIMBURSEMENT_RATE;  // Reembolso padrão.
     } else {
-        state->stats.money += BOMBARDINI_REIMBURSEMENT;  // Reembolso do Bombardini, visto que ele é uma bomba que não faz nada até que pisem nele.
+        state->stats.money += TACTICAL_CUKE_REIMBURSEMENT;  // Reembolso do TacticalCuke, visto que ele é uma bomba que não faz nada até que pisem nele.
     }
 
     character->exists = false;
@@ -573,13 +573,13 @@ void HandleCharacterSelling(GameState *state, int row, int col) {
 }
 
 void HandleCharacterInteractions(GameState *state, int row, int col) {
-    Character *character = &state->entities.characters[row][col];
+    Plant *character = &state->entities.characters[row][col];
     if (!character->exists) return;
 
-    // Lógica específica para coletar dinheiro do Chimpanzini ao clicar.
-    if (character->type == CHAR_TYPE_CHIMPANZINI && character->specific.chimpanzini.shining) {
-        character->specific.chimpanzini.shining = false;
-        character->specific.chimpanzini.loop = 0;
+    // Lógica específica para coletar dinheiro do Sunflower ao clicar.
+    if (character->type == PLANT_TYPE_SUNFLOWER && character->specific.sunflower.shining) {
+        character->specific.sunflower.shining = false;
+        character->specific.sunflower.loop = 0;
         character->currentFrame = 0;
         state->stats.money += CHIMPAZINI_MONEY_AWARD;
         state->soundToPlay = SOUND_COLLECT;
@@ -723,12 +723,12 @@ void UpdateZombies(GameState *state, float deltaTime) {
         if (zombieGridCol < 0) zombieGridCol = 0;
         if (zombieGridCol >= COLUMNS) zombieGridCol = COLUMNS - 1;
 
-        Character *character = &state->entities.characters[zombie->row][zombieGridCol];
+        Plant *character = &state->entities.characters[zombie->row][zombieGridCol];
         bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * X_OFFSET) + 70));
 
         // Se há uma character na frente do zumbi, ele para para comer.
         if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {
-            if (!(character->type == CHAR_TYPE_BOMBARDINI && character->specific.bombardini.ready)) {
+            if (!(character->type == PLANT_TYPE_TACTICAL_CUKE && character->specific.tactical_cuke.ready)) {
                 zombie->state = ZOMBIE_EATING;
                 zombie->damageTimer = 0;
             }
@@ -787,7 +787,7 @@ void UpdateZombies(GameState *state, float deltaTime) {
 
 // UpdateCooldowns atualiza os cooldowns para todos os personagens do seletor.
 void UpdateCooldowns(GameState *state, float deltaTime) {
-    for (int i = CHAR_TYPE_CHIMPANZINI; i < CHAR_TYPE_COUNT; i++) {
+    for (int i = PLANT_TYPE_SUNFLOWER; i < PLANT_TYPE_COUNT; i++) {
         if (state->characterCooldowns[i] > 0) {
             state->characterCooldowns[i] -= deltaTime;
         } else {

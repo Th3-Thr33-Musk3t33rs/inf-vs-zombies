@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "character_data.h"
+#include "plant_data.h"
 #include "config.h"
 #include "raylib.h"
 #include "types.h"
@@ -12,10 +12,10 @@ typedef struct {
     int points;
 } PlayerLeaderboard;
 
-// Character é uma struct genérica dos personagens existentes.
+// Plant é uma struct genérica das plantas existentes.
 typedef struct {
     bool exists;
-    CharacterType type;
+    PlantType type;
     int hp;
     int row;
     int col;
@@ -26,24 +26,24 @@ typedef struct {
         struct {
             bool shining;
             int loop;
-        } chimpanzini;
+        } sunflower;
         struct {
             bool attacking;
             float projecX;
             float projecY;
             bool projecB;
             int loop;
-        } tralalero;
+        } peashooter;
         struct {
             bool ready;
             int loop;
-        } bombardini;
+        } tactical_cuke;
         struct {
             bool cooldown;
             int loop;
-        } sahur;
+        } chomper;
     } specific;
-} Character;
+} Plant;
 
 // ZombieState é um enum que contém os possíveis estados de um zumbi.
 typedef enum {
@@ -90,7 +90,7 @@ typedef struct {
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
-    CharacterType characterInHand;
+    PlantType plantInHand;
 } AppState;
 
 // HordeState é um enum com os possíveis estados de uma horda.
@@ -125,7 +125,7 @@ typedef struct {
 
 // EntityManager é uma estrutura para gerenciar as entidades do jogo (personagens, zumbis...).
 typedef struct {
-    Character characters[ROWS][COLUMNS];
+    Plant characters[ROWS][COLUMNS];
     Projectile projectiles[MAX_PROJECTILES_ON_SCREEN];
     Bomb bombs[MAX_PROJECTILES_ON_SCREEN];
     Zombie zombies[MAX_ZOMBIES_ON_SCREEN];
@@ -156,7 +156,7 @@ typedef struct {
     int insertions;
 
     int tiles[ROWS][COLUMNS];
-    float characterCooldowns[CHAR_TYPE_COUNT];
+    float characterCooldowns[PLANT_TYPE_COUNT];
 
     int soundToPlay;
     bool shouldPlaySound;
@@ -169,8 +169,8 @@ typedef struct {
     Texture2D statsFrame;
     Texture2D optionFrame;
     Texture2D frame;
-    Texture2D characterTextures[CHAR_TYPE_COUNT][8];  // [Tipo de personagem][frame].
-    Texture2D characterFrames[CHAR_TYPE_COUNT];
+    Texture2D characterTextures[PLANT_TYPE_COUNT][8];  // [Tipo de personagem][frame].
+    Texture2D characterFrames[PLANT_TYPE_COUNT];
     Texture2D moneyIcon;
     Texture2D projectile;
     Texture2D bomb;
@@ -186,7 +186,7 @@ typedef struct {
     Sound collectSFX;
     Sound projectileSFX;
     Sound explosionSFX;
-    Sound tungSFX;
+    Sound chomperSFX;
     Sound putSFX;
     Sound cancelSFX;
     Sound collectBagSFX;
