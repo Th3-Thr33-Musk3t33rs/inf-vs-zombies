@@ -45,7 +45,7 @@ extern const int FONT_SIZE;
 #define MAX_ZOMBIES_ON_SCREEN 50
 #define ZOMBIE_HP 100
 #define HORDE_SPAWN_TIMER 12.0f
-#define ZOMBIE_SPEED 450.0f
+#define ZOMBIE_SPEED 20.0f
 #define ZOMBIE_DAMAGE 15
 #define ZOMBIE_KILL_SCORE 100
 #define ZOMBIE_DMG_CD_SECONDS 1.0f
@@ -103,7 +103,7 @@ extern const int FONT_SIZE;
 #define REC_PROJ_WIDHT 20
 #define REC_PROJ_HEIGHT 20
 
-#define INITIAL_MONEY 1500
+#define INITIAL_MONEY 150
 #define DEFAULT_REIMBURSEMENT_RATE 0.5f
 
 // ReadHordesConfig lê o arquivo de configPath e retorna o array com a configuração de hordas e o número de hordas.
