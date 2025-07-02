@@ -8,7 +8,7 @@ SRCS := $(wildcard $(SRC_DIR)/*.c)
 # OBJS : Pega a lista de SRCS e substitui '.c' por '.o'.
 OBJS := $(SRCS:.c=.o)
 
-OUTPUT ?= a.out
+OUTPUT ?= inf-vs-zombies.out
 
 # Requisitos de frameworks para compilar na arquitetura Darwin do mac.
 ifeq ($(shell uname), Darwin)
@@ -32,7 +32,7 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 # Compila e roda o jogo e depois limpa os executáveis.
 run: all
 	./$(OUTPUT)
-	rm -f $(OUTPUT) $(OBJS)
+	rm -f $(OBJS)
 
 # Limpa os executáveis deixados pra trás caso existam.
 clean:
