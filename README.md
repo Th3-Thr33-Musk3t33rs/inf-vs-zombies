@@ -34,7 +34,7 @@ make run
   * Entram pelo lado direito da tela em hordas
   * Pontos de vida: 100
 * **Cenário:**
-  * Grid 7x9 (blocos de 78x96 pixels)
+  * Grid 7x9 (blocos de 96x78 pixels)
   * Cada zumbi morto vale 100 pontos
 
 ## Estrutura do Projeto

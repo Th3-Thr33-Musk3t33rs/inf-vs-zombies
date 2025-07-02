@@ -246,18 +246,18 @@ void RenderCharacterSelector(GameState *state, GameTextures *textures, Vector2 m
 
         // Renderiza quadro base.
         int frameIndex = f - 1;
-        Rectangle frameDest = ScaleRectTo720p(300 + (frameIndex * Y_OFFSET), 20, Y_OFFSET, X_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle frameDest = ScaleRectTo720p(300 + (frameIndex * TILE_HEIGHT), 20, TILE_HEIGHT, TILE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle frameSource = {0, 0, textures->frame.width, textures->frame.height};
         DrawTexturePro(textures->frame, frameSource, frameDest, defaultOrigin, 0.0f, WHITE);
 
         // Renderiza ícone do personagem.
-        Rectangle charFrameDest = ScaleRectTo720p(300 + (frameIndex * Y_OFFSET), 29, Y_OFFSET, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle charFrameDest = ScaleRectTo720p(300 + (frameIndex * TILE_HEIGHT), 29, TILE_HEIGHT, 82.75f, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Rectangle charFrameSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
         DrawTexturePro(textures->characterFrames[f], charFrameSource, charFrameDest, defaultOrigin, 0.0f, WHITE);
 
         // Renderiza o custo do personagem embaixo do quadro.
         sprintf(costText, "%d", charInfo->cost);
-        Vector2 costPos = ScaleTo720p(310 + (frameIndex * Y_OFFSET), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Vector2 costPos = ScaleTo720p(310 + (frameIndex * TILE_HEIGHT), 117, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         DrawText(costText, 12 + (int)costPos.x, (int)costPos.y, FONT_SIZE / 1.5, WHITE);
 
         if (state->stats.money < charInfo->cost || state->characterCooldowns[f] > 0) {
@@ -295,7 +295,7 @@ void RenderStatsPanel(PlayerStats *stats, GameTextures *textures) {
     Vector2 textPointsPos = ScaleTo720p(70, 645, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     // Renderiza o quadro de estatísticas, e os textos dentro dele.
-    Rectangle statsFrameDest = ScaleRectTo720p(0, GRID_MARGIN_Y, GRID_MARGIN_X - 10, ROWS * Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle statsFrameDest = ScaleRectTo720p(0, GRID_MARGIN_Y, GRID_MARGIN_X - 10, ROWS * TILE_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
     Rectangle statsSource = {0, 0, textures->statsFrame.width, textures->statsFrame.height};
     DrawTexturePro(textures->statsFrame, statsSource, statsFrameDest, Origin, 0.0f, WHITE);
 
@@ -329,9 +329,9 @@ void RenderGameGrid(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     for (int row = 0; row < ROWS; row++) {
         for (int col = 0; col < COLUMNS; col++) {
-            float generalPosX = GRID_MARGIN_X + (col * X_OFFSET);
-            float generalPosY = GRID_MARGIN_Y + (row * Y_OFFSET);
-            Rectangle tileDest = ScaleRectTo720p(generalPosX, generalPosY, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+            float generalPosX = GRID_MARGIN_X + (col * TILE_WIDTH);
+            float generalPosY = GRID_MARGIN_Y + (row * TILE_HEIGHT);
+            Rectangle tileDest = ScaleRectTo720p(generalPosX, generalPosY, TILE_WIDTH, TILE_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             Texture2D tileTexture = (col == TILE_TYPE_BUTTON) ? textures->buttonTile : textures->metallicTile;
             Rectangle tileSource = {0, 0, (float)tileTexture.width, (float)tileTexture.height};
             DrawTexturePro(tileTexture, tileSource, tileDest, defaultOrigin, 0.0f, WHITE);
@@ -410,7 +410,7 @@ void RenderMoneyBag(GameState *state, GameTextures *textures, Vector2 mouse) {
 
     // Usa a posição randomizada do GameState.
     Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y,
-                                             Y_OFFSET + sizeMod, X_OFFSET + sizeMod, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+                                             TILE_HEIGHT + sizeMod, TILE_WIDTH + sizeMod, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     DrawTexturePro(textures->moneyIcon, moneyBagSource, moneyBagDest, defaultOrigin, 0.0f, WHITE);
 
@@ -431,7 +431,7 @@ void RenderSelectedCharacterPreview(GameState *state, GameTextures *textures, Ve
         int offsetX = 10, offsetY = 10;
 
         Rectangle texMSource = {0, 0, textures->characterFrames[2].width, textures->characterFrames[2].height / 1.5f};
-        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, Y_OFFSET, X_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle texMDest = ScaleRectTo720p(virtualMouseX + offsetX, virtualMouseY + offsetY, TILE_HEIGHT, TILE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         Color Transparency = {255, 255, 255, 128};
 
         DrawTexturePro(textures->characterFrames[charInHand], texMSource, texMDest, Origin, 0.0f, Transparency);
@@ -543,20 +543,20 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
 
             int key = GetCharPressed();
             while (key > 0) {
-                if ((key > ' ') && (key <= 'z') && (state->insertions < 3)) {
-                    state->player.playerName[state->insertions] = toupper((unsigned char)key);
-                    state->player.playerName[state->insertions + 1] = '\0';
-                    state->insertions++;
+                if ((key > ' ') && (key <= 'z') && (state->insertedCharsOnLeaderboard < 3)) {
+                    state->player.playerName[state->insertedCharsOnLeaderboard] = toupper((unsigned char)key);
+                    state->player.playerName[state->insertedCharsOnLeaderboard + 1] = '\0';
+                    state->insertedCharsOnLeaderboard++;
                 }
                 key = GetCharPressed();
             }
 
-            if (IsKeyPressed(KEY_BACKSPACE) && state->insertions != 0) {
-                state->insertions--;
-                if (state->insertions < 0) {
-                    state->insertions = 0;
+            if (IsKeyPressed(KEY_BACKSPACE) && state->insertedCharsOnLeaderboard != 0) {
+                state->insertedCharsOnLeaderboard--;
+                if (state->insertedCharsOnLeaderboard < 0) {
+                    state->insertedCharsOnLeaderboard = 0;
                 }
-                state->player.playerName[state->insertions] = '\0';
+                state->player.playerName[state->insertedCharsOnLeaderboard] = '\0';
             }
 
             DrawText(state->player.playerName, (int)leaderboardTextPos.x, (int)leaderboardTextPos.y + (i * 60), FONT_SIZE, YELLOW);
@@ -599,7 +599,7 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         Vector2 backTextPos = {backButtonDest.x + (backButtonDest.width - backTextWidth) / 2, backButtonDest.y + 35};
         DrawText("Title Screen", (int)backTextPos.x, (int)backTextPos.y, FONT_SIZE, PURPLE);
 
-        if (state->insertions == 3) {
+        if (state->insertedCharsOnLeaderboard == 3) {
             DrawTexturePro(textures->optionFrame, optionSource, saveButtonDest, defaultOrigin, 0.0f, WHITE);
         } else {
             Color semiTransparentWHITE = ColorAlpha(WHITE, 0.5f);
@@ -608,7 +608,7 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
 
         DrawText("Save", (int)saveTextPos.x, (int)saveTextPos.y, FONT_SIZE, PURPLE);
 
-        if (CheckCollisionPointRec(mouse, saveGlowDest) && state->insertions == 3) {
+        if (CheckCollisionPointRec(mouse, saveGlowDest) && state->insertedCharsOnLeaderboard == 3) {
             DrawRectangleRec(saveGlowDest, ColorAlpha(PURPLE, 0.3f));
             SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
         } else {
@@ -621,50 +621,6 @@ void RenderLeaderboard(GameState *state, GameTextures *textures, Vector2 mouse) 
         SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
     } else {
         SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-    }
-}
-
-void RenderGameOverScreen(GameState *state, GameTextures *textures, Vector2 mouse) {
-    DrawTexture(textures->leaderboardback, 0, 0, WHITE);
-    int gameTitleTextWidth = MeasureText("GAME OVER", FONT_SIZE * 2);
-    Rectangle gameOverDest = ScaleRectTo720p(BUTTONS_X_GLOW, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH_GLOW, BUTTONS_HEIGHT_GLOW, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    DrawText("GAME OVER", gameOverDest.x + (gameOverDest.width - gameTitleTextWidth) / 2, BASE_HEIGHT_INT / 4, FONT_SIZE * 2, WHITE);
-    DrawText(TextFormat("You got %d points!", state->stats.currentPoints), gameOverDest.x + (gameOverDest.width - gameTitleTextWidth) / 2, BASE_HEIGHT_INT / 2, FONT_SIZE, WHITE);
-
-    Rectangle inputRect = {BUTTONS_X, BASE_HEIGHT_FLOAT / 1.5f, BUTTONS_WIDTH, BUTTONS_HEIGHT};
-    DrawRectangleRec(inputRect, LIGHTGRAY);
-    bool isInputSelected = CheckCollisionPointRec(mouse, inputRect);
-    bool writing = false;
-    if (isInputSelected) {
-        DrawRectangleLines((int)inputRect.x, (int)inputRect.y, (int)inputRect.width, (int)inputRect.height, RED);
-        writing = true;
-    }
-
-    if (writing) {
-        SetMouseCursor(MOUSE_CURSOR_IBEAM);
-        int key = GetCharPressed();
-        while (key > 0) {
-            if ((key >= ' ') && (key <= 'z') && (state->stats.nameLetterCount < MAX_INPUT_NAME)) {
-                state->stats.name[state->stats.nameLetterCount] = (char)key;
-                state->stats.name[state->stats.nameLetterCount + 1] = '\0';
-                state->stats.nameLetterCount++;
-            }
-            key = GetCharPressed();
-        }
-
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            state->stats.nameLetterCount--;
-            if (state->stats.nameLetterCount < 0) state->stats.nameLetterCount = 0;
-            state->stats.name[state->stats.nameLetterCount] = '\0';
-        }
-    } else
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-    if (writing) {
-        DrawText(state->stats.name, (int)inputRect.x + 5, (int)inputRect.y + 8, 40, MAROON);
-        if (state->stats.nameLetterCount >= MAX_INPUT_NAME) {
-            DrawText("Press BACKSPACE to delete chars...", (int)inputRect.x - 40, (int)inputRect.y - 32, 20, RED);
-        }
     }
 }
 

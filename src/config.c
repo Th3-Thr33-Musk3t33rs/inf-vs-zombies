@@ -15,12 +15,14 @@ int ReadHordesConfig(char *configPath, int hordes[MAX_HORDES], int maxHordes) {
         printf("Erro ao abrir arquivo %s", configPath);
         return -1;
     }
-
+    
+    // Retorna ponteiro pro inicio do arquivo.
     rewind(configFile);
     int read_val;
     int count = 0;
 
     while (count < maxHordes && fscanf(configFile, "%d", &read_val) == 1) {
+        // Quando não há mais números a serem lidos.
         if (read_val == 0) break;
         hordes[count] = read_val;
         count++;

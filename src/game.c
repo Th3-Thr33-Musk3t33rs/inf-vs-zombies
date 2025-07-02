@@ -15,11 +15,11 @@
 
 const Vector2 defaultOffset = {20, -10};
 const CharacterInfo CHARACTER_INFO[] = {
-    [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, 20, "chimpanzini", {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, {20, -10}},
-    [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, 50, "tralalero", {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
-    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, 50, "sahur", {0, 0, 180, 264}, {180 / 2.5f, 244 / 2.5f}, {20, -10}},
-    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, 300, "lirili", {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, {20, -10}},
-    [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, 10, "bombardini", {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
+    [CHAR_TYPE_CHIMPANZINI] = {CHAR_TYPE_CHIMPANZINI, CHIMPANZINI_COST, CHIMPANZINI_CD, CHIMPAZINI_INITIAL_HP, CHIMPAZINI_TEXTURE, {32, 72, 323, 543}, {323 / 5.0f, 543 / 5.0f}, defaultOffset},
+    [CHAR_TYPE_TRALALERO] = {CHAR_TYPE_TRALALERO, TRALALERO_COST, TRALALERO_CD, CHIMPAZINI_INITIAL_HP, TRALALERO_TEXTURE, {13, 57, 186, 144}, {186 / 2.0f, 144 / 2.0f}, {0, 0}},
+    [CHAR_TYPE_SAHUR] = {CHAR_TYPE_SAHUR, SAHUR_COST, SAHUR_CD, SAHUR_INITIAL_HP, SAHUR_TEXTURE, {0, 0, 180, 264}, {180 / 2.5f, 244 / 2.5f}, defaultOffset},
+    [CHAR_TYPE_LIRILI] = {CHAR_TYPE_LIRILI, LIRILI_COST, LIRILI_CD, LIRILI_INITIAL_HP, LIRILI_TEXTURE, {35, 19, 190, 225}, {190 / 2.5f, 225 / 2.5f}, defaultOffset},
+    [CHAR_TYPE_BOMBARDINI] = {CHAR_TYPE_BOMBARDINI, BOMBARDINI_COST, BOMBARDINI_CD, BOMBARDINI_INITIAL_HP, BOMBARDINI_TEXTURE, {200, 205, 620, 610}, {620 / 10.0f, 610 / 10.0f}, {18, 9}},
 };
 
 // InitGame inicializa o jogo.
@@ -35,11 +35,13 @@ void InitGame(GameState *state, GameTextures *textures, GameSounds *sounds) {
 // Inicializa o estado do jogo com valores padrão.
 void InitializeGameState(GameState *state, bool reset) {
     *state = (GameState){0};
-
-    if (!reset) {
-        state->app.onTitleScreen = true;
-    } else {
+ 
+    if (reset) {
+        // Quando reset = true, o jogo acabou, e deve ir para a leaderboad.
         state->app.onLeaderboard = true;
+    } else {
+        // Senão, é porque o jogo acabou de ser iniciado.
+        state->app.onTitleScreen = true;
     }
 
     state->stats.money = INITIAL_MONEY;
@@ -49,13 +51,12 @@ void InitializeGameState(GameState *state, bool reset) {
             if (c == TILE_TYPE_BUTTON) {
                 state->tiles[r][c] = TILE_TYPE_BUTTON;
             } else {
-                state->tiles[r][c] = TILE_TYPE_GRASS;
+                state->tiles[r][c] = TILE_TYPE_METALLIC;
             }
         }
     }
 
     state->moneyBag.shouldRandomizePos = true;
-
     state->horde.state = HORDE_STATE_BETWEEN_WAVES;
     state->horde.spawnTimer = TIME_BETWEEN_HORDES;
     state->horde.currentHorde = 0;
@@ -70,10 +71,12 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
             bool canAnimate = true;
 
+            // Se é um bombardini, e ele está pronto, para de animar.
             if (character->type == CHAR_TYPE_BOMBARDINI && character->specific.bombardini.ready) {
                 canAnimate = false;
             }
 
+            // Bonecos trocam de frame a cada 0.2s.
             if (canAnimate) {
                 character->animationCounter += deltaTime;
                 if (character->animationCounter > FRAME_CHANGE_RATE) {
@@ -81,32 +84,36 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                     character->animationCounter = 0;
                 }
             }
-
+            
             if (character->hp <= 0) {
                 character->exists = false;
-                state->tiles[row][col] = TILE_TYPE_GRASS;
+                state->tiles[row][col] = TILE_TYPE_METALLIC;
                 state->stats.charactersLost++;
                 continue;
             }
 
-            float generalPosX = GRID_MARGIN_X + (col * X_OFFSET);
-            float generalPosY = GRID_MARGIN_Y + (row * Y_OFFSET);
+            // Posição da tile atual na tela do jogo (px).
+            float generalPosX = GRID_MARGIN_X + (col * TILE_WIDTH);
+            float generalPosY = GRID_MARGIN_Y + (row * TILE_HEIGHT);
 
             switch (character->type) {
                 // Lógica de comportamento do Chimpanzini(gerassóis).
                 case CHAR_TYPE_CHIMPANZINI:
+                    // Frames de idle (0-3).
                     if (!character->specific.chimpanzini.shining) {
                         if (character->currentFrame > 3) {
                             character->currentFrame = 0;
                             character->specific.chimpanzini.loop++;
                         }
 
+                        // A cada 20 loops, começa a brilhar, disponibilizando dinheiro ao clicar.
                         if (character->specific.chimpanzini.loop >= CHIMPANZINI_LOOPS_GENERATE) {
                             character->specific.chimpanzini.shining = true;
                             character->currentFrame = 4;
                             character->specific.chimpanzini.loop = 0;
                         }
                     } else {
+                        // Frames enquanto brilha(4-7).
                         if (character->currentFrame > 7) {
                             character->currentFrame = 4;
                         }
@@ -129,13 +136,15 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                 break;
                             }
                         }
-
+                        
+                        // Dispara a cada 3 loops se há um zumbi na linha.
                         if (character->specific.tralalero.loop >= TRALALERO_PROJECTILE_CD && zombieDetectedInRow) {
                             character->specific.tralalero.attacking = true;
                             character->specific.tralalero.loop = 0;
                             character->currentFrame = 4;
                         }
                     } else {
+                        // Animação de ataque.
                         if (character->currentFrame > 7) {
                             character->specific.tralalero.attacking = false;
                             character->currentFrame = 0;
@@ -150,7 +159,6 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                     // (+80, +40) são para o projétil sair do meio da tile.
                                     state->entities.projectiles[i].position.x = generalPosX + 80;
                                     state->entities.projectiles[i].position.y = generalPosY + 40;
-
                                     break;
                                 }
                             }
@@ -160,7 +168,8 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
                 // Lógica de comportamento do Sahur(carnívora).
                 case CHAR_TYPE_SAHUR:
-                    if (character->currentFrame > 1 && character->currentFrame < 3) {
+                    // Pega os frames (0-1).
+                    if (character->currentFrame == 2) {
                         character->currentFrame = 0;
                     }
 
@@ -179,15 +188,17 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
                             float posX = generalPosX + charInfo->destOffset.x;
                             float posY = generalPosY + 20 + charInfo->destOffset.y;
-                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / X_OFFSET);
+                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / TILE_WIDTH);
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, REC_ZOMBIE_WIDTH, REC_ZOMBIE_HEIGHT};
                             Rectangle recSahur = ScaleRectTo720p(posX, posY, charInfo->destSize.x + 20, charInfo->destSize.y - REC_ZOMBIE_WIDTH, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
                             if (CheckCollisionRecs(recSahur, recZombie)) {
-                                if (character->currentFrame == 1 || character->currentFrame == 0) {
+                                // Se não estiver atacando(0, 1), ela vai para o primeiro frame de ataque (2).
+                                if (character->currentFrame < 2) {
                                     character->currentFrame = 2;
                                 }
 
+                                // Último frame de ataque.
                                 if (character->currentFrame == 4) {
                                     zombie->hp -= ZOMBIE_HP;
                                     state->soundToPlay = SOUND_TUNG;
@@ -205,7 +216,8 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             }
                         }
                     }
-
+                    
+                    // Depois de loops descansado, sai do cooldown.
                     if (character->specific.sahur.loop == SAHUR_LOOPS) {
                         character->specific.sahur.cooldown = false;
                         character->currentFrame = 1;
@@ -232,7 +244,8 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                             character->currentFrame = 0;
                             character->specific.bombardini.loop++;
                         }
-                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS && !character->specific.bombardini.ready) {  // Após 3 loops, fica "pronto".
+                        // Após X loops, fica "pronto".
+                        if (character->specific.bombardini.loop >= BOMBARDINI_LOOPS && !character->specific.bombardini.ready) {
                             character->specific.bombardini.ready = true;
                             character->currentFrame = 4;
                         }
@@ -245,7 +258,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
 
                             float posX = generalPosX + charInfo->destOffset.x;
                             float posY = generalPosY + charInfo->destOffset.y;
-                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / X_OFFSET);
+                            int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / TILE_WIDTH);
                             Rectangle recZombie = {zombie->position.x, zombie->position.y, REC_ZOMBIE_WIDTH, REC_ZOMBIE_HEIGHT};
                             Rectangle recBombardini = ScaleRectTo720p(posX, posY + 10, charInfo->destSize.x / 2.3, charInfo->destSize.y - 20, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
@@ -260,7 +273,7 @@ void UpdateCharacters(GameState *state, float deltaTime) {
                                         state->entities.bombs[i].explosionY = posY + 50;
 
                                         character->exists = false;
-                                        state->tiles[row][col] = TILE_TYPE_GRASS;
+                                        state->tiles[row][col] = TILE_TYPE_METALLIC;
                                     }
                                 }
                             }
@@ -454,10 +467,10 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     }
 
     // Lógica do seletor de personagens.
-    for (int f = 0; f < CHAR_TYPE_COUNT; f++) {
+    for (int f = CHAR_TYPE_CHIMPANZINI; f < CHAR_TYPE_COUNT; f++) {
         const CharacterInfo *info = &CHARACTER_INFO[f];
         int charIndex = f - 1;
-        Rectangle frameDest = ScaleRectTo720p(300 + (charIndex * Y_OFFSET), 20, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle frameDest = ScaleRectTo720p(300 + (charIndex * TILE_HEIGHT), 20, TILE_WIDTH, TILE_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         bool canPick = state->stats.money >= info->cost && state->characterCooldowns[f] <= 0;
         if (((CheckCollisionPointRec(mousePos, frameDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) || IsKeyPressed(KEY_ONE + (charIndex))) && canPick) {
             state->shouldPlaySound = true;
@@ -474,7 +487,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
 
     // Lógica de coleta da bolsa de dinheiro.
     if (state->moneyBag.isActive) {
-        Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y, X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+        Rectangle moneyBagDest = ScaleRectTo720p(state->moneyBag.position.x, state->moneyBag.position.y, TILE_WIDTH, TILE_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
         if (CheckCollisionPointRec(mousePos, moneyBagDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             state->shouldPlaySound = true;
             state->soundToPlay = SOUND_COLLECTBAG;
@@ -489,7 +502,7 @@ void ProcessGameInput(GameState *state, Vector2 mousePos, GameSounds *sounds) {
     for (int row = 0; row < ROWS; row++) {
         for (int col = 0; col < COLUMNS; col++) {
             if (state->tiles[row][col] == TILE_TYPE_BUTTON) continue;
-            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * X_OFFSET), GRID_MARGIN_Y + (row * Y_OFFSET), X_OFFSET, Y_OFFSET, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+            Rectangle tileDest = ScaleRectTo720p(GRID_MARGIN_X + (col * TILE_WIDTH), GRID_MARGIN_Y + (row * TILE_HEIGHT), TILE_WIDTH, TILE_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
             if (CheckCollisionPointRec(mousePos, tileDest) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 if (state->app.characterInHand == CHAR_TYPE_SELL_MODE) {
                     HandleCharacterSelling(state, row, col);
@@ -529,8 +542,8 @@ void HandleCharacterPlacement(GameState *state, int row, int col) {
 
         switch (charType) {
             case CHAR_TYPE_TRALALERO:
-                newChar->specific.tralalero.projecX = GRID_MARGIN_X + (col * X_OFFSET) + 55;
-                newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * Y_OFFSET);
+                newChar->specific.tralalero.projecX = GRID_MARGIN_X + (col * TILE_WIDTH) + 55;
+                newChar->specific.tralalero.projecY = GRID_MARGIN_Y + (row * TILE_HEIGHT);
                 break;
             case CHAR_TYPE_SAHUR:
                 newChar->specific.sahur.cooldown = false;
@@ -589,8 +602,8 @@ void HandleCharacterInteractions(GameState *state, int row, int col) {
 
 // Lógica dos botões do menu de pause.
 void HandlePauseMenu(GameState *state, Vector2 mousePos, GameSounds *sounds) {
-    Rectangle resumeGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 4) + BUTTONS_Y_OFFSET, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
-    Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 2) + BUTTONS_Y_OFFSET, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle resumeGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 4) + BUTTONS_TILE_HEIGHT, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
+    Rectangle exitGlowDest = ScaleRectTo720p(BUTTONS_X, (BASE_HEIGHT_INT / 2) + BUTTONS_TILE_HEIGHT, BUTTONS_WIDTH, BUTTONS_HEIGHT, BASE_WIDTH_INT, BASE_HEIGHT_INT);
 
     if (CheckCollisionPointRec(mousePos, resumeGlowDest)) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -622,7 +635,7 @@ void HandleLeaderboardMenu(GameState *state, Vector2 mousePos) {
         }
     }
 
-    if (state->app.isGameOver && CheckCollisionPointRec(mousePos, saveGlowDest) && state->insertions == 3) {
+    if (state->app.isGameOver && CheckCollisionPointRec(mousePos, saveGlowDest) && state->insertedCharsOnLeaderboard == 3) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             SaveLeaderboard(LEADERBOARD_FILE, state);
             state->app.onTitleScreen = true;
@@ -649,7 +662,7 @@ void SpawnZombie(GameState *state) {
         }
 
         zombie->position.x = BASE_WIDTH_INT;
-        zombie->position.y = GRID_MARGIN_Y + (Y_OFFSET * (zombie->row + (1 / 2.0f))) - (X_OFFSET / 2.0f);
+        zombie->position.y = GRID_MARGIN_Y + (TILE_HEIGHT * (zombie->row + (1 / 2.0f))) - (TILE_WIDTH / 2.0f);
 
         return;
     }
@@ -719,12 +732,12 @@ void UpdateZombies(GameState *state, float deltaTime) {
         if (!zombie->isActive) continue;
 
         // Calcula em qual coluna do grid a "boca" do zumbi está.
-        int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / X_OFFSET);
+        int zombieGridCol = (int)((zombie->position.x - GRID_MARGIN_X - 20) / TILE_WIDTH);
         if (zombieGridCol < 0) zombieGridCol = 0;
         if (zombieGridCol >= COLUMNS) zombieGridCol = COLUMNS - 1;
 
         Character *character = &state->entities.characters[zombie->row][zombieGridCol];
-        bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * X_OFFSET) + 70));
+        bool isCollidingWithCharacter = (character->exists && zombie->position.x < (GRID_MARGIN_X + (zombieGridCol * TILE_WIDTH) + 70));
 
         // Se há uma character na frente do zumbi, ele para para comer.
         if (zombie->state == ZOMBIE_WALKING && isCollidingWithCharacter) {

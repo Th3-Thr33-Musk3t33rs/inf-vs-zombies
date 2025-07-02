@@ -8,7 +8,7 @@
 
 // PlayerLeaderboard é uma estrutura com a leaderboard do jogo.
 typedef struct {
-    char playerName[4];
+    char playerName[MAX_INPUT_NAME + 1];
     int points;
 } PlayerLeaderboard;
 
@@ -21,7 +21,6 @@ typedef struct {
     int col;
     float animationCounter;
     int currentFrame;
-
     struct {
         struct {
             bool shining;
@@ -62,12 +61,11 @@ typedef struct {
     float eatSoundTimer;
     int currentFrame;
     ZombieState state;
-    bool golden;
+    bool golden;    // Todo zumbi tem uma chance de ser dourado.
 } Zombie;
 
 // PlayerStats é uma estrutura focada nas estatísticas do jogador.
 typedef struct {
-    char name[MAX_INPUT_NAME + 1];
     int nameLetterCount;
     int money;
     int currentPoints;
@@ -90,7 +88,7 @@ typedef struct {
     bool isMusicPaused;
     bool isGameOver;
     bool shouldQuit;
-    CharacterType characterInHand;
+    CharacterType characterInHand; // É o personagem atualmente selecionado da loja (ou modo de venda).
 } AppState;
 
 // HordeState é um enum com os possíveis estados de uma horda.
@@ -141,6 +139,22 @@ typedef struct {
     Vector2 position;
 } MoneyBag;
 
+// SoundsId é um enum de ids para os sons a serem tocados.
+typedef enum {
+    SOUND_PROJECTILE,
+    SOUND_EXPLOSION,
+    SOUND_TUNG,
+    SOUND_SELECT,
+    SOUND_COLLECT,
+    SOUND_COLLECTBAG,
+    SOUND_CANCEL,
+    SOUND_PUT,
+    SOUND_HIT,
+    SOUND_EAT,
+    SOUND_END_GAME,
+    SOUND_BGMUSIC,
+} SoundsId;
+
 // GameState é uma estrutura com  os estados do jogo e principais funções.
 typedef struct {
     PlayerStats stats;
@@ -153,12 +167,12 @@ typedef struct {
 
     int hordes[MAX_HORDES];
     int totalHordes;
-    int insertions;
+    int insertedCharsOnLeaderboard;
 
     int tiles[ROWS][COLUMNS];
     float characterCooldowns[CHAR_TYPE_COUNT];
 
-    int soundToPlay;
+    SoundsId soundToPlay;
     bool shouldPlaySound;
 } GameState;
 

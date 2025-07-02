@@ -4,19 +4,19 @@
 #define GAME_TITLE "Memes vs Zombies"
 
 #define BUTTONS_X 504
-#define BUTTONS_Y_OFFSET 24
+#define BUTTONS_TILE_HEIGHT 24
 #define BUTTONS_WIDTH 312
 #define BUTTONS_HEIGHT 73
 #define BUTTONS_X_GLOW 480
 #define BUTTONS_WIDTH_GLOW 360
 #define BUTTONS_HEIGHT_GLOW 121
-#define MAX_INPUT_NAME 13
+#define MAX_INPUT_NAME 3
 
 #define MAX_HORDES 10
 #define TIME_BETWEEN_HORDES 5.0f
 
 #define TILE_TYPE_BUTTON 0
-#define TILE_TYPE_GRASS 1
+#define TILE_TYPE_METALLIC 1
 
 #define GOLDEN_ZOMBIE_CHANCE 5
 
@@ -28,8 +28,8 @@
 #define BASE_HEIGHT_FLOAT 720.0f
 #define BASE_WIDTH_INT 1280
 #define BASE_HEIGHT_INT 720
-#define X_OFFSET 96
-#define Y_OFFSET 78
+#define TILE_WIDTH 96
+#define TILE_HEIGHT 78
 
 #define FRAME_CHANGE_RATE 0.2f
 
@@ -45,7 +45,7 @@ extern const int FONT_SIZE;
 #define MAX_ZOMBIES_ON_SCREEN 50
 #define ZOMBIE_HP 100
 #define HORDE_SPAWN_TIMER 12.0f
-#define ZOMBIE_SPEED 20.0f
+#define ZOMBIE_SPEED 450.0f
 #define ZOMBIE_DAMAGE 15
 #define ZOMBIE_KILL_SCORE 100
 #define ZOMBIE_DMG_CD_SECONDS 1.0f
@@ -56,7 +56,6 @@ extern const int FONT_SIZE;
 #define ZOMBIE_SPRITE_FRAME_WIDTH 340.0f
 #define ZOMBIE_SPRITE_FRAME_HEIGHT 550.0f
 
-#define CHIMPANZINI_ID 16
 #define CHIMPANZINI_FRAME_ID 0
 #define CHIMPANZINI_COST 50
 #define CHIMPANZINI_CD 7.5f
@@ -65,7 +64,6 @@ extern const int FONT_SIZE;
 #define CHIMPAZINI_TEXTURE "chimpanzini"
 #define CHIMPAZINI_MONEY_AWARD 50
 
-#define TRALALERO_ID 17
 #define TRALALERO_FRAME_ID 1
 #define TRALALERO_COST 100
 #define TRALALERO_CD 7.5f
@@ -75,22 +73,19 @@ extern const int FONT_SIZE;
 #define PROJECTILE_SPEED 400.0f
 #define PROJECTILE_DAMAGE 20
 
-#define SAHUR_ID 18
 #define SAHUR_FRAME_ID 2
 #define SAHUR_COST 150
-#define SAHUR_CD 7.5f
+#define SAHUR_CD 0.0f
 #define SAHUR_INITIAL_HP 50
 #define SAHUR_TEXTURE "sahur"
 #define SAHUR_LOOPS 30
 
-#define LIRILI_ID 19
 #define LIRILI_FRAME_ID 3
 #define LIRILI_COST 50
 #define LIRILI_CD 30
 #define LIRILI_TEXTURE "lirili"
 #define LIRILI_INITIAL_HP 300
 
-#define BOMBARDINI_ID 20
 #define BOMBARDINI_FRAME_ID 4
 #define BOMBARDINI_COST 25
 #define BOMBARDINI_CD 30
@@ -108,21 +103,8 @@ extern const int FONT_SIZE;
 #define REC_PROJ_WIDHT 20
 #define REC_PROJ_HEIGHT 20
 
-#define INITIAL_MONEY 150
+#define INITIAL_MONEY 1500
 #define DEFAULT_REIMBURSEMENT_RATE 0.5f
-
-#define SOUND_PROJECTILE 1
-#define SOUND_EXPLOSION 17
-#define SOUND_TUNG 18
-#define SOUND_SELECT 2
-#define SOUND_COLLECT 3
-#define SOUND_COLLECTBAG 4
-#define SOUND_CANCEL 5
-#define SOUND_PUT 6
-#define SOUND_HIT 7
-#define SOUND_EAT 8
-#define SOUND_END_GAME 9
-#define SOUND_BGMUSIC 98
 
 // ReadHordesConfig lê o arquivo de configPath e retorna o array com a configuração de hordas e o número de hordas.
 int ReadHordesConfig(char *configPath, int hordes[], int maxHordes);

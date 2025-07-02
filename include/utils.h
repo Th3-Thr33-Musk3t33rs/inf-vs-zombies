@@ -8,7 +8,7 @@
 #include "raylib.h"
 #include "types.h"
 
-// Função para manter o HUD igual independente da resolução.
+// Função para manter o HUD igual independente da resolução (para Textos).
 Vector2 ScaleTo720p(float x, float y, int screenWidth, int screenHeight);
 
 // Função para manter o HUD igual independente da resolução (para Retângulos).
